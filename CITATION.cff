@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite both the software and the paper."
+type: software
+title: "SAFE-Gate: Safety-first Abstention-enabled Formal triage Engine with parallel GATEs"
+version: 1.0.0
+date-released: 2026-01-24
+authors:
+  - family-names: Tritham
+    given-names: Chatchai
+    orcid: "https://orcid.org/0000-0001-7899-228X"
+    affiliation: "Naresuan University"
+  - family-names: Namahoot
+    given-names: "Chakkrit Snae"
+    orcid: "https://orcid.org/0000-0003-4660-4590"
+    email: chakkrits@nu.ac.th
+    affiliation: "Naresuan University"
+repository-code: "https://github.com/ChatchaiTritham/SAFE-Gate"
+url: "https://github.com/ChatchaiTritham/SAFE-Gate"
+license: MIT
+keywords:
+  - medical-ai
+  - clinical-triage
+  - formal-verification
+  - safety-critical-systems
+  - emergency-medicine
+  - abstention-mechanisms
+preferred-citation:
+  type: conference-paper
+  title: "SAFE-Gate: Safety-first Abstention-enabled Formal triage Engine with parallel GATEs for Medical AI Systems with Provable Safety Guarantees"
+  authors:
+    - family-names: Tritham
+      given-names: Chatchai
+    - family-names: Namahoot
+      given-names: "Chakkrit Snae"
+  year: 2026
+  collection-title: "2026 44th Annual International Conference of the IEEE Engineering in Medicine & Biology Society (EMBC)"
+  conference:
+    name: "IEEE EMBC 2026"
