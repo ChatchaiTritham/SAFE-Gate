@@ -18,12 +18,12 @@ class Gate3DataQuality:
 
     Implements explicit data completeness checking:
     - Completeness C = (# present critical fields) / (# required critical fields)
-    - C < 85% → R* (abstention)
-    - 85% ≤ C < 95% → downgrade confidence but permit classification
-    - C ≥ 95% → proceed normally
+    - C < 85% -> R* (abstention)
+    - 85% ≤ C < 95% -> downgrade confidence but permit classification
+    - C ≥ 95% -> proceed normally
 
     Theorem 5: Data Quality Gate
-    If >15% of critical fields missing → T_final = R*
+    If >15% of critical fields missing -> T_final = R*
     """
 
     def __init__(self):
@@ -55,8 +55,8 @@ class Gate3DataQuality:
         }
 
         self.completeness_thresholds = {
-            'abstention_threshold': 0.85,    # C < 0.85 → R*
-            'warning_threshold': 0.95        # C < 0.95 → reduce confidence
+            'abstention_threshold': 0.85,    # C < 0.85 -> R*
+            'warning_threshold': 0.95        # C < 0.95 -> reduce confidence
         }
 
     def evaluate(self, patient_data: Dict) -> Tuple[RiskTier, float, Dict]:
@@ -70,7 +70,7 @@ class Gate3DataQuality:
             Tuple of (risk_tier, confidence, reasoning)
 
         Implementation of Theorem 5:
-            completeness < 0.85 → R* (abstention)
+            completeness < 0.85 -> R* (abstention)
         """
         reasoning = {
             'gate': 'G3_Data_Quality',
@@ -98,7 +98,7 @@ class Gate3DataQuality:
 
         # Decision logic based on completeness thresholds
         if completeness < self.completeness_thresholds['abstention_threshold']:
-            # Insufficient data → R* (abstention)
+            # Insufficient data -> R* (abstention)
             tier = RiskTier.R_STAR
             confidence = 0.0
 
@@ -109,7 +109,7 @@ class Gate3DataQuality:
             reasoning['theorem'] = 'Theorem 5 (Data Quality Gate) triggered'
 
         elif completeness < self.completeness_thresholds['warning_threshold']:
-            # Marginal data quality → Proceed but with reduced confidence
+            # Marginal data quality -> Proceed but with reduced confidence
             tier = RiskTier.R3  # Conservative default
             confidence = 0.6    # Reduced confidence
 
@@ -120,7 +120,7 @@ class Gate3DataQuality:
             )
 
         else:
-            # Sufficient data quality → Proceed normally
+            # Sufficient data quality -> Proceed normally
             tier = RiskTier.R5  # No data quality concerns
             confidence = 1.0
 
@@ -143,7 +143,7 @@ class Gate3DataQuality:
         """
         Verify Theorem 5 (Data Quality Gate).
 
-        Theorem 5: If >15% of critical fields missing → T_final = R*
+        Theorem 5: If >15% of critical fields missing -> T_final = R*
 
         Returns:
             True if theorem conditions met (should output R*), False otherwise
