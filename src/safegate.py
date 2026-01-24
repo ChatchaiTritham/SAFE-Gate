@@ -15,7 +15,11 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from merging.risk_lattice import RiskTier
 from merging.conservative_merging import ConservativeMerging
 from gates.gate1_critical_flags import Gate1CriticalFlags
+from gates.gate2_moderate_risk import Gate2ModerateRisk
 from gates.gate3_data_quality import Gate3DataQuality
+from gates.gate4_titrate_logic import Gate4TiTrATELogic
+from gates.gate5_uncertainty import Gate5Uncertainty
+from gates.gate6_temporal_risk import Gate6TemporalRisk
 from utils.audit_trail import AuditTrailGenerator
 
 
@@ -41,14 +45,22 @@ class SAFEGate:
         """
         Initialize SAFE-Gate system with six parallel gates.
 
-        Note: Full implementation includes all 6 gates (G1-G6).
-        This version demonstrates the architecture with G1 and G3.
+        All 6 gates operational:
+        - G1: Critical Flags Detection (rule-based)
+        - G2: Moderate Risk Scoring (XGBoost-based weighted scoring)
+        - G3: Data Quality Assessment (completeness checking)
+        - G4: TiTrATE Clinical Logic (Timing, Triggers, Targeted Exam)
+        - G5: Uncertainty Quantification (Monte Carlo dropout)
+        - G6: Temporal Risk Analysis (symptom evolution)
         """
-        # Initialize parallel gates
+        # Initialize all six parallel gates
         self.gates = {
             'G1': Gate1CriticalFlags(),
+            'G2': Gate2ModerateRisk(),
             'G3': Gate3DataQuality(),
-            # TODO: Add remaining gates (G2, G4, G5, G6)
+            'G4': Gate4TiTrATELogic(),
+            'G5': Gate5Uncertainty(),
+            'G6': Gate6TemporalRisk()
         }
 
         # Initialize conservative merging
@@ -104,6 +116,7 @@ class SAFEGate:
         gate_confidences = {}
         gate_reasonings = {}
 
+        # Evaluate all six gates in parallel
         for gate_name, gate in self.gates.items():
             tier, confidence, reasoning = gate.evaluate(patient_data)
             gate_outputs[gate_name] = tier
@@ -113,19 +126,6 @@ class SAFEGate:
                 'confidence': confidence,
                 'reasoning': reasoning
             }
-
-        # For gates not yet implemented, use conservative default (R3)
-        # This ensures 6 gate outputs for merging algorithm
-        all_gate_names = ['G1', 'G2', 'G3', 'G4', 'G5', 'G6']
-        for gate_name in all_gate_names:
-            if gate_name not in gate_outputs:
-                gate_outputs[gate_name] = RiskTier.R3  # Conservative default
-                gate_confidences[gate_name] = 0.5       # Moderate confidence
-                gate_reasonings[gate_name] = {
-                    'tier': RiskTier.R3,
-                    'confidence': 0.5,
-                    'reasoning': {'note': 'Placeholder for unimplemented gate'}
-                }
 
         # Phase 2: Conservative Merging
         final_tier, enforcing_gate, merging_audit = self.merger.merge(

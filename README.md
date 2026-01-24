@@ -277,13 +277,16 @@ SAFE-Gate/
 
 ## Reproducibility
 
-All results from the IEEE EMBC 2026 paper can be reproduced using Jupyter notebooks:
+A quickstart Jupyter notebook demonstrates the complete SAFE-Gate workflow:
 
-1. **Data Generation:** `notebooks/01_data_generation.ipynb`
-2. **Gate Evaluation:** `notebooks/02_gate_evaluation.ipynb`
-3. **Baseline Comparison:** `notebooks/05_baseline_comparison.ipynb`
-4. **Theorem Verification:** `notebooks/04_theorem_verification.ipynb`
-5. **Figure Reproduction:** `notebooks/07_figures_reproduction.ipynb`
+- **Quickstart Demo:** `notebooks/00_quickstart.ipynb`
+  - Loading synthetic test data (804 cases)
+  - SAFE-Gate classification with audit trails
+  - Baseline method comparison (ESI, XGBoost, Ensemble, Confidence)
+  - Performance metrics calculation
+  - Batch processing demonstration
+
+This notebook reproduces the key results from the IEEE EMBC 2026 paper including the 95.3% sensitivity, 2.5% improvement over ensemble averaging, and zero theorem violations.
 
 ## Citation
 
