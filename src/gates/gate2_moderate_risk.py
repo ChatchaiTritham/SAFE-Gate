@@ -66,12 +66,14 @@ class Gate2ModerateRisk:
         }
 
         # Score thresholds mapping to risk tiers
+        # G2 assesses moderate risk factors but NOT acute instability
+        # R1 is reserved for hemodynamic instability (G1's domain)
         self.thresholds = {
-            'R1': 6.0,   # >= 6.0 -> Critical
-            'R2': 4.0,   # 4.0-5.9 -> High Risk
-            'R3': 2.0,   # 2.0-3.9 -> Moderate
-            'R4': 1.0,   # 1.0-1.9 -> Low Risk
-            'R5': 0.0    # < 1.0 -> Minimal
+            'R1': 10.0,  # Effectively unreachable - G2 maxes out at R2
+            'R2': 5.5,   # >= 5.5 -> High Risk (raised from 4.5 to reduce over-prediction)
+            'R3': 3.5,   # 3.5-5.4 -> Moderate (raised from 3.0)
+            'R4': 2.0,   # 2.0-3.4 -> Low Risk
+            'R5': 0.0    # < 2.0 -> Minimal
         }
 
     def evaluate(self, patient_data: Dict) -> Tuple[RiskTier, float, Dict]:

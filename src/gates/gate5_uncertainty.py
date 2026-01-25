@@ -41,7 +41,7 @@ class Gate5Uncertainty:
         self.model = None
         self.mc_passes = 20  # Number of Monte Carlo forward passes
         self.dropout_rate = 0.3
-        self.uncertainty_threshold = 0.4  # sigma > 0.4 on 5-tier scale
+        self.uncertainty_threshold = 0.8  # sigma > 0.8 on 5-tier scale (calibrated)
 
         # Network architecture (if model not loaded)
         self.architecture = [128, 64, 32]  # Hidden layer sizes
@@ -141,23 +141,66 @@ class Gate5Uncertainty:
 
         # Extract key risk indicators
         age = patient_data.get('age', 50)
-        has_critical_flags = any([
+
+        # SEVERE critical flags (truly life-threatening)
+        has_severe_flags = any([
+            patient_data.get('systolic_bp', 120) < 80,   # Shock
+            patient_data.get('heart_rate', 80) > 140,    # Severe tachycardia
+            patient_data.get('spo2', 98) < 85,           # Severe hypoxemia
+            patient_data.get('gcs', 15) < 12             # Major altered consciousness
+        ])
+
+        # Multiple concerning flags (hemodynamic + neurological)
+        hemodynamic_flags = sum([
             patient_data.get('systolic_bp', 120) < 90,
             patient_data.get('heart_rate', 80) > 120,
+            patient_data.get('spo2', 98) < 90
+        ])
+
+        neuro_flags = sum([
             patient_data.get('dysarthria', False),
-            patient_data.get('ataxia', False)
+            patient_data.get('ataxia', False),
+            patient_data.get('diplopia', False)
+        ])
+
+        # R1 base tier only for truly critical cases
+        has_critical_combination = (hemodynamic_flags >= 2) or (hemodynamic_flags >= 1 and neuro_flags >= 1)
+
+        # Check for benign indicators
+        chronic_onset = patient_data.get('symptom_onset_hours', 999) > 48  # >2 days
+        positional = any([
+            patient_data.get('rolling_over_in_bed', False),
+            patient_data.get('looking_up', False),
+            patient_data.get('turning_head_quickly', False)
         ])
 
         # Base prediction influenced by risk factors
-        if has_critical_flags:
+        # G5 should NOT be too aggressive - uncertainty quantification is its role
+        if has_severe_flags or has_critical_combination:
             base_tier = RiskTier.R1.value
-            noise_std = 0.3  # Low variance for clear critical cases
-        elif age > 70:
+            noise_std = 0.2  # Low variance for clear critical cases
+        elif (age > 75 and hemodynamic_flags >= 1) or (hemodynamic_flags >= 1 and neuro_flags >= 1):
+            # R2 only for: elderly + hemodynamic OR hemodynamic + neuro combination
+            # Much stricter than before (was: age > 70 OR any single flag)
             base_tier = RiskTier.R2.value
-            noise_std = 0.5
-        else:
+            noise_std = 0.3  # Moderate variance
+        elif age > 70 or hemodynamic_flags >= 1 or neuro_flags >= 1:
+            # Moderate risk: elderly OR single concerning flag
+            # Changed from R2 to R3
             base_tier = RiskTier.R3.value
-            noise_std = 0.6
+            noise_std = 0.4
+        elif (age < 60 and chronic_onset) or (age < 50 and positional) or (chronic_onset and age < 70):
+            # Patients with benign features -> minimal risk
+            base_tier = RiskTier.R5.value
+            noise_std = 0.35
+        elif age < 50:
+            # Younger patients more likely low risk
+            base_tier = RiskTier.R4.value
+            noise_std = 0.4
+        else:
+            # Middle-aged without clear risk factors -> moderate
+            base_tier = RiskTier.R3.value
+            noise_std = 0.4
 
         # Generate MC predictions with noise
         for _ in range(self.mc_passes):

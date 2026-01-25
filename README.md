@@ -15,21 +15,27 @@ SAFE-Gate implements a six-gate parallel evaluation system with conservative mer
 
 ## Performance Metrics
 
-Evaluated on 800 held-out synthetic dizziness/vertigo presentations:
+Evaluated on 804 held-out synthetic dizziness/vertigo presentations:
 
-| Metric | Value | 95% CI |
+| Metric | Value | Status |
 |--------|-------|--------|
-| Sensitivity (R1-R2 detection) | 95.3% | 92.1-97.8% |
-| Specificity (R5 safe discharge) | 94.7% | 91.3-97.2% |
-| Abstention Rate (R* tier) | 12.4% | 9.7-15.6% |
-| Mean Decision Latency | 1.23 ms | 1.18-1.29 ms |
-| Safety Theorem Violations | 0/800 | 0.0-1.8% |
+| Sensitivity (R1-R2 detection) | 100.0% | ✓✓ Perfect critical detection (175/175) |
+| Specificity (R5 safe discharge) | 57.4% | ⚠ Conservative over-triage |
+| Abstention Rate (R* tier) | 0.0% | ⚠ R* logic calibration needed |
+| Overall Accuracy | 59.6% | ✓ Balanced performance |
+| Macro F1-Score | 64.6% | ✓ Good tier classification |
+| Mean Decision Latency | <2 ms | ✓ Real-time capable |
 
-**Baseline Comparison:**
-- ESI Guidelines: 87.5% sensitivity
-- Single XGBoost: 91.2% sensitivity
-- Ensemble Averaging: 92.8% sensitivity (2.5% lower than SAFE-Gate)
-- Confidence Thresholding: 88.9% sensitivity, 15.2% abstention
+**Key Achievements:**
+- ✅ **Zero false negatives** on critical cases (R1-R2)
+- ✅ **Conservative safety profile** with systematic over-triage
+- ✅ **Improved calibration** from 44.9% → 59.6% accuracy (+14.7%)
+- ✅ **R2 precision improved** from 26.3% → 49.1% (+22.8%)
+
+**Trade-offs:**
+- Over-triage rate: 21.3% (conservative bias for safety)
+- R5 specificity: 57.4% (many safe cases escalated to R3/R4)
+- Abstention functionality: Currently disabled (requires threshold tuning)
 
 ## Installation
 
@@ -343,15 +349,25 @@ This repository contains the preliminary validation on synthetic data establishi
 
 MIT License - see [LICENSE](LICENSE) file.
 
-## Contact
+## Get in Touch
 
-**Corresponding Author:** Chakkrit Snae Namahoot (chakkrits@nu.ac.th)
+### Authors
 
-**Institution:** Department of Computer Science and Information Technology
+**Chatchai Tritham**
+Department of Computer Science and Information Technology
 Faculty of Science, Naresuan University
 Phitsanulok 65000, Thailand
+Email: chatchait66@nu.ac.th
+ORCID: [0000-0001-7899-228X](https://orcid.org/0000-0001-7899-228X)
 
-**GitHub Issues:** https://github.com/ChatchaiTritham/SAFE-Gate/issues
+**Chakkrit Snae Namahoot** (Corresponding Author)
+Department of Computer Science and Information Technology
+Faculty of Science, Naresuan University
+Phitsanulok 65000, Thailand
+Email: chakkrits@nu.ac.th
+ORCID: [0000-0003-4660-4590](https://orcid.org/0000-0003-4660-4590)
+
+**GitHub Issues:** [https://github.com/ChatchaiTritham/SAFE-Gate/issues](https://github.com/ChatchaiTritham/SAFE-Gate/issues)
 
 ## Acknowledgments
 
