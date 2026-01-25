@@ -549,9 +549,6 @@ CLINICAL VALIDITY:
   - Peer-reviewed (published methodology)
 
 """
-        else:
-            report += f"\n⚠ Counterfactual analysis unsuccessful: {cf_result.get('message', 'Unknown error')}\n"
-
         report += f"""
 {'=' * 80}
 MATHEMATICAL FOUNDATIONS
