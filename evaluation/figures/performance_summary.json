@@ -1,0 +1,99 @@
+{
+  "dataset_size": 1000,
+  "true_distribution": {
+    "R4": 346,
+    "R3": 258,
+    "R5": 256,
+    "R2": 90,
+    "R1": 50
+  },
+  "predicted_distribution": {
+    "R*": 1000
+  },
+  "overall_accuracy": NaN,
+  "critical_sensitivity": 1.0,
+  "false_negatives": 0,
+  "abstention_rate": 1.0,
+  "per_class_metrics": [
+    {
+      "Risk Tier": "R1",
+      "Precision": 0.0,
+      "Recall": 0.0,
+      "F1-Score": 0.0,
+      "Support": 0.0
+    },
+    {
+      "Risk Tier": "R2",
+      "Precision": 0.0,
+      "Recall": 0.0,
+      "F1-Score": 0.0,
+      "Support": 0.0
+    },
+    {
+      "Risk Tier": "R3",
+      "Precision": 0.0,
+      "Recall": 0.0,
+      "F1-Score": 0.0,
+      "Support": 0.0
+    },
+    {
+      "Risk Tier": "R4",
+      "Precision": 0.0,
+      "Recall": 0.0,
+      "F1-Score": 0.0,
+      "Support": 0.0
+    },
+    {
+      "Risk Tier": "R5",
+      "Precision": 0.0,
+      "Recall": 0.0,
+      "F1-Score": 0.0,
+      "Support": 0.0
+    }
+  ],
+  "classification_report": {
+    "R1": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "R2": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "R3": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "R4": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "R5": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "accuracy": 0.0,
+    "macro avg": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    },
+    "weighted avg": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1-score": 0.0,
+      "support": 0.0
+    }
+  }
+}
