@@ -193,9 +193,9 @@ class Gate6TemporalRisk:
         """
         base_tier_map = {
             'hyperacute': RiskTier.R1,
-            'acute': RiskTier.R2,
+            'acute': RiskTier.R3,  # Changed from R2 - acute timing alone doesn't mean high risk
             'subacute': RiskTier.R3,
-            'chronic': RiskTier.R4
+            'chronic': RiskTier.R5  # Chronic (>7 days) -> minimal risk by default
         }
 
         # Start with base tier from time category
@@ -205,21 +205,24 @@ class Gate6TemporalRisk:
         # Apply modifiers
         final_value = base_tier.value
 
-        # Neurological signs escalate risk (more conservative)
-        if has_neuro_signs and final_value > 1:
-            final_value -= 1  # Move toward R1 (more conservative)
+        # Neurological signs escalate risk BUT NOT TO R1
+        # R1 is reserved for hemodynamic instability (G1's domain)
+        # G6 assesses temporal patterns, not acute stability
+        if has_neuro_signs and final_value > 2:
+            final_value -= 1  # Move toward R2 (not R1)
             base_confidence += 0.1
 
         # Progression modifiers
         if progression_modifier < 0:  # Worsening
-            if final_value > 1:
+            if final_value > 2:  # Don't escalate beyond R2
                 final_value -= 1
         elif progression_modifier > 0:  # Improving
             if final_value < 5:
                 final_value += 1
 
-        # Ensure valid range
-        final_value = max(1, min(5, final_value))
+        # Ensure valid range - G6 should not output R1
+        # Temporal assessment can identify urgency but not critical instability
+        final_value = max(2, min(5, final_value))  # Changed from max(1,...) to max(2,...)
 
         final_tier = RiskTier(final_value)
         final_confidence = min(0.95, base_confidence)

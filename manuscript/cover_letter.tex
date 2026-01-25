@@ -1,0 +1,92 @@
+\documentclass[11pt]{letter}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\signature{Chatchai Tritham, Ph.D. Candidate\\
+Chakkrit Snae Namahoot, Ph.D.\\
+Department of Computer Science and Information Technology\\
+Faculty of Science, Naresuan University}
+
+\address{Department of Computer Science and Information Technology\\
+Faculty of Science\\
+Naresuan University\\
+Phitsanulok 65000, Thailand\\
+Email: chakkrits@nu.ac.th}
+
+\begin{document}
+
+\begin{letter}{Editor-in-Chief\\
+Expert Systems with Applications\\
+Elsevier}
+
+\opening{Dear Editor,}
+
+We are pleased to submit our manuscript titled \textbf{``SAFE-Gate: A Knowledge-Based Expert System for Emergency Triage Safety with Conservative Multi-Gate Architecture and Explainable Reasoning''} for consideration as a full-length research article in \textit{Expert Systems with Applications}.
+
+\textbf{Significance and Novelty}
+
+This work addresses a critical safety failure mode in ensemble-based expert systems: when multiple AI models are combined through standard averaging, a single model correctly detecting a dangerous case can be outvoted by others, causing the system to miss life-threatening conditions. We introduce conservative knowledge integration via lattice minimum selection—ensuring that any module signaling critical risk always propagates to the final output, eliminating the safety signal dilution problem inherent in ensemble averaging.
+
+Our SAFE-Gate system demonstrates this architecture for emergency triage of acute dizziness and vertigo, achieving 100\% sensitivity for critical cases while a standard ensemble approach catastrophically fails at 71.4\% sensitivity (missing 50 of 175 critical cases). The system provides formal safety guarantees through six mathematically proven properties and maintains explainability through detailed audit trails documenting decision rationale.
+
+\textbf{Relevance to Expert Systems with Applications}
+
+This manuscript aligns excellently with ESA's scope and recent editorial focus:
+
+\begin{itemize}
+\item \textbf{Expert Systems Architecture:} Novel multi-gate knowledge-based system combining rule-based, statistical, and Bayesian modules
+\item \textbf{Real-World Application:} Clinical decision support for safety-critical emergency triage
+\item \textbf{Explainable AI:} Transparent reasoning with audit trails supporting physician review
+\item \textbf{Formal Verification:} Mathematical proofs of safety properties with computational validation
+\item \textbf{Practical Impact:} Real-time performance (<2ms) enabling immediate clinical deployment
+\end{itemize}
+
+\textbf{Key Contributions}
+
+\begin{enumerate}
+\item Conservative merging architecture eliminating ensemble averaging failure mode
+\item Six-gate parallel expert system with heterogeneous knowledge representations
+\item Formal safety framework with six proven properties preventing critical case misses
+\item Synthetic data generation via counterfactual reasoning enabling controlled validation
+\item Empirical demonstration on 804 test cases achieving perfect critical sensitivity
+\end{enumerate}
+
+\textbf{Originality and Prior Publication}
+
+This manuscript represents original work that has not been published elsewhere and is not under consideration by any other journal. A preliminary 4-page conference abstract was presented at IEEE EMBC 2025 focusing solely on the cardiovascular risk gate (G2); this full manuscript presents the complete six-gate system architecture, formal safety proofs, comprehensive evaluation, and novel conservative merging framework not disclosed previously.
+
+The codebase and reproducibility protocols are publicly available at: \url{https://github.com/ChatchaiTritham/SAFE-Gate}
+
+\textbf{Target Audience and Impact}
+
+This work will interest ESA readers working on:
+\begin{itemize}
+\item Knowledge-based expert systems for safety-critical applications
+\item Ensemble methods and multi-model integration architectures
+\item Medical AI and clinical decision support systems
+\item Explainable AI and interpretable machine learning
+\item Formal verification of AI safety properties
+\end{itemize}
+
+We believe this manuscript makes important theoretical and practical contributions to expert systems research, introducing an architectural pattern applicable beyond medical triage to any safety-critical domain where false negatives are more harmful than false positives—including industrial process control, autonomous vehicle safety systems, financial fraud detection, and security threat assessment.
+
+\textbf{Suggested Reviewers}
+
+We respectfully suggest the following potential reviewers with relevant expertise:
+
+\begin{enumerate}
+\item \textbf{Dr. José M. Merigó Lindahl} (University of Technology Sydney) - Expert systems, decision making, fuzzy logic
+\item \textbf{Dr. Witold Pedrycz} (University of Alberta) - Knowledge-based systems, granular computing, medical informatics
+\item \textbf{Dr. Francisco Herrera} (University of Granada) - Ensemble methods, explainable AI, medical applications
+\item \textbf{Dr. Shyi-Ming Chen} (National Taiwan University of Science and Technology) - Expert systems, fuzzy reasoning, uncertainty handling
+\end{enumerate}
+
+We confirm that all authors have approved the manuscript submission and agree with its content. There are no conflicts of interest to declare.
+
+Thank you for considering our manuscript. We look forward to your response and are happy to provide any additional information required.
+
+\closing{Sincerely,}
+
+\end{letter}
+
+\end{document}
