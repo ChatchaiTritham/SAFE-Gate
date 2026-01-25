@@ -256,6 +256,117 @@ python experiments/feature_engineering.py
 
 ---
 
+## 🔍 Explainable AI (XAI) Methods
+
+SAFE-Gate v2.0 provides comprehensive explainability through **SHAP** (Game Theory-based) and **Counterfactual Explanations** (actionable insights).
+
+### Game Theory Foundation
+
+SHAP values are based on **Shapley values** from cooperative game theory:
+
+```
+φᵢ = Σ [|S|!(|N|-|S|-1)! / |N|!] × [v(S∪{i}) - v(S)]
+```
+
+**Clinical Interpretation:**
+- อาการสำคัญ (important symptoms) = ผู้เล่นที่มีค่า Shapley สูง (high contribution)
+- อาการไม่แน่นอน (uncertain symptoms) = ผู้เล่นที่มีค่า Shapley ต่ำ (low contribution)
+- Output = ผลรวมของ contribution จากทุกอาการ
+
+### Complete XAI Dashboard
+
+Generate all 12 comprehensive charts (8 SHAP + 4 Counterfactual):
+
+```bash
+# Install XAI dependencies
+pip install -r requirements_xai.txt
+
+# Run complete interpretability dashboard
+python experiments/interpretability_dashboard.py
+```
+
+**Generated Charts:**
+
+**SHAP Analysis (8 charts):**
+1. Global Feature Importance - Which symptoms matter most overall
+2. Summary Plot - Feature impact distribution across patients
+3. Waterfall Plot - Step-by-step explanation for single patient
+4. Force Plot - Visual forces pushing prediction up/down
+5. Decision Plot - Trace decision path for multiple patients
+6. Dependence Plot - How one feature affects predictions
+7. Interaction Heatmap - Which features work together (synergy)
+8. Beeswarm Plot - Enhanced summary with density visualization
+
+**Counterfactual Explanations (4 charts):**
+1. Comparison Chart - Original vs recommended changes
+2. Radar Chart - Multi-dimensional change visualization
+3. Change Magnitude - Prioritize interventions by impact
+4. What-If Scenarios - Explore "what if BMI drops to 25?"
+
+### Clinical Decision Support
+
+**For แพทย์ (Physicians):**
+- SHAP waterfall plots explain "WHY this prediction?"
+- Counterfactual recommendations answer "HOW to reduce risk?"
+- Clinical reports for documentation
+
+**For บุคลากรทางการแพทย์ (Medical Staff):**
+- Global importance shows population trends
+- Summary plots reveal risk factor patterns
+- Decision plots compare similar cases
+
+**For ผู้ป่วย (Patients):**
+- Force plots provide simple visual explanations
+- Counterfactual comparisons show actionable goals
+- What-if scenarios motivate lifestyle changes
+
+**For คนทั่วไป (General Public):**
+- Global importance charts explain "what matters"
+- Population insights show common patterns
+- Transparent, trustworthy AI methodology
+
+### Example: Complete Analysis
+
+```python
+from experiments.interpretability_dashboard import InterpretabilityDashboard
+
+# Initialize dashboard
+dashboard = InterpretabilityDashboard(
+    model=trained_model,
+    X_train=X_train,
+    y_train=y_train,
+    X_test=X_test,
+    y_test=y_test,
+    feature_names=feature_names,
+    actionable_features=['BMI', 'Exercise', 'Smoking', 'Diet_Score']
+)
+
+# Generate all 12 charts + clinical reports
+results = dashboard.generate_complete_dashboard(
+    sample_idx=0,
+    output_dir='experiments/charts'
+)
+
+# View combined clinical report
+print(results['clinical_reports']['combined'])
+```
+
+**Output:**
+- 12 high-resolution charts (300 DPI PNG + vector PDF)
+- Clinical reports (SHAP + Counterfactual + Combined)
+- Actionable recommendations for risk reduction
+
+### Regulatory Compliance
+
+Our XAI methods satisfy:
+- ✅ **FDA Requirements:** Transparent feature attribution, interpretable reports
+- ✅ **EMA/EU AI Act:** Explainability for high-risk AI systems
+- ✅ **Clinical Trust:** Game Theory foundation ensures fairness and consistency
+
+**See [XAI_METHODS.md](XAI_METHODS.md) for complete documentation, mathematical foundations, and clinical workflows.**
+
+---
+
 ## 🏗️ System Architecture
 
 ```
