@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Complete Interpretability Dashboard for SAFE-Gate
-Combines SHAP + Counterfactual Explanations for comprehensive XAI analysis
+Combines SHAP + Counterfactual + NMF for comprehensive XAI analysis
 
-Generates complete set of charts (8 SHAP + 4 Counterfactual = 12 total charts)
+Generates complete set of charts (8 SHAP + 4 Counterfactual + 6 NMF = 18 total charts)
 Perfect for clinical decision support and manuscript figures.
 """
 
@@ -17,6 +17,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
 from shap_explainability import SHAPExplainer
 from counterfactual_explanations import CounterfactualExplainer
+from nmf_interpretability import NMFInterpreter
 
 
 class InterpretabilityDashboard:
@@ -24,7 +25,7 @@ class InterpretabilityDashboard:
     Complete interpretability dashboard for SAFE-Gate.
 
     Provides:
-    1. SHAP Analysis (8 charts)
+    1. SHAP Analysis (8 charts) - "WHY?" Feature importance
        - Global importance
        - Summary plot
        - Waterfall plot
@@ -34,20 +35,29 @@ class InterpretabilityDashboard:
        - Interaction heatmap
        - Beeswarm plot
 
-    2. Counterfactual Analysis (4 charts)
+    2. Counterfactual Analysis (4 charts) - "HOW?" Actionable changes
        - Comparison chart
        - Radar chart
        - Change magnitude
        - What-if scenarios
 
-    3. Clinical Reports
+    3. NMF Analysis (6 charts) - "WHAT PATTERNS?" Clinical syndromes
+       - Components heatmap
+       - Component loadings
+       - Patient space
+       - Syndrome composition
+       - Patient profile
+       - Syndrome correlation
+
+    4. Clinical Reports
        - SHAP interpretation
        - Counterfactual recommendations
+       - NMF syndrome analysis
        - Combined insights
     """
 
     def __init__(self, model, X_train, y_train, X_test, y_test,
-                 feature_names=None, actionable_features=None):
+                 feature_names=None, actionable_features=None, n_syndromes=5):
         """
         Initialize dashboard.
 
@@ -59,6 +69,7 @@ class InterpretabilityDashboard:
             y_test: Test labels
             feature_names: Feature names
             actionable_features: Features that can be modified
+            n_syndromes: Number of clinical syndromes for NMF (default: 5)
         """
         self.model = model
         self.X_train = X_train
@@ -84,9 +95,16 @@ class InterpretabilityDashboard:
         )
         print("✓ Counterfactual Explainer ready")
 
+        # Initialize NMF interpreter
+        print("\nInitializing NMF Interpreter...")
+        self.nmf_interpreter = NMFInterpreter(n_components=n_syndromes)
+        self.nmf_interpreter.fit(X_train)
+        print("✓ NMF Interpreter ready")
+
         # Storage for results
         self.shap_importance = None
         self.cf_results = {}
+        self.nmf_results = {}
 
     def generate_all_shap_charts(self, output_dir='experiments/charts'):
         """
@@ -259,12 +277,75 @@ class InterpretabilityDashboard:
 
         return charts, cf_result
 
+    def generate_all_nmf_charts(self, output_dir='experiments/charts'):
+        """
+        Generate all 6 NMF charts.
+
+        Returns:
+            Dictionary with chart paths
+        """
+        print("\n" + "=" * 70)
+        print("GENERATING NMF CHARTS (6 total)")
+        print("=" * 70)
+
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+        charts = {}
+
+        # 1. Components heatmap
+        print("\n[1/6] Components Heatmap...")
+        self.nmf_interpreter.plot_components_heatmap(
+            save_path=f'{output_dir}/nmf_01_components_heatmap.png'
+        )
+        charts['components_heatmap'] = f'{output_dir}/nmf_01_components_heatmap.png'
+
+        # 2. Component loadings
+        print("[2/6] Component Loadings...")
+        self.nmf_interpreter.plot_component_loadings(
+            component_idx=0,
+            save_path=f'{output_dir}/nmf_02_component_loadings.png'
+        )
+        charts['component_loadings'] = f'{output_dir}/nmf_02_component_loadings.png'
+
+        # 3. Patient space
+        print("[3/6] Patient Space...")
+        self.nmf_interpreter.plot_patient_space(
+            y=self.y_test if hasattr(self, 'y_test') else None,
+            save_path=f'{output_dir}/nmf_03_patient_space.png'
+        )
+        charts['patient_space'] = f'{output_dir}/nmf_03_patient_space.png'
+
+        # 4. Syndrome composition
+        print("[4/6] Syndrome Composition...")
+        self.nmf_interpreter.plot_syndrome_composition(
+            save_path=f'{output_dir}/nmf_04_syndrome_composition.png'
+        )
+        charts['syndrome_composition'] = f'{output_dir}/nmf_04_syndrome_composition.png'
+
+        # 5. Patient profile
+        print("[5/6] Patient Profile...")
+        self.nmf_interpreter.plot_patient_profile(
+            patient_idx=0,
+            save_path=f'{output_dir}/nmf_05_patient_profile.png'
+        )
+        charts['patient_profile'] = f'{output_dir}/nmf_05_patient_profile.png'
+
+        # 6. Syndrome correlation
+        print("[6/6] Syndrome Correlation...")
+        self.nmf_interpreter.plot_syndrome_correlation(
+            save_path=f'{output_dir}/nmf_06_syndrome_correlation.png'
+        )
+        charts['syndrome_correlation'] = f'{output_dir}/nmf_06_syndrome_correlation.png'
+
+        print("\n✓ All NMF charts generated!")
+        return charts
+
     def generate_complete_dashboard(self, sample_idx=0, output_dir='experiments/charts'):
         """
-        Generate complete dashboard with all 12 charts + clinical reports.
+        Generate complete dashboard with all 18 charts + clinical reports.
 
         Args:
-            sample_idx: Patient index for counterfactual analysis
+            sample_idx: Patient index for counterfactual and NMF analysis
             output_dir: Output directory
 
         Returns:
@@ -273,14 +354,16 @@ class InterpretabilityDashboard:
         print("\n" + "=" * 80)
         print("COMPLETE INTERPRETABILITY DASHBOARD FOR SAFE-GATE")
         print("=" * 80)
-        print("\nGenerating 12 comprehensive charts:")
-        print("  - 8 SHAP charts (global + local explanations)")
-        print("  - 4 Counterfactual charts (actionable recommendations)")
+        print("\nGenerating 18 comprehensive charts:")
+        print("  - 8 SHAP charts (WHY? - Feature importance)")
+        print("  - 4 Counterfactual charts (HOW? - Actionable recommendations)")
+        print("  - 6 NMF charts (WHAT PATTERNS? - Clinical syndromes)")
         print("=" * 80)
 
         results = {
             'shap_charts': {},
             'cf_charts': {},
+            'nmf_charts': {},
             'clinical_reports': {}
         }
 
@@ -294,13 +377,16 @@ class InterpretabilityDashboard:
         results['cf_charts'] = cf_charts
         results['cf_result'] = cf_result
 
+        # Generate NMF charts
+        results['nmf_charts'] = self.generate_all_nmf_charts(output_dir)
+
         # Generate clinical reports
         print("\n" + "=" * 70)
         print("GENERATING CLINICAL REPORTS")
         print("=" * 70)
 
         # SHAP report
-        print("\n[1/2] SHAP Clinical Report...")
+        print("\n[1/3] SHAP Clinical Report...")
         y_pred = self.model.predict(self.X_test)
         shap_report = self.shap_explainer.generate_clinical_report(
             self.X_test,
@@ -311,12 +397,20 @@ class InterpretabilityDashboard:
 
         # Counterfactual report
         if cf_result['success']:
-            print("[2/2] Counterfactual Clinical Report...")
+            print("[2/3] Counterfactual Clinical Report...")
             results['clinical_reports']['counterfactual'] = cf_result['clinical_report']
+
+        # NMF report
+        print("[3/3] NMF Syndrome Analysis Report...")
+        nmf_report = self.nmf_interpreter.generate_clinical_report(
+            patient_idx=sample_idx,
+            y_pred=y_pred[sample_idx]
+        )
+        results['clinical_reports']['nmf'] = nmf_report
 
         # Combined summary
         results['clinical_reports']['combined'] = self._generate_combined_report(
-            sample_idx, shap_report, cf_result
+            sample_idx, shap_report, cf_result, nmf_report
         )
 
         # Save reports to file
@@ -329,7 +423,8 @@ class InterpretabilityDashboard:
         print("\n" + "=" * 80)
         print("DASHBOARD GENERATION COMPLETE!")
         print("=" * 80)
-        print(f"\nGenerated Files ({len(results['shap_charts']) + len(results['cf_charts'])} charts):")
+        total_charts = len(results['shap_charts']) + len(results['cf_charts']) + len(results['nmf_charts'])
+        print(f"\nGenerated Files ({total_charts} charts):")
         print("\nSHAP Charts:")
         for name, path in results['shap_charts'].items():
             print(f"  ✓ {name}: {path}")
@@ -338,13 +433,17 @@ class InterpretabilityDashboard:
         for name, path in results['cf_charts'].items():
             print(f"  ✓ {name}: {path}")
 
+        print("\nNMF Charts:")
+        for name, path in results['nmf_charts'].items():
+            print(f"  ✓ {name}: {path}")
+
         print(f"\nClinical Reports:")
         print(f"  ✓ Combined report: {report_path}")
 
         return results
 
-    def _generate_combined_report(self, sample_idx, shap_report, cf_result):
-        """Generate combined clinical report from SHAP + Counterfactual."""
+    def _generate_combined_report(self, sample_idx, shap_report, cf_result, nmf_report):
+        """Generate combined clinical report from SHAP + Counterfactual + NMF."""
 
         if isinstance(self.X_test, pd.DataFrame):
             x_patient = self.X_test.iloc[sample_idx]
@@ -376,54 +475,78 @@ SECTION 2: COUNTERFACTUAL EXPLANATION (How to improve?)
 
         if cf_result['success']:
             report += cf_result['clinical_report']
-            report += f"""
+
+        report += f"""
 
 {'=' * 80}
-SECTION 3: COMBINED CLINICAL RECOMMENDATIONS
+SECTION 3: NMF SYNDROME ANALYSIS (What patterns?)
+{'=' * 80}
+{nmf_report}
+
+{'=' * 80}
+SECTION 4: INTEGRATED CLINICAL RECOMMENDATIONS
 {'=' * 80}
 
-UNDERSTANDING THE CURRENT SITUATION (from SHAP):
-  The SHAP analysis (based on Game Theory) identifies which features are
-  most responsible for the current risk prediction. These represent the
-  "important players" in the patient's clinical profile.
+THREE-DIMENSIONAL UNDERSTANDING:
 
-ACTIONABLE INTERVENTIONS (from Counterfactual):
-  The counterfactual analysis shows the MINIMAL changes needed to reduce
-  risk tier from R{cf_result['original_prediction'] + 1} to R{cf_result['counterfactual_prediction'] + 1}.
+1. SHAP ANALYSIS - "WHY this prediction?"
+   The SHAP analysis (based on Game Theory) identifies which features are
+   most responsible for the current risk prediction. These represent the
+   "important players" in the patient's clinical profile.
+
+2. COUNTERFACTUAL ANALYSIS - "HOW to improve?"
+"""
+        if cf_result['success']:
+            report += f"""   The counterfactual analysis shows the MINIMAL changes needed to reduce
+   risk tier from R{cf_result['original_prediction'] + 1} to R{cf_result['counterfactual_prediction'] + 1}.
+"""
+        else:
+            report += """   Counterfactual not available for this patient.
+"""
+
+        report += f"""
+3. NMF ANALYSIS - "WHAT clinical patterns?"
+   The NMF decomposition reveals latent clinical syndromes that explain
+   this patient's presentation as a combination of disease patterns.
 
 RECOMMENDED CLINICAL WORKFLOW:
 
-  1. ASSESS (SHAP Insights):
-     - Review top 5 risk factors from SHAP analysis
-     - Identify which are modifiable vs non-modifiable
-     - Understand feature interactions (synergies)
+  1. ASSESS (Multi-method Insights):
+     - SHAP: Review top 5 risk factors and their contributions
+     - NMF: Understand which clinical syndromes dominate
+     - Identify modifiable vs non-modifiable factors
+     - Recognize feature interactions and syndrome co-occurrences
 
-  2. PLAN (Counterfactual Insights):
-     - Focus on top 3 recommended changes
+  2. PLAN (Evidence-based Interventions):
+     - Counterfactual: Focus on top 3 recommended changes
+     - NMF: Consider syndrome-based treatment approaches
      - Verify clinical feasibility for this patient
      - Set realistic goals based on change magnitude
 
-  3. INTERVENE:
-     - Prioritize changes with largest impact
+  3. INTERVENE (Targeted Actions):
+     - Prioritize changes with largest SHAP impact
+     - Address dominant NMF syndromes systematically
      - Create phased intervention plan
      - Consider patient preferences and constraints
 
-  4. MONITOR:
+  4. MONITOR (Track Progress):
      - Track changes in top SHAP features
+     - Monitor syndrome composition evolution
      - Re-evaluate risk tier periodically
      - Adjust interventions based on progress
 
 KEY TAKEAWAYS:
   ✓ SHAP explains "WHY" - which features drive current risk
   ✓ Counterfactual explains "HOW" - what changes reduce risk
-  ✓ Together: Complete picture for evidence-based intervention
+  ✓ NMF explains "WHAT PATTERNS" - which clinical syndromes present
+  ✓ Together: Complete 3D picture for evidence-based intervention
 
 CLINICAL VALIDITY:
-  Both SHAP and Counterfactual methods are:
-  - Mathematically rigorous (Game Theory foundation)
-  - Clinically interpretable (actionable insights)
+  All three XAI methods are:
+  - Mathematically rigorous (Game Theory, Optimization, Matrix Factorization)
+  - Clinically interpretable (actionable insights for physicians)
   - Regulatory compliant (FDA/EMA XAI requirements)
-  - Evidence-based (peer-reviewed methodology)
+  - Peer-reviewed (published methodology)
 
 """
         else:
@@ -431,26 +554,48 @@ CLINICAL VALIDITY:
 
         report += f"""
 {'=' * 80}
-GAME THEORY FOUNDATION
+MATHEMATICAL FOUNDATIONS
 {'=' * 80}
 
-SHAP values are based on Shapley values from cooperative game theory:
+1. SHAP (Game Theory - Shapley Values):
+   φᵢ = Σ [|S|!(|N|-|S|-1)! / |N|!] × [v(S∪{{i}}) - v(S)]
 
-Mathematical Definition:
-  φᵢ = Σ [|S|!(|N|-|S|-1)! / |N|!] × [v(S∪{{i}}) - v(S)]
+   Clinical Interpretation:
+   - Features (symptoms) = Players in a cooperative game
+   - Prediction = Coalition value (outcome)
+   - Shapley value = Fair contribution of each feature
+   - Important symptoms = High Shapley values
+   - Uncertain symptoms = Low Shapley values
 
-Clinical Interpretation:
-  - Features (symptoms) = Players in a cooperative game
-  - Prediction = Coalition value (outcome)
-  - Shapley value = Fair contribution of each feature
-  - Important symptoms = High Shapley values
-  - Uncertain symptoms = Low Shapley values
+2. Counterfactual (Constrained Optimization):
+   minimize: distance(x_original, x_cf)
+   subject to: model(x_cf) = desired_class
+               x_cf ∈ feasible_space
+               changes only to actionable features
+
+   Clinical Interpretation:
+   - Finds MINIMAL changes to improve outcome
+   - Only modifiable features (BMI, lifestyle, not Age)
+   - Clinically feasible ranges
+
+3. NMF (Matrix Factorization):
+   X ≈ W × H
+   where X = patient data (n × p)
+         W = patient-syndrome loadings (n × k)
+         H = syndrome-feature loadings (k × p)
+         non-negativity: W,H ≥ 0
+
+   Clinical Interpretation:
+   - Each patient = combination of clinical syndromes
+   - Each syndrome = pattern of co-occurring symptoms
+   - Non-negative = easy to interpret (no negative contributions)
 
 This ensures:
   ✓ Fairness: Each feature gets credit for its true contribution
   ✓ Consistency: Results are reproducible and stable
   ✓ Interpretability: Clear attribution of prediction to features
   ✓ Trust: Physicians can verify and understand AI reasoning
+  ✓ Complementarity: Three perspectives on same clinical problem
 
 {'=' * 80}
 END OF REPORT
