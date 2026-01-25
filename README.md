@@ -258,24 +258,50 @@ python experiments/feature_engineering.py
 
 ## 🔍 Explainable AI (XAI) Methods
 
-SAFE-Gate v2.0 provides comprehensive explainability through **SHAP** (Game Theory-based) and **Counterfactual Explanations** (actionable insights).
+SAFE-Gate v2.0 provides comprehensive explainability through **three complementary methods**:
 
-### Game Theory Foundation
+1. **SHAP** (Game Theory) - Explains "**WHY**" predictions are made
+2. **Counterfactual** (Optimization) - Explains "**HOW**" to improve outcomes
+3. **NMF** (Matrix Factorization) - Explains "**WHAT PATTERNS**" exist in clinical data
 
-SHAP values are based on **Shapley values** from cooperative game theory:
+### Three-Dimensional XAI Framework
 
+```
+SHAP              Counterfactual        NMF
+(WHY?)            (HOW?)                (WHAT PATTERNS?)
+
+Feature           Actionable            Clinical
+Importance        Changes               Syndromes
+
+"Which symptoms   "What changes         "What disease
+ drive risk?"     reduce risk?"         patterns exist?"
+```
+
+### Mathematical Foundations
+
+**1. SHAP (Game Theory - Shapley Values):**
 ```
 φᵢ = Σ [|S|!(|N|-|S|-1)! / |N|!] × [v(S∪{i}) - v(S)]
 ```
-
-**Clinical Interpretation:**
-- อาการสำคัญ (important symptoms) = ผู้เล่นที่มีค่า Shapley สูง (high contribution)
-- อาการไม่แน่นอน (uncertain symptoms) = ผู้เล่นที่มีค่า Shapley ต่ำ (low contribution)
+- อาการสำคัญ (important symptoms) = ผู้เล่นที่มีค่า Shapley สูง
+- อาการไม่แน่นอน (uncertain symptoms) = ผู้เล่นที่มีค่า Shapley ต่ำ
 - Output = ผลรวมของ contribution จากทุกอาการ
+
+**2. Counterfactual (Constrained Optimization):**
+```
+minimize: distance(x_original, x_counterfactual)
+subject to: model(x_cf) = desired_class
+```
+
+**3. NMF (Matrix Factorization):**
+```
+X ≈ W × H (non-negative)
+Patient = Σ (syndrome_weight × syndrome_pattern)
+```
 
 ### Complete XAI Dashboard
 
-Generate all 12 comprehensive charts (8 SHAP + 4 Counterfactual):
+Generate all 18 comprehensive charts (8 SHAP + 4 Counterfactual + 6 NMF):
 
 ```bash
 # Install XAI dependencies
@@ -302,6 +328,14 @@ python experiments/interpretability_dashboard.py
 2. Radar Chart - Multi-dimensional change visualization
 3. Change Magnitude - Prioritize interventions by impact
 4. What-If Scenarios - Explore "what if BMI drops to 25?"
+
+**NMF Pattern Discovery (6 charts):**
+1. Components Heatmap - Which symptoms define each syndrome
+2. Component Loadings - Top features for specific syndrome
+3. Patient Space - Visualize patients in syndrome space
+4. Syndrome Composition - Population-level syndrome prevalence
+5. Patient Profile - Individual syndrome composition radar chart
+6. Syndrome Correlation - Which syndromes co-occur
 
 ### Clinical Decision Support
 

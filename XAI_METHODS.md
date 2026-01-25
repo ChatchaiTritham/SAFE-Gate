@@ -2,12 +2,35 @@
 
 ## Overview
 
-SAFE-Gate v2.0 integrates comprehensive Explainable AI (XAI) methods to provide transparent, interpretable, and clinically actionable insights. Our XAI framework combines:
+SAFE-Gate v2.0 integrates comprehensive Explainable AI (XAI) methods to provide transparent, interpretable, and clinically actionable insights. Our XAI framework combines **three complementary methods**:
 
-1. **SHAP (SHapley Additive exPlanations)** - Explains "WHY" predictions are made
-2. **Counterfactual Explanations** - Explains "HOW" to change outcomes
+1. **SHAP (SHapley Additive exPlanations)** - Explains "**WHY**" predictions are made
+2. **Counterfactual Explanations** - Explains "**HOW**" to change outcomes
+3. **NMF (Non-negative Matrix Factorization)** - Explains "**WHAT PATTERNS**" exist in clinical presentations
 
-Both methods are grounded in rigorous mathematical frameworks and designed specifically for clinical decision support.
+All three methods are grounded in rigorous mathematical frameworks and designed specifically for clinical decision support.
+
+### The Three-Dimensional XAI Framework
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     SAFE-Gate XAI                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  SHAP              Counterfactual           NMF             │
+│  (WHY?)            (HOW?)                   (WHAT PATTERNS?)│
+│                                                             │
+│  Feature           Actionable               Clinical        │
+│  Importance        Changes                  Syndromes       │
+│                                                             │
+│  "Which symptoms   "What changes            "What disease   │
+│   drive risk?"     reduce risk?"            patterns exist?"│
+│                                                             │
+│  Game Theory       Optimization             Matrix          │
+│  Foundation        Foundation               Factorization   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -354,24 +377,191 @@ subject to:
 
 ---
 
-## 5. Clinical Decision Support Workflow
+## 5. NMF: Pattern Discovery
 
-### Step 1: ASSESS (SHAP Analysis)
-**Question:** "WHY is this patient at high risk?"
+### Concept
 
-**Actions:**
-1. Review SHAP global importance
-2. Examine patient-specific waterfall plot
-3. Identify top 5 risk factors
-4. Check for feature interactions
+**NMF (Non-negative Matrix Factorization)** discovers interpretable **clinical syndromes** (latent patterns) in patient data.
 
-**Output:**
-- Understanding of current risk drivers
-- Distinction between modifiable vs non-modifiable factors
+**Mathematical Formulation:**
+
+```
+X ≈ W × H
+
+where:
+- X = Patient data matrix (n_patients × n_features)
+- W = Patient-syndrome loadings (n_patients × n_syndromes)
+- H = Syndrome-feature loadings (n_syndromes × n_features)
+- Non-negativity constraint: W, H ≥ 0
+```
+
+**Clinical Interpretation:**
+
+```
+Patient A = 0.7 × Cardiovascular Syndrome
+          + 0.3 × Neurological Syndrome
+          + 0.1 × Metabolic Syndrome
+
+Each syndrome is defined by:
+Cardiovascular Syndrome:
+  - High Blood Pressure: 0.85
+  - Chest Pain: 0.72
+  - Heart Rate Abnormal: 0.68
+  - ...
+```
+
+**Key Advantages:**
+
+1. **Interpretability:** Non-negative values = easy to understand
+2. **Parts-based:** Each syndrome represents distinct clinical pattern
+3. **Sparse:** Patients typically have 2-3 dominant syndromes
+4. **Unsupervised:** Discovers patterns without labels
 
 ---
 
-### Step 2: PLAN (Counterfactual Analysis)
+## 6. NMF Visualizations (6 Charts)
+
+### 6.1 Components Heatmap
+**Purpose:** Show feature loadings for each syndrome
+
+**Interpretation:**
+- Rows = Clinical syndromes
+- Columns = Features (symptoms)
+- Color intensity = Feature importance in syndrome
+
+**Clinical Use:**
+- Understand what defines each syndrome
+- Identify co-occurring symptoms
+- Clinical pattern recognition
+
+**File:** `experiments/charts/nmf_01_components_heatmap.png`
+
+---
+
+### 6.2 Component Loadings
+**Purpose:** Bar chart of top features for specific syndrome
+
+**Interpretation:**
+- Shows which symptoms define this syndrome
+- Higher values = stronger association
+
+**Clinical Use:**
+- Syndrome characterization
+- Clinical validation
+- Literature comparison
+
+**File:** `experiments/charts/nmf_02_component_loadings.png`
+
+---
+
+### 6.3 Patient Space
+**Purpose:** 2D visualization of patients in syndrome space
+
+**Interpretation:**
+- Each point = one patient
+- Position = combination of first 2 syndromes
+- Color = risk tier (if provided)
+
+**Clinical Use:**
+- Identify patient clusters
+- Find similar cases
+- Understand population structure
+
+**File:** `experiments/charts/nmf_03_patient_space.png`
+
+---
+
+### 6.4 Syndrome Composition
+**Purpose:** Average syndrome prevalence across population
+
+**Interpretation:**
+- Height = average loading per syndrome
+- Error bars = standard deviation
+- Shows which syndromes are most common
+
+**Clinical Use:**
+- Population health insights
+- Resource planning
+- Epidemiological patterns
+
+**File:** `experiments/charts/nmf_04_syndrome_composition.png`
+
+---
+
+### 6.5 Patient Profile
+**Purpose:** Radar chart showing syndrome composition for individual patient
+
+**Interpretation:**
+- Blue area = This patient
+- Red line = Population average
+- Shows which syndromes dominate
+
+**Clinical Use:**
+- Personalized understanding
+- Patient communication
+- Treatment planning
+
+**File:** `experiments/charts/nmf_05_patient_profile.png`
+
+---
+
+### 6.6 Syndrome Correlation
+**Purpose:** Heatmap showing syndrome co-occurrence
+
+**Interpretation:**
+- High correlation = syndromes often co-occur
+- Shows comorbidity patterns
+
+**Clinical Use:**
+- Understand syndrome relationships
+- Predict complications
+- Holistic treatment planning
+
+**File:** `experiments/charts/nmf_06_syndrome_correlation.png`
+
+---
+
+## 7. Clinical Decision Support Workflow (Integrated)
+
+### Three-Dimensional Assessment
+
+The complete XAI framework provides three complementary perspectives:
+
+| Method | Question | Output | Use Case |
+|--------|----------|--------|----------|
+| **SHAP** | WHY this prediction? | Feature importance | Understand current risk |
+| **Counterfactual** | HOW to improve? | Actionable changes | Treatment planning |
+| **NMF** | WHAT patterns? | Clinical syndromes | Pattern recognition |
+
+---
+
+### Step 1: ASSESS (Multi-Method)
+**Questions:**
+- "WHY is this patient at high risk?" (SHAP)
+- "WHAT clinical patterns are present?" (NMF)
+
+**Actions:**
+1. **SHAP Analysis:**
+   - Review global importance
+   - Examine patient-specific waterfall plot
+   - Identify top 5 risk factors
+   - Check feature interactions
+
+2. **NMF Analysis:**
+   - Review patient syndrome profile
+   - Identify dominant syndromes
+   - Compare with population average
+   - Check syndrome co-occurrences
+
+**Output:**
+- Understanding of current risk drivers (SHAP)
+- Clinical syndrome composition (NMF)
+- Distinction between modifiable vs non-modifiable factors
+- Pattern-based understanding of presentation
+
+---
+
+### Step 2: PLAN (Evidence-Based)
 **Question:** "HOW can we reduce this patient's risk?"
 
 **Actions:**
