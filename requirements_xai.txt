@@ -1,5 +1,5 @@
 # XAI Methods Requirements for SAFE-Gate
-# Explainable AI: SHAP + Counterfactual Explanations
+# Explainable AI: SHAP + Counterfactual Explanations + NMF Interpretability
 
 # Core XAI
 shap>=0.41.0                    # SHAP (Game Theory-based explanations)
