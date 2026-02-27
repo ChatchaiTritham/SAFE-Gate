@@ -1,8 +1,16 @@
 """
 Gate 3: Data Quality Assessment
 
-Evaluates whether available data suffices for reliable classification.
-Implements Theorem 5 (Data Quality Gate): Missing critical data forces R* abstention.
+Monitors whether the clinical record contains sufficient information to
+support automated triage. A completeness ratio is calculated across 22
+essential clinical fields (Equation 4 in paper).
+
+Output mapping:
+  rho < 0.70 --> R* (abstain)
+  0.70 <= rho < 0.85 --> escalate 1 tier
+  rho >= 0.85 --> R5
+
+Confidence: c3 = rho_comp(x)
 """
 
 from typing import Dict, Tuple, List
@@ -14,148 +22,99 @@ from merging.risk_lattice import RiskTier
 
 class Gate3DataQuality:
     """
-    Gate 3: Data Quality Assessment
+    Gate 3: Data Quality Assessment (22 essential fields).
 
-    Implements explicit data completeness checking:
-    - Completeness C = (# present critical fields) / (# required critical fields)
-    - C < 85% -> R* (abstention)
-    - 85% ≤ C < 95% -> downgrade confidence but permit classification
-    - C ≥ 95% -> proceed normally
+    Equation 4:
+      rho_comp(x) = |{f in F_ess : f(x) != missing}| / |F_ess|
 
-    Theorem 5: Data Quality Gate
-    If >15% of critical fields missing -> T_final = R*
+    Tier mapping:
+      rho < 0.70        --> R* (abstain: insufficient data)
+      0.70 <= rho < 0.85 --> escalate 1 tier from baseline
+      rho >= 0.85        --> R5 (data quality satisfactory)
+
+    Confidence: c3 = rho_comp(x)
     """
 
     def __init__(self):
-        """Initialize critical feature requirements."""
-        # Critical features required for safe classification
-        self.critical_fields = {
-            # Vital signs
-            'systolic_bp',
-            'heart_rate',
-            'spo2',
-            'temperature',
+        """Initialize the 22 essential clinical fields."""
+        self.essential_fields = [
+            # Vital signs (6)
+            'systolic_bp', 'diastolic_bp', 'heart_rate',
+            'spo2', 'temperature', 'gcs',
+            # Demographics (2)
+            'age', 'gender',
+            # Symptom characteristics (5)
+            'symptom_onset_hours', 'symptom_duration_days',
+            'vertigo_severity', 'sudden_onset', 'progression_pattern',
+            # HINTS protocol (3)
+            'hints_head_impulse', 'hints_nystagmus', 'hints_test_of_skew',
+            # Cardiovascular history (4)
+            'hypertension', 'atrial_fibrillation', 'diabetes', 'prior_stroke',
+            # Neurological exam (2)
+            'dysarthria', 'ataxia',
+        ]
+        assert len(self.essential_fields) == 22, \
+            f"Expected 22 essential fields, got {len(self.essential_fields)}"
 
-            # Neurological examination
-            'gcs',
-            'hints_head_impulse',
-            'hints_nystagmus',
-            'hints_test_of_skew',
-
-            # Symptom characteristics
-            'symptom_onset_hours',
-            'vertigo_severity',
-            'symptom_duration_days',
-
-            # Clinical history
-            'age',
-            'hypertension',
-            'atrial_fibrillation',
-            'diabetes'
-        }
-
-        self.completeness_thresholds = {
-            'abstention_threshold': 0.85,    # C < 0.85 -> R*
-            'warning_threshold': 0.95        # C < 0.95 -> reduce confidence
-        }
+        # Thresholds from Equation 4
+        self.abstention_threshold = 0.70
+        self.escalation_threshold = 0.85
 
     def evaluate(self, patient_data: Dict) -> Tuple[RiskTier, float, Dict]:
         """
-        Evaluate data quality and completeness.
-
-        Args:
-            patient_data: Dictionary containing patient features
+        Evaluate data completeness across 22 essential fields.
 
         Returns:
-            Tuple of (risk_tier, confidence, reasoning)
-
-        Implementation of Theorem 5:
-            completeness < 0.85 -> R* (abstention)
+            (tier, confidence, reasoning)
+            - confidence = rho_comp(x)
         """
         reasoning = {
             'gate': 'G3_Data_Quality',
             'mechanism': 'completeness_checking',
-            'critical_fields_required': len(self.critical_fields),
+            'essential_fields_total': len(self.essential_fields),
             'missing_fields': []
         }
 
-        # Check which critical fields are present
-        present_fields = 0
-        missing_fields = []
-
-        for field in self.critical_fields:
+        present = 0
+        missing = []
+        for field in self.essential_fields:
             if field in patient_data and patient_data[field] is not None:
-                present_fields += 1
+                present += 1
             else:
-                missing_fields.append(field)
+                missing.append(field)
 
-        # Calculate completeness
-        completeness = present_fields / len(self.critical_fields)
+        rho = present / len(self.essential_fields)
+        reasoning['present_fields'] = present
+        reasoning['missing_fields'] = missing
+        reasoning['completeness'] = round(rho, 3)
 
-        reasoning['present_fields'] = present_fields
-        reasoning['missing_fields'] = missing_fields
-        reasoning['completeness'] = round(completeness, 3)
-
-        # Decision logic based on completeness thresholds
-        if completeness < self.completeness_thresholds['abstention_threshold']:
-            # Insufficient data -> R* (abstention)
+        # Tier mapping (Equation 4)
+        if rho < self.abstention_threshold:
             tier = RiskTier.R_STAR
-            confidence = 0.0
-
             reasoning['decision'] = (
-                f'Insufficient data quality: completeness {completeness:.1%} '
-                f'< threshold {self.completeness_thresholds["abstention_threshold"]:.0%}'
+                f'Abstention: completeness {rho:.1%} < {self.abstention_threshold:.0%} '
+                f'({len(missing)} of 22 fields missing)'
             )
-            reasoning['theorem'] = 'Theorem 5 (Data Quality Gate) triggered'
-
-        elif completeness < self.completeness_thresholds['warning_threshold']:
-            # Marginal data quality -> Proceed but with reduced confidence
-            tier = RiskTier.R3  # Conservative default
-            confidence = 0.6    # Reduced confidence
-
+        elif rho < self.escalation_threshold:
+            # Escalate 1 tier from R5 baseline → R4
+            tier = RiskTier.R4
             reasoning['decision'] = (
-                f'Marginal data quality: completeness {completeness:.1%} '
-                f'in warning range [{self.completeness_thresholds["abstention_threshold"]:.0%}, '
-                f'{self.completeness_thresholds["warning_threshold"]:.0%})'
+                f'Marginal completeness: {rho:.1%} in range '
+                f'[{self.abstention_threshold:.0%}, {self.escalation_threshold:.0%}). '
+                f'Escalating 1 tier. ({len(missing)} of 22 fields missing)'
             )
-
         else:
-            # Sufficient data quality -> Proceed normally
-            tier = RiskTier.R5  # No data quality concerns
-            confidence = 1.0
-
+            tier = RiskTier.R5
             reasoning['decision'] = (
-                f'Sufficient data quality: completeness {completeness:.1%} '
-                f'≥ threshold {self.completeness_thresholds["warning_threshold"]:.0%}'
+                f'Data quality satisfactory: completeness {rho:.1%} >= '
+                f'{self.escalation_threshold:.0%}'
             )
 
+        confidence = rho  # c3 = rho_comp(x)
         return tier, confidence, reasoning
 
     def get_name(self) -> str:
-        """Return gate identifier."""
         return "G3"
 
     def get_description(self) -> str:
-        """Return gate description."""
-        return "Data Quality Assessment (Completeness Checking)"
-
-    def check_theorem5(self, patient_data: Dict) -> bool:
-        """
-        Verify Theorem 5 (Data Quality Gate).
-
-        Theorem 5: If >15% of critical fields missing -> T_final = R*
-
-        Returns:
-            True if theorem conditions met (should output R*), False otherwise
-        """
-        tier, _, _ = self.evaluate(patient_data)
-        present_count = sum(
-            1 for field in self.critical_fields
-            if field in patient_data and patient_data[field] is not None
-        )
-        completeness = present_count / len(self.critical_fields)
-
-        # Theorem 5: completeness < 0.85 (i.e., >15% missing) should yield R*
-        if completeness < 0.85:
-            return tier == RiskTier.R_STAR
-        return True  # Theorem doesn't apply
+        return "Data Quality Assessment (Completeness, 22 essential fields)"
