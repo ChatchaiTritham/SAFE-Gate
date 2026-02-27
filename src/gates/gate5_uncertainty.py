@@ -1,12 +1,24 @@
 """
-Gate 5: Uncertainty Quantification
+Gate 5: Epistemic Uncertainty Quantification (Bayesian)
 
-Employs Monte Carlo dropout to estimate epistemic uncertainty in machine learning
-predictions. Triggers R* abstention when prediction variance exceeds threshold.
+Bayesian neural network trained with Monte Carlo dropout (Gal & Ghahramani 2016).
+Architecture: 52 -> 128 -> 64 -> 5 with dropout rate 0.3, evaluated through
+T=20 stochastic forward passes at inference time.
+
+Composite uncertainty index (Equation 5 in paper):
+  mu(x) = 0.5 * H(x)/log(5) + 0.5 * sigma(x)/sigma_max
+
+Tier mapping:
+  mu >= 0.80         --> R* (abstention)
+  0.60 <= mu < 0.80  --> escalate 2 tiers from NN prediction
+  0.30 <= mu < 0.60  --> escalate 1 tier from NN prediction
+  mu < 0.30          --> NN prediction (use model output)
+
+Confidence: c5 = 1 - mu(x)
 """
 
-from typing import Dict, Tuple, Optional
 import numpy as np
+from typing import Dict, Tuple, Optional, List
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -15,37 +27,37 @@ from merging.risk_lattice import RiskTier
 
 class Gate5Uncertainty:
     """
-    Gate 5: Uncertainty Quantification
+    Gate 5: Epistemic Uncertainty Quantification (Bayesian).
 
-    Implements Monte Carlo dropout for epistemic uncertainty estimation:
-    - Network architecture: 3 layers (128-64-32 units)
-    - Dropout rate: 0.3
-    - MC forward passes: 20
-    - Variance threshold: sigma > 0.4 triggers R* abstention
+    Implements Equation 5 from the article:
+      mu(x) = 0.5 * H(x)/log(5) + 0.5 * sigma(x)/sigma_max
 
-    Addresses fundamental limitation of point predictions:
-    Traditional classifiers output single answers without confidence bounds,
-    while G5 quantifies prediction uncertainty.
-
-    Implementation of Theorem 3 (Abstention Correctness):
-    max_i u_i > τ -> T_final = R*
+    Architecture: 52 -> 128 -> 64 -> 5
+    Dropout rate: 0.3
+    MC forward passes: T = 20
     """
+
+    # Network architecture (article specification)
+    INPUT_DIM = 52
+    HIDDEN_LAYERS = [128, 64]
+    OUTPUT_DIM = 5    # 5 tiers
+    DROPOUT_RATE = 0.3
+    MC_PASSES = 20    # T = 20
+
+    # Uncertainty thresholds (Equation 5)
+    ABSTENTION_THRESHOLD = 0.80    # mu >= 0.80 -> R*
+    ESCALATE_2_THRESHOLD = 0.60    # 0.60 <= mu < 0.80 -> escalate 2
+    ESCALATE_1_THRESHOLD = 0.30    # 0.30 <= mu < 0.60 -> escalate 1
+    # mu < 0.30 -> NN prediction
 
     def __init__(self, model_path: Optional[str] = None):
         """
-        Initialize uncertainty quantification gate.
+        Initialise uncertainty quantification gate.
 
         Args:
-            model_path: Path to trained neural network (.h5 file)
+            model_path: Path to trained BNN (.h5 file)
         """
         self.model = None
-        self.mc_passes = 20  # Number of Monte Carlo forward passes
-        self.dropout_rate = 0.3
-        self.uncertainty_threshold = 0.8  # sigma > 0.8 on 5-tier scale (calibrated)
-
-        # Network architecture (if model not loaded)
-        self.architecture = [128, 64, 32]  # Hidden layer sizes
-
         if model_path:
             self.load_model(model_path)
 
@@ -53,248 +65,216 @@ class Gate5Uncertainty:
         """
         Evaluate uncertainty through Monte Carlo dropout.
 
-        Args:
-            patient_data: Dictionary containing patient features
+        Algorithm:
+            1. Perform T=20 forward passes with dropout enabled
+            2. Collect distribution of tier predictions
+            3. Compute composite uncertainty mu(x) = 0.5*H/log5 + 0.5*sigma/sigma_max
+            4. Apply tier mapping per Equation 5
+            5. Confidence = c5 = 1 - mu(x)
 
         Returns:
-            Tuple of (risk_tier, confidence, reasoning)
-
-        Algorithm:
-            1. Perform 20 forward passes with dropout enabled
-            2. Collect distribution of risk tier predictions
-            3. Calculate prediction variance (sigma)
-            4. If sigma > threshold -> R* (abstention)
-            5. Otherwise -> most common prediction with confidence (1 - sigma/5)
+            (tier, confidence, reasoning)
         """
         reasoning = {
             'gate': 'G5_Uncertainty',
             'mechanism': 'monte_carlo_dropout',
-            'mc_passes': self.mc_passes,
-            'dropout_rate': self.dropout_rate
+            'architecture': f'{self.INPUT_DIM}->{"-".join(map(str, self.HIDDEN_LAYERS))}->{self.OUTPUT_DIM}',
+            'mc_passes': self.MC_PASSES,
+            'dropout_rate': self.DROPOUT_RATE,
         }
 
-        if self.model is None:
-            # Fallback: Simulate MC dropout behavior
-            predictions = self._simulate_mc_predictions(patient_data)
-        else:
-            # Use actual neural network with MC dropout
+        # Run MC dropout predictions
+        if self.model is not None:
             predictions = self._run_mc_dropout(patient_data)
+        else:
+            predictions = self._simulate_mc_predictions(patient_data)
 
-        # Calculate statistics from MC predictions
-        prediction_array = np.array([p.value for p in predictions])
-        mean_prediction = np.mean(prediction_array)
-        std_prediction = np.std(prediction_array)
+        # Convert to numeric array (tier values 0-5)
+        pred_values = np.array([p.value for p in predictions])
+
+        # Compute MC prediction statistics
+        mean_pred = np.mean(pred_values)
+        std_pred = np.std(pred_values)
+
+        # Count predictions per tier for entropy calculation
+        unique_vals, counts = np.unique(pred_values, return_counts=True)
+        probabilities = counts / len(pred_values)
+
+        # Predictive entropy: H(x) = -sum p_k * log(p_k)
+        entropy = -np.sum(probabilities * np.log(probabilities + 1e-10))
+        max_entropy = np.log(self.OUTPUT_DIM)  # log(5)
+
+        # Sigma_max: maximum possible std for 5-class predictions
+        sigma_max = 2.0  # Empirical upper bound for std over {1,2,3,4,5}
+
+        # Composite uncertainty (Equation 5):
+        # mu(x) = 0.5 * H(x)/log(5) + 0.5 * sigma(x)/sigma_max
+        mu = 0.5 * (entropy / max_entropy) + 0.5 * (std_pred / sigma_max)
+        mu = min(mu, 1.0)  # Clamp to [0, 1]
 
         reasoning['mc_predictions'] = {
-            'mean': round(float(mean_prediction), 2),
-            'std': round(float(std_prediction), 2),
-            'min': int(np.min(prediction_array)),
-            'max': int(np.max(prediction_array))
+            'mean': round(float(mean_pred), 3),
+            'std': round(float(std_pred), 3),
+            'entropy': round(float(entropy), 4),
+            'entropy_normalised': round(float(entropy / max_entropy), 4),
+            'sigma_normalised': round(float(std_pred / sigma_max), 4),
+            'mu': round(float(mu), 4),
         }
 
-        # Count prediction frequency
-        unique, counts = np.unique(prediction_array, return_counts=True)
-        pred_freq = dict(zip(unique, counts))
-        reasoning['prediction_frequency'] = {
-            RiskTier(int(k)).name: int(v) for k, v in pred_freq.items()
-        }
+        pred_freq = {RiskTier(int(v)).name: int(c) for v, c in zip(unique_vals, counts)}
+        reasoning['prediction_frequency'] = pred_freq
 
-        # Decision logic based on uncertainty
-        if std_prediction > self.uncertainty_threshold:
-            # High uncertainty -> R* (abstention)
+        # Most common NN prediction (base tier before escalation)
+        most_common_idx = np.argmax(counts)
+        nn_prediction = RiskTier(int(unique_vals[most_common_idx]))
+
+        # Tier mapping per Equation 5
+        if mu >= self.ABSTENTION_THRESHOLD:
             tier = RiskTier.R_STAR
-            confidence = 0.0
-
             reasoning['decision'] = (
-                f"High epistemic uncertainty: sigma = {std_prediction:.2f} > "
-                f"threshold {self.uncertainty_threshold} -> R* (abstention)"
+                f'Abstention: mu = {mu:.3f} >= {self.ABSTENTION_THRESHOLD} -> R* '
+                f'(NN predicted {nn_prediction.name})'
             )
-            reasoning['theorem'] = 'Theorem 3 (Abstention Correctness) triggered'
-            reasoning['triggers'] = [f"Prediction variance {std_prediction:.2f} exceeds threshold"]
-
-        else:
-            # Low uncertainty -> Most common prediction
-            most_common_value = int(unique[np.argmax(counts)])
-            tier = RiskTier(most_common_value)
-
-            # Confidence: Proportion of passes agreeing + penalty for variance
-            max_agreement = np.max(counts) / self.mc_passes
-            uncertainty_penalty = std_prediction / 5.0  # Normalize to [0,1]
-            confidence = max_agreement * (1 - uncertainty_penalty)
-
+        elif mu >= self.ESCALATE_2_THRESHOLD:
+            # Escalate 2 tiers toward R1 from NN prediction
+            escalated = max(1, nn_prediction.value - 2)
+            tier = RiskTier(escalated)
             reasoning['decision'] = (
-                f"Low epistemic uncertainty: sigma = {std_prediction:.2f} ≤ "
-                f"threshold {self.uncertainty_threshold} -> {tier} "
-                f"(agreement: {max_agreement:.1%})"
+                f'High uncertainty: mu = {mu:.3f} in [{self.ESCALATE_2_THRESHOLD}, '
+                f'{self.ABSTENTION_THRESHOLD}). Escalating 2 tiers: '
+                f'{nn_prediction.name} -> {tier.name}'
+            )
+        elif mu >= self.ESCALATE_1_THRESHOLD:
+            # Escalate 1 tier toward R1 from NN prediction
+            escalated = max(1, nn_prediction.value - 1)
+            tier = RiskTier(escalated)
+            reasoning['decision'] = (
+                f'Moderate uncertainty: mu = {mu:.3f} in [{self.ESCALATE_1_THRESHOLD}, '
+                f'{self.ESCALATE_2_THRESHOLD}). Escalating 1 tier: '
+                f'{nn_prediction.name} -> {tier.name}'
+            )
+        else:
+            # Low uncertainty -> use NN prediction directly
+            tier = nn_prediction
+            reasoning['decision'] = (
+                f'Low uncertainty: mu = {mu:.3f} < {self.ESCALATE_1_THRESHOLD}. '
+                f'Using NN prediction: {tier.name}'
+            )
+
+        # Confidence: c5 = 1 - mu(x)
+        confidence = 1.0 - mu
+
+        reasoning['triggers'] = []
+        if mu >= self.ESCALATE_1_THRESHOLD:
+            reasoning['triggers'].append(
+                f'Uncertainty mu={mu:.3f} exceeds threshold {self.ESCALATE_1_THRESHOLD}'
             )
 
         return tier, float(confidence), reasoning
 
-    def _simulate_mc_predictions(self, patient_data: Dict) -> list:
+    def _simulate_mc_predictions(self, patient_data: Dict) -> List[RiskTier]:
         """
-        Simulate Monte Carlo dropout predictions.
+        Simulate MC dropout predictions when trained model is unavailable.
 
-        Used when trained model is not available.
-        Generates realistic prediction distributions based on patient features.
+        Generates realistic prediction distributions based on clinical features
+        to mimic BNN behaviour.
         """
         predictions = []
 
         # Extract key risk indicators
         age = patient_data.get('age', 50)
 
-        # SEVERE critical flags (truly life-threatening)
+        # Severe critical flags
         has_severe_flags = any([
-            patient_data.get('systolic_bp', 120) < 80,   # Shock
-            patient_data.get('heart_rate', 80) > 140,    # Severe tachycardia
-            patient_data.get('spo2', 98) < 85,           # Severe hypoxemia
-            patient_data.get('gcs', 15) < 12             # Major altered consciousness
+            patient_data.get('systolic_bp', 120) < 80,
+            patient_data.get('heart_rate', 80) > 140,
+            patient_data.get('spo2', 98) < 85,
+            patient_data.get('gcs', 15) < 12,
         ])
 
-        # Multiple concerning flags (hemodynamic + neurological)
         hemodynamic_flags = sum([
             patient_data.get('systolic_bp', 120) < 90,
             patient_data.get('heart_rate', 80) > 120,
-            patient_data.get('spo2', 98) < 90
+            patient_data.get('spo2', 98) < 90,
         ])
 
         neuro_flags = sum([
             patient_data.get('dysarthria', False),
             patient_data.get('ataxia', False),
-            patient_data.get('diplopia', False)
+            patient_data.get('diplopia', False),
         ])
 
-        # R1 base tier only for truly critical cases
-        has_critical_combination = (hemodynamic_flags >= 2) or (hemodynamic_flags >= 1 and neuro_flags >= 1)
+        has_critical = (hemodynamic_flags >= 2) or (hemodynamic_flags >= 1 and neuro_flags >= 1)
 
-        # Check for benign indicators
-        chronic_onset = patient_data.get('symptom_onset_hours', 999) > 48  # >2 days
-        positional = any([
-            patient_data.get('rolling_over_in_bed', False),
-            patient_data.get('looking_up', False),
-            patient_data.get('turning_head_quickly', False)
-        ])
+        # Benign indicators
+        chronic_onset = patient_data.get('symptom_onset_hours', 999) > 48
+        positional = patient_data.get('positional_triggers', False)
 
-        # Base prediction influenced by risk factors
-        # G5 should NOT be too aggressive - uncertainty quantification is its role
-        if has_severe_flags or has_critical_combination:
+        # Determine base tier and noise level
+        if has_severe_flags or has_critical:
             base_tier = RiskTier.R1.value
-            noise_std = 0.2  # Low variance for clear critical cases
-        elif (age > 75 and hemodynamic_flags >= 1) or (hemodynamic_flags >= 1 and neuro_flags >= 1):
-            # R2 only for: elderly + hemodynamic OR hemodynamic + neuro combination
-            # Much stricter than before (was: age > 70 OR any single flag)
+            noise_std = 0.2
+        elif (age > 75 and hemodynamic_flags >= 1):
             base_tier = RiskTier.R2.value
-            noise_std = 0.3  # Moderate variance
+            noise_std = 0.3
         elif age > 70 or hemodynamic_flags >= 1 or neuro_flags >= 1:
-            # Moderate risk: elderly OR single concerning flag
-            # Changed from R2 to R3
             base_tier = RiskTier.R3.value
             noise_std = 0.4
-        elif (age < 60 and chronic_onset) or (age < 50 and positional) or (chronic_onset and age < 70):
-            # Patients with benign features -> minimal risk
+        elif chronic_onset or positional or age < 50:
             base_tier = RiskTier.R5.value
             noise_std = 0.35
-        elif age < 50:
-            # Younger patients more likely low risk
-            base_tier = RiskTier.R4.value
-            noise_std = 0.4
         else:
-            # Middle-aged without clear risk factors -> moderate
             base_tier = RiskTier.R3.value
             noise_std = 0.4
 
-        # Generate MC predictions with noise
-        for _ in range(self.mc_passes):
+        # Generate T=20 MC predictions with noise
+        for _ in range(self.MC_PASSES):
             noise = np.random.normal(0, noise_std)
             pred_value = base_tier + noise
-
-            # Clip to valid range [0, 5] and round
             pred_value = int(np.clip(np.round(pred_value), 0, 5))
-
             predictions.append(RiskTier(pred_value))
 
         return predictions
 
-    def _run_mc_dropout(self, patient_data: Dict) -> list:
+    def _run_mc_dropout(self, patient_data: Dict) -> List[RiskTier]:
         """
-        Run Monte Carlo dropout using trained neural network.
+        Run MC dropout using trained BNN (52->128->64->5).
 
-        Performs multiple forward passes with dropout enabled to estimate
-        prediction distribution.
+        Performs T=20 forward passes with dropout enabled at inference.
         """
-        # Extract features in correct order
-        # (This would match training feature order)
         features = self._extract_features(patient_data)
-
         predictions = []
 
-        # Enable dropout during inference
-        # In actual implementation, would use model with dropout layers
-        for _ in range(self.mc_passes):
-            # Forward pass with dropout
-            # pred = self.model.predict(features, training=True)
-            # For now, use simulation
-            predictions.append(RiskTier.R3)  # Placeholder
+        for _ in range(self.MC_PASSES):
+            # Forward pass with dropout enabled (training=True in Keras)
+            # pred = self.model(features, training=True)
+            # tier_idx = np.argmax(pred.numpy(), axis=-1)[0]
+            # predictions.append(RiskTier(tier_idx + 1))
+            predictions.append(RiskTier.R3)  # Placeholder until model loaded
 
         return predictions
 
     def _extract_features(self, patient_data: Dict) -> np.ndarray:
-        """
-        Extract and normalize features for neural network input.
-
-        Returns feature vector in correct order matching training data.
-        """
-        # Feature extraction would match training preprocessing
-        # For now, return placeholder
-        return np.zeros((1, 52))  # 52 features from paper
+        """Extract and normalise 52 features for BNN input."""
+        return np.zeros((1, self.INPUT_DIM))
 
     def load_model(self, model_path: str) -> bool:
         """
-        Load pre-trained neural network model.
+        Load pre-trained BNN model.
 
-        Args:
-            model_path: Path to saved model (.h5 file)
-
-        Model specifications (from paper):
-        - Architecture: 3 layers (128-64-32 units)
-        - Dropout rate: 0.3
-        - Trained on 4,800 synthetic cases
-        - MC dropout enabled during inference
-
-        Returns:
-            True if model loaded successfully, False otherwise
+        Architecture: 52 -> 128 -> 64 -> 5 (from article)
+        Dropout rate: 0.3
+        MC passes at inference: T = 20
         """
         try:
-            # Would use TensorFlow/Keras to load model
-            # import tensorflow as tf
-            # self.model = tf.keras.models.load_model(model_path)
-            print(f"Note: Model loading not yet implemented")
+            print(f"Note: BNN model loading not yet implemented ({model_path})")
             return False
         except Exception as e:
-            print(f"Warning: Could not load neural network model: {e}")
-            print("Falling back to MC simulation approach")
+            print(f"Warning: Could not load BNN model: {e}")
             return False
 
     def get_name(self) -> str:
-        """Return gate identifier."""
         return "G5"
 
     def get_description(self) -> str:
-        """Return gate description."""
-        return "Uncertainty Quantification (Monte Carlo Dropout)"
-
-    def check_theorem3(self, patient_data: Dict) -> bool:
-        """
-        Verify Theorem 3 (Abstention Correctness).
-
-        Theorem 3: max_i u_i > τ -> T_final = R*
-
-        Returns:
-            True if theorem conditions met (high uncertainty -> R*), False otherwise
-        """
-        tier, _, reasoning = self.evaluate(patient_data)
-        uncertainty = reasoning['mc_predictions']['std']
-
-        # Theorem 3: uncertainty > threshold should yield R*
-        if uncertainty > self.uncertainty_threshold:
-            return tier == RiskTier.R_STAR
-        return True  # Theorem doesn't apply for low uncertainty
+        return "Epistemic Uncertainty Quantification (BNN, MC Dropout, T=20)"

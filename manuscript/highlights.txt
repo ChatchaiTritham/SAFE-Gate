@@ -1,7 +1,0 @@
-Highlights
-
-• Conservative merging prevents ensemble averaging's safety signal dilution
-• Six parallel gates ensure 100% critical case detection with zero false negatives
-• Formal safety properties proven mathematically and validated computationally
-• Explainable audit trails document which gate enforced final risk tier and why
-• Real-time performance (<2ms) enables emergency department deployment
