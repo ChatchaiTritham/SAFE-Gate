@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 import os
 
-# Read README for long description
+
 def read_readme():
     readme_path = os.path.join(os.path.dirname(__file__), 'README.md')
     if os.path.exists(readme_path):
@@ -11,12 +11,13 @@ def read_readme():
             return f.read()
     return ''
 
+
 setup(
     name='safegate',
     version='1.0.0',
     author='Chatchai Tritham, Chakkrit Snae Namahoot',
     author_email='chakkrits@nu.ac.th',
-    description='Safety-first Abstention-enabled Formal triage Engine with parallel GATEs',
+    description='Safety-Assured Fusion Engine with Gated Expert Triage for clinical decision support',
     long_description=read_readme(),
     long_description_content_type='text/markdown',
     url='https://github.com/ChatchaiTritham/SAFE-Gate',
@@ -29,7 +30,7 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Healthcare Industry',
         'Intended Audience :: Science/Research',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence',
+        'Topic :: Scientific/Engineering',
         'Topic :: Scientific/Engineering :: Medical Science Apps.',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
@@ -62,7 +63,7 @@ setup(
             'safegate=src.safegate:main',
         ],
     },
-    keywords='medical-ai triage formal-verification safety emergency-medicine',
+    keywords='clinical-decision-support triage formal-verification safety emergency-medicine',
     include_package_data=True,
     zip_safe=False,
 )
