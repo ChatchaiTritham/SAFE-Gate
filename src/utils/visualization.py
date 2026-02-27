@@ -1,7 +1,7 @@
 """
 Visualization utilities for SAFE-Gate
 
-Generates publication-quality figures for IEEE EMBC 2026 paper.
+Generates publication-quality figures for SAFE-Gate evaluation.
 """
 
 import matplotlib.pyplot as plt

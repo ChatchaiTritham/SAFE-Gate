@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite both the software and the paper."
+message: "If you use this software, please cite it using the metadata below."
 type: software
 title: "SAFE-Gate: Safety-Assured Fusion Engine with Gated Expert Triage"
 version: 1.0.0
@@ -26,15 +26,3 @@ keywords:
   - vertigo
   - conservative-merging
   - gated-expert-systems
-preferred-citation:
-  type: article
-  title: "SAFE-Gate: Safety-Assured Fusion Engine with Gated Expert Triage for Emergency Vertigo Assessment"
-  authors:
-    - family-names: Tritham
-      given-names: Chatchai
-    - family-names: Snae Namahoot
-      given-names: Chakkrit
-  journal: "Applied Intelligence"
-  publisher:
-    name: "Springer"
-  year: 2026
