@@ -3,7 +3,7 @@
 ![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 ![Tests](https://img.shields.io/badge/Tests-10%2F10%20Passing-brightgreen.svg)
-![Safety Violations](https://img.shields.io/badge/Safety%20Violations-0%2F6400-brightgreen.svg)
+![Safety Violations](https://img.shields.io/badge/Safety%20Violations-0%2F6398-brightgreen.svg)
 
 ---
 
@@ -76,7 +76,7 @@ lower-acuity tier.
 | Overall accuracy              | 65.2%         |
 | Macro F1-score                | 68.9%         |
 | Over-triage rate (ACWCM)      | 16.4%         |
-| Safety violations             | 0 / 6,400     |
+| Safety violations             | 0 / 6,398     |
 | Inference latency             | 1.70 ms/case  |
 
 ---
@@ -240,8 +240,10 @@ assessments miss.
 SAFE-Gate enforces three formally verified safety properties at every inference:
 
 **Conservative Preservation (CP).**
-The final merged tier is always at least as conservative as every individual gate
-output: `T_final ≤ T_i` for all gates `i ∈ {G1, ..., G6}`.
+The final merged tier is never more than one tier less conservative than the most
+cautious gate output: `rank(T_final) ≤ rank(min(T_i)) + 1`. Under basic minimum
+selection `T_final = min(T_i)`; ACWCM permits bounded one-tier relaxation only
+when high-confidence gate consensus supports it.
 
 **Abstention Correctness (AC).**
 If any gate outputs R* (abstention), the final system output is R*. The system
@@ -328,10 +330,13 @@ for bug reports and feature requests. Include:
 If you use SAFE-Gate in your research, please cite:
 
 ```bibtex
-@software{tritham2026safegate,
-  title     = {{SAFE-Gate}: Safety-Assured Fusion Engine with Gated Expert
-               Triage for Emergency Vertigo Assessment},
+@article{tritham2026safegate,
+  title     = {{SAFE-Gate}: An Adaptive Knowledge-Based Expert System for
+               Emergency Triage Safety with Confidence-Weighted Conservative
+               Merging and Formal Safety Guarantees},
   author    = {Tritham, Chatchai and Snae Namahoot, Chakkrit},
+  journal   = {Soft Computing},
+  publisher = {Springer},
   year      = {2026},
   url       = {https://github.com/ChatchaiTritham/SAFE-Gate},
   license   = {MIT}
