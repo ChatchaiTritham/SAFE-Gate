@@ -1,13 +1,13 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it using the metadata below."
 type: software
-title: "SAFE-Gate: Safety-Assured Fusion Engine with Gated Expert Triage"
+title: "SAFE-Gate: An Adaptive Knowledge-Based Expert System for Emergency Triage Safety with Confidence-Weighted Conservative Merging and Formal Safety Guarantees"
 version: 1.0.0
 date-released: 2026-01-24
 authors:
   - family-names: Tritham
     given-names: Chatchai
-    orcid: "https://orcid.org/0000-0001-7899-228X"
+    orcid: "https://orcid.org/0000-0002-3206-192X"
     affiliation: "Naresuan University"
   - family-names: Snae Namahoot
     given-names: Chakkrit
