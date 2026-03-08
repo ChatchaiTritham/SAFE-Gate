@@ -25,7 +25,8 @@ setup(
         'Bug Reports': 'https://github.com/ChatchaiTritham/SAFE-Gate/issues',
         'Source': 'https://github.com/ChatchaiTritham/SAFE-Gate',
     },
-    packages=find_packages(),
+    package_dir={'': 'src'},
+    packages=find_packages(where='src'),
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Healthcare Industry',
@@ -35,12 +36,11 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
     ],
-    python_requires='>=3.8',
+    python_requires='>=3.9',
     install_requires=[
         'numpy>=1.21.0',
         'pandas>=1.3.0',
