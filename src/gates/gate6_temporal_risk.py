@@ -17,9 +17,10 @@ Confidence:
   c6 = 0.5 when timeline cannot be established with certainty
 """
 
-from typing import Dict, Tuple
-import sys
 import os
+import sys
+from typing import Dict, Tuple
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from merging.risk_lattice import RiskTier
 
@@ -41,9 +42,9 @@ class Gate6TemporalRisk:
     """
 
     # Temporal thresholds (hours)
-    HYPERACUTE_LIMIT = 1.0       # <1 hour
-    ACUTE_LIMIT = 24.0           # 1-24 hours
-    SUBACUTE_LIMIT = 168.0       # 1-7 days (168 hours)
+    HYPERACUTE_LIMIT = 1.0  # <1 hour
+    ACUTE_LIMIT = 24.0  # 1-24 hours
+    SUBACUTE_LIMIT = 168.0  # 1-7 days (168 hours)
 
     def __init__(self):
         """Initialise temporal risk analysis thresholds."""
@@ -107,13 +108,15 @@ class Gate6TemporalRisk:
         reasoning['trajectory'] = trajectory
 
         # Check for neurological signs (affects acute state transitions)
-        has_neuro_signs = any([
-            patient_data.get('dysarthria', False),
-            patient_data.get('ataxia', False),
-            patient_data.get('diplopia', False),
-            patient_data.get('focal_weakness', False),
-            patient_data.get('limb_weakness', False),
-        ])
+        has_neuro_signs = any(
+            [
+                patient_data.get('dysarthria', False),
+                patient_data.get('ataxia', False),
+                patient_data.get('diplopia', False),
+                patient_data.get('focal_weakness', False),
+                patient_data.get('limb_weakness', False),
+            ]
+        )
 
         # ---- Finite-State Machine Transitions ----
         if time_hours < self.HYPERACUTE_LIMIT:
@@ -167,9 +170,7 @@ class Gate6TemporalRisk:
                     )
                 else:
                     tier = RiskTier.R3
-                    reasoning['decision'] = (
-                        f'Acute stable ({time_hours:.1f}h) -> R3'
-                    )
+                    reasoning['decision'] = f'Acute stable ({time_hours:.1f}h) -> R3'
 
         elif time_hours < self.SUBACUTE_LIMIT:
             # SUBACUTE (1-7 days)
@@ -188,8 +189,7 @@ class Gate6TemporalRisk:
             else:
                 tier = RiskTier.R4
                 reasoning['decision'] = (
-                    f'Subacute ({time_days:.1f}d) without concerning features '
-                    f'-> R4'
+                    f'Subacute ({time_days:.1f}d) without concerning features ' f'-> R4'
                 )
 
         else:

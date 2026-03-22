@@ -16,10 +16,12 @@ Feature weights (from article):
 Confidence: c2 = 1 - sigma_score^2 / sigma_max^2
 """
 
-import numpy as np
-from typing import Dict, Tuple
-import sys
 import os
+import sys
+from typing import Dict, Tuple
+
+import numpy as np
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from merging.risk_lattice import RiskTier
 
@@ -59,20 +61,20 @@ class Gate2ModerateRisk:
         # ---------- Article Equation 3 weights ----------
         # f_demo: Demographic risk contributors
         self.demographic_weights = {
-            'age_over_60': 1.0,    # Article: age exceeding 60 = +1.0
-            'male': 0.5,           # Article: male sex = +0.5
+            'age_over_60': 1.0,  # Article: age exceeding 60 = +1.0
+            'male': 0.5,  # Article: male sex = +0.5
         }
 
         # f_symp: Symptom severity indicators
         self.symptom_weights = {
-            'sudden_onset': 1.5,           # Article: sudden onset = +1.5
+            'sudden_onset': 1.5,  # Article: sudden onset = +1.5
             'continuous_duration_1h': 1.0,  # Article: continuous duration > 1h = +1.0
         }
 
         # f_hist: Clinical history factors
         self.history_weights = {
-            'atrial_fibrillation': 1.8,    # Article: AF = +1.8
-            'prior_stroke': 2.0,           # Article: prior CVA = +2.0
+            'atrial_fibrillation': 1.8,  # Article: AF = +1.8
+            'prior_stroke': 2.0,  # Article: prior CVA = +2.0
         }
 
         # Additional clinical factors (supplement Eq.3 core)
@@ -85,9 +87,9 @@ class Gate2ModerateRisk:
         # Score thresholds mapping to risk tiers
         # G2 assesses cardiovascular risk, NOT acute instability (G1 domain)
         self.thresholds = {
-            'R2': 5.5,   # >= 5.5 -> High Risk
-            'R3': 3.5,   # 3.5-5.4 -> Moderate
-            'R4': 2.0,   # 2.0-3.4 -> Low Risk
+            'R2': 5.5,  # >= 5.5 -> High Risk
+            'R3': 3.5,  # 3.5-5.4 -> Moderate
+            'R4': 2.0,  # 2.0-3.4 -> Low Risk
         }
 
     def evaluate(self, patient_data: Dict) -> Tuple[RiskTier, float, Dict]:
@@ -103,7 +105,7 @@ class Gate2ModerateRisk:
             'mechanism': 'weighted_accumulation_model',
             'equation': 'Score(x) = w_demo*f_demo + w_symp*f_symp + w_hist*f_hist',
             'components': {},
-            'triggers': []
+            'triggers': [],
         }
 
         # Component 1: f_demo (demographic risk)
@@ -113,7 +115,9 @@ class Gate2ModerateRisk:
         age = patient_data.get('age', 0)
         if age > 60:
             demo_score += self.demographic_weights['age_over_60']
-            demo_factors.append(f'age {age} > 60 (+{self.demographic_weights["age_over_60"]})')
+            demo_factors.append(
+                f'age {age} > 60 (+{self.demographic_weights["age_over_60"]})'
+            )
 
         if patient_data.get('gender') == 'male':
             demo_score += self.demographic_weights['male']
@@ -121,7 +125,7 @@ class Gate2ModerateRisk:
 
         reasoning['components']['f_demo'] = {
             'score': round(demo_score, 2),
-            'factors': demo_factors
+            'factors': demo_factors,
         }
 
         # Component 2: f_symp (symptom indicators)
@@ -130,18 +134,22 @@ class Gate2ModerateRisk:
 
         if patient_data.get('sudden_onset', False):
             symp_score += self.symptom_weights['sudden_onset']
-            symp_factors.append(f'sudden onset (+{self.symptom_weights["sudden_onset"]})')
+            symp_factors.append(
+                f'sudden onset (+{self.symptom_weights["sudden_onset"]})'
+            )
 
         # Duration > 1h: check symptom_duration_days or symptom_onset_hours
         duration_days = patient_data.get('symptom_duration_days', 0)
         onset_hours = patient_data.get('symptom_onset_hours', 999)
         if duration_days > (1.0 / 24.0) or (onset_hours <= 24 and onset_hours > 1):
             symp_score += self.symptom_weights['continuous_duration_1h']
-            symp_factors.append(f'continuous duration > 1h (+{self.symptom_weights["continuous_duration_1h"]})')
+            symp_factors.append(
+                f'continuous duration > 1h (+{self.symptom_weights["continuous_duration_1h"]})'
+            )
 
         reasoning['components']['f_symp'] = {
             'score': round(symp_score, 2),
-            'factors': symp_factors
+            'factors': symp_factors,
         }
 
         # Component 3: f_hist (clinical history)
@@ -150,7 +158,9 @@ class Gate2ModerateRisk:
 
         if patient_data.get('atrial_fibrillation', False):
             hist_score += self.history_weights['atrial_fibrillation']
-            hist_factors.append(f'atrial fibrillation (+{self.history_weights["atrial_fibrillation"]})')
+            hist_factors.append(
+                f'atrial fibrillation (+{self.history_weights["atrial_fibrillation"]})'
+            )
 
         if patient_data.get('prior_stroke', False):
             hist_score += self.history_weights['prior_stroke']
@@ -158,7 +168,7 @@ class Gate2ModerateRisk:
 
         reasoning['components']['f_hist'] = {
             'score': round(hist_score, 2),
-            'factors': hist_factors
+            'factors': hist_factors,
         }
 
         # Supplementary factors (beyond Equation 3 core)
@@ -171,7 +181,7 @@ class Gate2ModerateRisk:
 
         reasoning['components']['supplementary'] = {
             'score': round(supp_score, 2),
-            'factors': supp_factors
+            'factors': supp_factors,
         }
 
         # Total score (Equation 3)
@@ -188,16 +198,23 @@ class Gate2ModerateRisk:
         else:
             tier = RiskTier.R5
 
-        reasoning['decision'] = (
-            f'Score(x) = {total_score:.2f} -> {tier.name}'
-        )
+        reasoning['decision'] = f'Score(x) = {total_score:.2f} -> {tier.name}'
 
         # Confidence: c2 = 1 - sigma_score^2 / sigma_max^2
         # Approximate score variance via bootstrap-like estimation
         # Higher scores have more contributing factors -> lower variance
-        n_active = len(demo_factors) + len(symp_factors) + len(hist_factors) + len(supp_factors)
-        n_total = (len(self.demographic_weights) + len(self.symptom_weights) +
-                   len(self.history_weights) + len(self.supplementary_weights))
+        n_active = (
+            len(demo_factors)
+            + len(symp_factors)
+            + len(hist_factors)
+            + len(supp_factors)
+        )
+        n_total = (
+            len(self.demographic_weights)
+            + len(self.symptom_weights)
+            + len(self.history_weights)
+            + len(self.supplementary_weights)
+        )
 
         # Estimate variance: fewer active factors -> higher variance
         if n_total > 0:
@@ -210,7 +227,7 @@ class Gate2ModerateRisk:
         reasoning['confidence_detail'] = {
             'sigma_sq': round(sigma_sq, 4),
             'sigma_max_sq': self.SIGMA_MAX_SQUARED,
-            'c2': round(confidence, 4)
+            'c2': round(confidence, 4),
         }
 
         # Record triggers
@@ -229,6 +246,7 @@ class Gate2ModerateRisk:
         """
         try:
             import pickle
+
             with open(model_path, 'rb') as f:
                 self.model = pickle.load(f)
             self.use_xgboost = True
@@ -241,5 +259,9 @@ class Gate2ModerateRisk:
         return "G2"
 
     def get_description(self) -> str:
-        method = "XGBoost + Weighted Scoring" if self.use_xgboost else "Weighted Accumulation Model"
+        method = (
+            "XGBoost + Weighted Scoring"
+            if self.use_xgboost
+            else "Weighted Accumulation Model"
+        )
         return f"Cardiovascular Risk Assessment ({method})"

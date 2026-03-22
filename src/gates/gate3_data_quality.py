@@ -13,9 +13,10 @@ Output mapping:
 Confidence: c3 = rho_comp(x)
 """
 
-from typing import Dict, Tuple, List
-import sys
 import os
+import sys
+from typing import Dict, List, Tuple
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from merging.risk_lattice import RiskTier
 
@@ -39,22 +40,37 @@ class Gate3DataQuality:
         """Initialize the 22 essential clinical fields."""
         self.essential_fields = [
             # Vital signs (6)
-            'systolic_bp', 'diastolic_bp', 'heart_rate',
-            'spo2', 'temperature', 'gcs',
+            'systolic_bp',
+            'diastolic_bp',
+            'heart_rate',
+            'spo2',
+            'temperature',
+            'gcs',
             # Demographics (2)
-            'age', 'gender',
+            'age',
+            'gender',
             # Symptom characteristics (5)
-            'symptom_onset_hours', 'symptom_duration_days',
-            'vertigo_severity', 'sudden_onset', 'progression_pattern',
+            'symptom_onset_hours',
+            'symptom_duration_days',
+            'vertigo_severity',
+            'sudden_onset',
+            'progression_pattern',
             # HINTS protocol (3)
-            'hints_head_impulse', 'hints_nystagmus', 'hints_test_of_skew',
+            'hints_head_impulse',
+            'hints_nystagmus',
+            'hints_test_of_skew',
             # Cardiovascular history (4)
-            'hypertension', 'atrial_fibrillation', 'diabetes', 'prior_stroke',
+            'hypertension',
+            'atrial_fibrillation',
+            'diabetes',
+            'prior_stroke',
             # Neurological exam (2)
-            'dysarthria', 'ataxia',
+            'dysarthria',
+            'ataxia',
         ]
-        assert len(self.essential_fields) == 22, \
-            f"Expected 22 essential fields, got {len(self.essential_fields)}"
+        assert (
+            len(self.essential_fields) == 22
+        ), f"Expected 22 essential fields, got {len(self.essential_fields)}"
 
         # Thresholds from Equation 4
         self.abstention_threshold = 0.70
@@ -72,7 +88,7 @@ class Gate3DataQuality:
             'gate': 'G3_Data_Quality',
             'mechanism': 'completeness_checking',
             'essential_fields_total': len(self.essential_fields),
-            'missing_fields': []
+            'missing_fields': [],
         }
 
         present = 0

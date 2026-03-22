@@ -21,9 +21,9 @@ plt.rcParams['font.serif'] = ['Times New Roman'] + plt.rcParams['font.serif']
 output_dir = Path(__file__).parent / 'manuscript_figures'
 output_dir.mkdir(exist_ok=True)
 
-print("="*80)
+print("=" * 80)
 print("Creating Publication-Ready Figures for SAFE-Gate Manuscript")
-print("="*80)
+print("=" * 80)
 
 # ==============================================================================
 # Figure 1: Confusion Matrix (Realistic Performance)
@@ -32,32 +32,51 @@ print("\n[1/6] Creating Confusion Matrix...")
 
 # Realistic confusion matrix based on conservative system design
 # Rows: True labels, Columns: Predicted labels
-confusion_data = np.array([
-    #  R1  R2  R3  R4  R5
-    [ 47,  3,  0,  0,  0],  # R1 (Critical) - 50 samples
-    [  8, 78,  4,  0,  0],  # R2 (High risk) - 90 samples
-    [  0, 22,218, 18,  0],  # R3 (Moderate) - 258 samples
-    [  0,  0, 38,295, 13],  # R4 (Low risk) - 346 samples
-    [  0,  0,  0, 28,228],  # R5 (Minimal) - 256 samples
-])
+confusion_data = np.array(
+    [
+        #  R1  R2  R3  R4  R5
+        [47, 3, 0, 0, 0],  # R1 (Critical) - 50 samples
+        [8, 78, 4, 0, 0],  # R2 (High risk) - 90 samples
+        [0, 22, 218, 18, 0],  # R3 (Moderate) - 258 samples
+        [0, 0, 38, 295, 13],  # R4 (Low risk) - 346 samples
+        [0, 0, 0, 28, 228],  # R5 (Minimal) - 256 samples
+    ]
+)
 
 tier_labels = ['R1', 'R2', 'R3', 'R4', 'R5']
 
 fig, ax = plt.subplots(figsize=(10, 8))
-sns.heatmap(confusion_data, annot=True, fmt='d', cmap='Blues',
-            xticklabels=tier_labels, yticklabels=tier_labels,
-            cbar_kws={'label': 'Number of Patients'}, ax=ax,
-            linewidths=0.5, linecolor='gray')
+sns.heatmap(
+    confusion_data,
+    annot=True,
+    fmt='d',
+    cmap='Blues',
+    xticklabels=tier_labels,
+    yticklabels=tier_labels,
+    cbar_kws={'label': 'Number of Patients'},
+    ax=ax,
+    linewidths=0.5,
+    linecolor='gray',
+)
 
 ax.set_xlabel('Predicted Risk Tier', fontsize=14, fontweight='bold')
 ax.set_ylabel('True Risk Tier', fontsize=14, fontweight='bold')
-ax.set_title('SAFE-Gate Confusion Matrix (n=1000)', fontsize=16, fontweight='bold', pad=20)
+ax.set_title(
+    'SAFE-Gate Confusion Matrix (n=1000)', fontsize=16, fontweight='bold', pad=20
+)
 
 # Calculate and display accuracy
 accuracy = np.trace(confusion_data) / np.sum(confusion_data)
-ax.text(0.5, -0.12, f'Overall Accuracy: {accuracy:.1%}',
-        ha='center', transform=ax.transAxes, fontsize=12, fontweight='bold',
-        bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+ax.text(
+    0.5,
+    -0.12,
+    f'Overall Accuracy: {accuracy:.1%}',
+    ha='center',
+    transform=ax.transAxes,
+    fontsize=12,
+    fontweight='bold',
+    bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5),
+)
 
 plt.tight_layout()
 plt.savefig(output_dir / 'confusion_matrix.png', dpi=300, bbox_inches='tight')
@@ -86,12 +105,36 @@ fig, ax = plt.subplots(figsize=(12, 6))
 x = np.arange(len(tier_labels))
 width = 0.25
 
-bars1 = ax.bar(x - width, df_metrics['Precision'], width, label='Precision',
-               color='#3498db', alpha=0.8, edgecolor='black', linewidth=1.2)
-bars2 = ax.bar(x, df_metrics['Recall'], width, label='Recall',
-               color='#e74c3c', alpha=0.8, edgecolor='black', linewidth=1.2)
-bars3 = ax.bar(x + width, df_metrics['F1-Score'], width, label='F1-Score',
-               color='#2ecc71', alpha=0.8, edgecolor='black', linewidth=1.2)
+bars1 = ax.bar(
+    x - width,
+    df_metrics['Precision'],
+    width,
+    label='Precision',
+    color='#3498db',
+    alpha=0.8,
+    edgecolor='black',
+    linewidth=1.2,
+)
+bars2 = ax.bar(
+    x,
+    df_metrics['Recall'],
+    width,
+    label='Recall',
+    color='#e74c3c',
+    alpha=0.8,
+    edgecolor='black',
+    linewidth=1.2,
+)
+bars3 = ax.bar(
+    x + width,
+    df_metrics['F1-Score'],
+    width,
+    label='F1-Score',
+    color='#2ecc71',
+    alpha=0.8,
+    edgecolor='black',
+    linewidth=1.2,
+)
 
 ax.set_xlabel('Risk Tier', fontsize=14, fontweight='bold')
 ax.set_ylabel('Score', fontsize=14, fontweight='bold')
@@ -107,8 +150,14 @@ ax.axhline(y=0.8, color='red', linestyle='--', alpha=0.3, linewidth=1)
 for bars in [bars1, bars2, bars3]:
     for bar in bars:
         height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height + 0.015,
-                f'{height:.3f}', ha='center', va='bottom', fontsize=8)
+        ax.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            height + 0.015,
+            f'{height:.3f}',
+            ha='center',
+            va='bottom',
+            fontsize=8,
+        )
 
 # Add macro averages text
 macro_avg = {
@@ -118,8 +167,15 @@ macro_avg = {
 }
 
 avg_text = f"Macro Avg: Precision={macro_avg['Precision']:.3f}, Recall={macro_avg['Recall']:.3f}, F1={macro_avg['F1-Score']:.3f}"
-ax.text(0.5, -0.15, avg_text, ha='center', transform=ax.transAxes, fontsize=10,
-        bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.7))
+ax.text(
+    0.5,
+    -0.15,
+    avg_text,
+    ha='center',
+    transform=ax.transAxes,
+    fontsize=10,
+    bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.7),
+)
 
 plt.tight_layout()
 plt.savefig(output_dir / 'per_class_metrics.png', dpi=300, bbox_inches='tight')
@@ -140,12 +196,21 @@ critical_data = {
     'Missed\n(False Negative)': 3,
 }
 colors1 = ['#2ecc71', '#e74c3c']
-wedges1, texts1, autotexts1 = ax1.pie(critical_data.values(), labels=critical_data.keys(),
-                                        autopct='%1.1f%%', colors=colors1, startangle=90,
-                                        textprops={'fontsize': 11, 'fontweight': 'bold'},
-                                        explode=(0.05, 0))
-ax1.set_title('Critical Case Detection (R1 & R2)\nSensitivity: 97.9%',
-              fontsize=13, fontweight='bold', pad=15)
+wedges1, texts1, autotexts1 = ax1.pie(
+    critical_data.values(),
+    labels=critical_data.keys(),
+    autopct='%1.1f%%',
+    colors=colors1,
+    startangle=90,
+    textprops={'fontsize': 11, 'fontweight': 'bold'},
+    explode=(0.05, 0),
+)
+ax1.set_title(
+    'Critical Case Detection (R1 & R2)\nSensitivity: 97.9%',
+    fontsize=13,
+    fontweight='bold',
+    pad=15,
+)
 
 # Subplot 2: Abstention Rate
 abstention_data = {
@@ -153,32 +218,61 @@ abstention_data = {
     'Abstained (R*)': 0,
 }
 colors2 = ['#3498db', '#f39c12']
-wedges2, texts2, autotexts2 = ax2.pie(abstention_data.values(), labels=abstention_data.keys(),
-                                        autopct='%1.1f%%', colors=colors2, startangle=90,
-                                        textprops={'fontsize': 11, 'fontweight': 'bold'})
-ax2.set_title('Classification vs Abstention\n(With Complete Data)',
-              fontsize=13, fontweight='bold', pad=15)
+wedges2, texts2, autotexts2 = ax2.pie(
+    abstention_data.values(),
+    labels=abstention_data.keys(),
+    autopct='%1.1f%%',
+    colors=colors2,
+    startangle=90,
+    textprops={'fontsize': 11, 'fontweight': 'bold'},
+)
+ax2.set_title(
+    'Classification vs Abstention\n(With Complete Data)',
+    fontsize=13,
+    fontweight='bold',
+    pad=15,
+)
 
 # Subplot 3: False Positive/Negative Analysis
 fp_fn_data = {
-    'Categories': ['True Positive\n(Critical→R1/R2)', 'False Positive\n(Safe→R1/R2)',
-                   'True Negative\n(Safe→R4/R5)', 'False Negative\n(Critical→R4/R5)'],
+    'Categories': [
+        'True Positive\n(Critical→R1/R2)',
+        'False Positive\n(Safe→R1/R2)',
+        'True Negative\n(Safe→R4/R5)',
+        'False Negative\n(Critical→R4/R5)',
+    ],
     'Count': [129, 24, 844, 3],
 }
 colors3 = ['#2ecc71', '#f39c12', '#3498db', '#e74c3c']
-bars3 = ax3.bar(range(4), fp_fn_data['Count'], color=colors3, alpha=0.8,
-                edgecolor='black', linewidth=1.2)
+bars3 = ax3.bar(
+    range(4),
+    fp_fn_data['Count'],
+    color=colors3,
+    alpha=0.8,
+    edgecolor='black',
+    linewidth=1.2,
+)
 ax3.set_xticks(range(4))
 ax3.set_xticklabels(fp_fn_data['Categories'], fontsize=9, rotation=15, ha='right')
 ax3.set_ylabel('Count', fontsize=12, fontweight='bold')
-ax3.set_title('Error Analysis for Critical Cases (R1 & R2)',
-              fontsize=13, fontweight='bold', pad=15)
+ax3.set_title(
+    'Error Analysis for Critical Cases (R1 & R2)',
+    fontsize=13,
+    fontweight='bold',
+    pad=15,
+)
 ax3.grid(axis='y', alpha=0.3)
 
 for i, bar in enumerate(bars3):
     height = bar.get_height()
-    ax3.text(bar.get_x() + bar.get_width()/2., height + 10,
-             f'{int(height)}', ha='center', va='bottom', fontweight='bold')
+    ax3.text(
+        bar.get_x() + bar.get_width() / 2.0,
+        height + 10,
+        f'{int(height)}',
+        ha='center',
+        va='bottom',
+        fontweight='bold',
+    )
 
 # Subplot 4: Specificity and Sensitivity by Tier
 sens_spec_data = {
@@ -191,17 +285,32 @@ df_sens_spec = pd.DataFrame(sens_spec_data)
 x_pos = np.arange(len(df_sens_spec['Tier']))
 width = 0.35
 
-bars_sens = ax4.bar(x_pos - width/2, df_sens_spec['Sensitivity'], width,
-                    label='Sensitivity', color='#e74c3c', alpha=0.8,
-                    edgecolor='black', linewidth=1.2)
-bars_spec = ax4.bar(x_pos + width/2, df_sens_spec['Specificity'], width,
-                    label='Specificity', color='#3498db', alpha=0.8,
-                    edgecolor='black', linewidth=1.2)
+bars_sens = ax4.bar(
+    x_pos - width / 2,
+    df_sens_spec['Sensitivity'],
+    width,
+    label='Sensitivity',
+    color='#e74c3c',
+    alpha=0.8,
+    edgecolor='black',
+    linewidth=1.2,
+)
+bars_spec = ax4.bar(
+    x_pos + width / 2,
+    df_sens_spec['Specificity'],
+    width,
+    label='Specificity',
+    color='#3498db',
+    alpha=0.8,
+    edgecolor='black',
+    linewidth=1.2,
+)
 
 ax4.set_xlabel('Risk Tier', fontsize=12, fontweight='bold')
 ax4.set_ylabel('Score', fontsize=12, fontweight='bold')
-ax4.set_title('Sensitivity and Specificity per Risk Tier',
-              fontsize=13, fontweight='bold', pad=15)
+ax4.set_title(
+    'Sensitivity and Specificity per Risk Tier', fontsize=13, fontweight='bold', pad=15
+)
 ax4.set_xticks(x_pos)
 ax4.set_xticklabels(df_sens_spec['Tier'])
 ax4.legend(loc='lower right', fontsize=10)
@@ -221,7 +330,13 @@ plt.close()
 print("\n[4/6] Creating Baseline Comparison...")
 
 baseline_data = {
-    'Method': ['SAFE-Gate\n(Proposed)', 'Random\nForest', 'XGBoost', 'Neural\nNetwork', 'Logistic\nRegression'],
+    'Method': [
+        'SAFE-Gate\n(Proposed)',
+        'Random\nForest',
+        'XGBoost',
+        'Neural\nNetwork',
+        'Logistic\nRegression',
+    ],
     'Accuracy': [0.866, 0.721, 0.754, 0.698, 0.652],
     'Precision (Critical)': [0.854, 0.651, 0.683, 0.618, 0.587],
     'Recall (Critical)': [0.979, 0.782, 0.821, 0.751, 0.694],
@@ -234,24 +349,48 @@ fig, ax = plt.subplots(figsize=(14, 7))
 
 x = np.arange(len(df_baseline['Method']))
 width = 0.2
-metrics_to_plot = ['Accuracy', 'Precision (Critical)', 'Recall (Critical)', 'F1-Score (Macro)']
+metrics_to_plot = [
+    'Accuracy',
+    'Precision (Critical)',
+    'Recall (Critical)',
+    'F1-Score (Macro)',
+]
 colors_baseline = ['#3498db', '#e74c3c', '#2ecc71', '#f39c12']
 
 for i, metric in enumerate(metrics_to_plot):
-    offset = (i - len(metrics_to_plot)/2 + 0.5) * width
-    bars = ax.bar(x + offset, df_baseline[metric], width, label=metric,
-                  color=colors_baseline[i], alpha=0.8, edgecolor='black', linewidth=1.2)
+    offset = (i - len(metrics_to_plot) / 2 + 0.5) * width
+    bars = ax.bar(
+        x + offset,
+        df_baseline[metric],
+        width,
+        label=metric,
+        color=colors_baseline[i],
+        alpha=0.8,
+        edgecolor='black',
+        linewidth=1.2,
+    )
 
     # Add value labels
     for bar in bars:
         height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                f'{height:.2f}', ha='center', va='bottom', fontsize=7, rotation=90)
+        ax.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            height + 0.01,
+            f'{height:.2f}',
+            ha='center',
+            va='bottom',
+            fontsize=7,
+            rotation=90,
+        )
 
 ax.set_xlabel('Method', fontsize=14, fontweight='bold')
 ax.set_ylabel('Score', fontsize=14, fontweight='bold')
-ax.set_title('Performance Comparison: SAFE-Gate vs Machine Learning Baselines',
-             fontsize=16, fontweight='bold', pad=20)
+ax.set_title(
+    'Performance Comparison: SAFE-Gate vs Machine Learning Baselines',
+    fontsize=16,
+    fontweight='bold',
+    pad=20,
+)
 ax.set_xticks(x)
 ax.set_xticklabels(df_baseline['Method'], fontsize=11)
 ax.legend(loc='upper right', fontsize=10, ncol=2, framealpha=0.9)
@@ -264,8 +403,15 @@ ax.get_xticklabels()[0].set_color('green')
 ax.get_xticklabels()[0].set_fontsize(12)
 
 # Add statistical significance annotation
-ax.text(0.5, 0.95, '* p < 0.001 vs all baselines (paired t-test)',
-        ha='center', transform=ax.transAxes, fontsize=9, style='italic')
+ax.text(
+    0.5,
+    0.95,
+    '* p < 0.001 vs all baselines (paired t-test)',
+    ha='center',
+    transform=ax.transAxes,
+    fontsize=9,
+    style='italic',
+)
 
 plt.tight_layout()
 plt.savefig(output_dir / 'baseline_comparison.png', dpi=300, bbox_inches='tight')
@@ -286,30 +432,58 @@ predicted_counts = [55, 103, 260, 341, 241]
 
 colors_dist = ['#e74c3c', '#f39c12', '#f1c40f', '#3498db', '#2ecc71']
 
-bars1 = ax1.bar(tier_labels, true_counts, color=colors_dist, alpha=0.8,
-                edgecolor='black', linewidth=1.5)
+bars1 = ax1.bar(
+    tier_labels,
+    true_counts,
+    color=colors_dist,
+    alpha=0.8,
+    edgecolor='black',
+    linewidth=1.5,
+)
 ax1.set_xlabel('Risk Tier', fontsize=14, fontweight='bold')
 ax1.set_ylabel('Number of Patients', fontsize=14, fontweight='bold')
-ax1.set_title('True Risk Tier Distribution (n=1000)', fontsize=14, fontweight='bold', pad=15)
+ax1.set_title(
+    'True Risk Tier Distribution (n=1000)', fontsize=14, fontweight='bold', pad=15
+)
 ax1.grid(axis='y', alpha=0.3, linestyle='--')
 
 for i, (bar, count) in enumerate(zip(bars1, true_counts)):
-    ax1.text(bar.get_x() + bar.get_width()/2., count + 8,
-             f'{count}\n({count/10:.1f}%)', ha='center', va='bottom',
-             fontweight='bold', fontsize=10)
+    ax1.text(
+        bar.get_x() + bar.get_width() / 2.0,
+        count + 8,
+        f'{count}\n({count/10:.1f}%)',
+        ha='center',
+        va='bottom',
+        fontweight='bold',
+        fontsize=10,
+    )
 
 # Predicted distribution
-bars2 = ax2.bar(tier_labels, predicted_counts, color=colors_dist, alpha=0.8,
-                edgecolor='black', linewidth=1.5)
+bars2 = ax2.bar(
+    tier_labels,
+    predicted_counts,
+    color=colors_dist,
+    alpha=0.8,
+    edgecolor='black',
+    linewidth=1.5,
+)
 ax2.set_xlabel('Risk Tier', fontsize=14, fontweight='bold')
 ax2.set_ylabel('Number of Patients', fontsize=14, fontweight='bold')
-ax2.set_title('SAFE-Gate Predicted Distribution (n=1000)', fontsize=14, fontweight='bold', pad=15)
+ax2.set_title(
+    'SAFE-Gate Predicted Distribution (n=1000)', fontsize=14, fontweight='bold', pad=15
+)
 ax2.grid(axis='y', alpha=0.3, linestyle='--')
 
 for i, (bar, count) in enumerate(zip(bars2, predicted_counts)):
-    ax2.text(bar.get_x() + bar.get_width()/2., count + 8,
-             f'{count}\n({count/10:.1f}%)', ha='center', va='bottom',
-             fontweight='bold', fontsize=10)
+    ax2.text(
+        bar.get_x() + bar.get_width() / 2.0,
+        count + 8,
+        f'{count}\n({count/10:.1f}%)',
+        ha='center',
+        va='bottom',
+        fontweight='bold',
+        fontsize=10,
+    )
 
 plt.tight_layout()
 plt.savefig(output_dir / 'risk_distribution.png', dpi=300, bbox_inches='tight')
@@ -336,16 +510,45 @@ fig, ax = plt.subplots(figsize=(12, 7))
 x = np.arange(len(tier_labels))
 width = 0.25
 
-bars1 = ax.bar(x - width, df_support['Training Set'], width, label='Training Set',
-               color='#3498db', alpha=0.8, edgecolor='black', linewidth=1.2)
-bars2 = ax.bar(x, df_support['Validation Set'], width, label='Validation Set',
-               color='#e74c3c', alpha=0.8, edgecolor='black', linewidth=1.2)
-bars3 = ax.bar(x + width, df_support['Test Set'], width, label='Test Set',
-               color='#2ecc71', alpha=0.8, edgecolor='black', linewidth=1.2)
+bars1 = ax.bar(
+    x - width,
+    df_support['Training Set'],
+    width,
+    label='Training Set',
+    color='#3498db',
+    alpha=0.8,
+    edgecolor='black',
+    linewidth=1.2,
+)
+bars2 = ax.bar(
+    x,
+    df_support['Validation Set'],
+    width,
+    label='Validation Set',
+    color='#e74c3c',
+    alpha=0.8,
+    edgecolor='black',
+    linewidth=1.2,
+)
+bars3 = ax.bar(
+    x + width,
+    df_support['Test Set'],
+    width,
+    label='Test Set',
+    color='#2ecc71',
+    alpha=0.8,
+    edgecolor='black',
+    linewidth=1.2,
+)
 
 ax.set_xlabel('Risk Tier', fontsize=14, fontweight='bold')
 ax.set_ylabel('Number of Samples', fontsize=14, fontweight='bold')
-ax.set_title('Sample Support Distribution Across Datasets', fontsize=16, fontweight='bold', pad=20)
+ax.set_title(
+    'Sample Support Distribution Across Datasets',
+    fontsize=16,
+    fontweight='bold',
+    pad=20,
+)
 ax.set_xticks(x)
 ax.set_xticklabels(tier_labels, fontsize=12)
 ax.legend(loc='upper right', fontsize=11, framealpha=0.9)
@@ -355,29 +558,47 @@ ax.grid(axis='y', alpha=0.3, linestyle='--')
 for bars in [bars1, bars2, bars3]:
     for bar in bars:
         height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height + 50,
-                f'{int(height)}', ha='center', va='bottom', fontsize=8)
+        ax.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            height + 50,
+            f'{int(height)}',
+            ha='center',
+            va='bottom',
+            fontsize=8,
+        )
 
 # Add total sample info
 total_train = df_support['Training Set'].sum()
 total_val = df_support['Validation Set'].sum()
 total_test = df_support['Test Set'].sum()
-total_text = f'Total: Training={total_train:,}, Validation={total_val:,}, Test={total_test:,}'
-ax.text(0.5, -0.15, total_text, ha='center', transform=ax.transAxes, fontsize=11,
-        fontweight='bold', bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.5))
+total_text = (
+    f'Total: Training={total_train:,}, Validation={total_val:,}, Test={total_test:,}'
+)
+ax.text(
+    0.5,
+    -0.15,
+    total_text,
+    ha='center',
+    transform=ax.transAxes,
+    fontsize=11,
+    fontweight='bold',
+    bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.5),
+)
 
 plt.tight_layout()
 plt.savefig(output_dir / 'support_distribution.png', dpi=300, bbox_inches='tight')
 plt.savefig(output_dir / 'support_distribution.pdf', bbox_inches='tight')
-print(f"  [OK] Saved support_distribution.png/pdf (Total: {total_train + total_val + total_test:,} samples)")
+print(
+    f"  [OK] Saved support_distribution.png/pdf (Total: {total_train + total_val + total_test:,} samples)"
+)
 plt.close()
 
 # ==============================================================================
 # Summary Report
 # ==============================================================================
-print("\n" + "="*80)
+print("\n" + "=" * 80)
 print("MANUSCRIPT FIGURES GENERATION COMPLETE")
-print("="*80)
+print("=" * 80)
 print(f"\nOutput Directory: {output_dir.absolute()}")
 print("\nGenerated Figures:")
 print("  1. confusion_matrix.png/pdf - Classification accuracy visualization")
@@ -394,4 +615,4 @@ print(f"  Critical Sensitivity: 97.9%")
 print(f"  False Negatives (R1/R2): 3/140 (2.1%)")
 
 print("\nAll figures are publication-ready (300 DPI, PDF + PNG)")
-print("="*80)
+print("=" * 80)

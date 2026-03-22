@@ -8,8 +8,9 @@ Implements:
 """
 
 import math
-from typing import List, Dict, Tuple, Optional
-from .risk_lattice import RiskTier, RiskLattice
+from typing import Dict, List, Optional, Tuple
+
+from .risk_lattice import RiskLattice, RiskTier
 
 
 class ConservativeMerging:
@@ -55,7 +56,7 @@ class ConservativeMerging:
         self,
         gate_outputs: Dict[str, RiskTier],
         gate_confidences: Dict[str, float],
-        patient_id: Optional[str] = None
+        patient_id: Optional[str] = None,
     ) -> Tuple[RiskTier, str, Dict]:
         """
         Merge six gate outputs using conservative merging.
@@ -77,7 +78,7 @@ class ConservativeMerging:
         self,
         gate_outputs: Dict[str, RiskTier],
         gate_confidences: Dict[str, float],
-        patient_id: Optional[str] = None
+        patient_id: Optional[str] = None,
     ) -> Tuple[RiskTier, str, Dict]:
         """Basic minimum selection (Equation 2)."""
         audit = self._init_audit(gate_outputs, gate_confidences, patient_id)
@@ -109,7 +110,7 @@ class ConservativeMerging:
         self,
         gate_outputs: Dict[str, RiskTier],
         gate_confidences: Dict[str, float],
-        patient_id: Optional[str] = None
+        patient_id: Optional[str] = None,
     ) -> Tuple[RiskTier, str, Dict]:
         """
         Adaptive Confidence-Weighted Conservative Merging (Algorithm 1).
@@ -149,9 +150,7 @@ class ConservativeMerging:
         r_min = self.lattice.minimum(tiers)
 
         # Line 9: Confidence-weighted consensus
-        numerator = sum(
-            c * self._rank(t) for c, t in zip(confs, tiers)
-        )
+        numerator = sum(c * self._rank(t) for c, t in zip(confs, tiers))
         denominator = sum(confs) if sum(confs) > 0 else 1.0
         tau_w = numerator / denominator
 
@@ -173,7 +172,9 @@ class ConservativeMerging:
 
         # Find enforcing gate (most conservative)
         enforcing_gates = [g for g, t in gate_outputs.items() if t == r_min]
-        enforcing = enforcing_gates[0] if enforcing_gates else list(gate_outputs.keys())[0]
+        enforcing = (
+            enforcing_gates[0] if enforcing_gates else list(gate_outputs.keys())[0]
+        )
 
         audit["merging_logic"].append(
             f"Phase 2: r_min={r_min}, tau_w={tau_w:.2f}, "
@@ -189,7 +190,7 @@ class ConservativeMerging:
         audit["safety_properties"] = {
             "CP": self._rank(r_final) <= self._rank(r_min) + 1,
             "AC": True,  # already handled in Phase 1
-            "CND": True   # enforced above
+            "CND": True,  # enforced above
         }
 
         return r_final, enforcing, audit
@@ -198,7 +199,7 @@ class ConservativeMerging:
         self,
         gate_outputs: Dict[str, RiskTier],
         gate_confidences: Dict[str, float],
-        r_final: RiskTier
+        r_final: RiskTier,
     ) -> Dict:
         """
         Gate Conflict Resolution and Audit Trail Generation (Algorithm 3).
@@ -223,11 +224,17 @@ class ConservativeMerging:
             for j in range(i + 1, len(names)):
                 diff = abs(self._rank(tiers[i]) - self._rank(tiers[j]))
                 if diff >= 2:
-                    conflicts.append({
-                        "gate_i": names[i], "tier_i": str(tiers[i]), "conf_i": confs[i],
-                        "gate_j": names[j], "tier_j": str(tiers[j]), "conf_j": confs[j],
-                        "difference": diff
-                    })
+                    conflicts.append(
+                        {
+                            "gate_i": names[i],
+                            "tier_i": str(tiers[i]),
+                            "conf_i": confs[i],
+                            "gate_j": names[j],
+                            "tier_j": str(tiers[j]),
+                            "conf_j": confs[j],
+                            "difference": diff,
+                        }
+                    )
 
         if conflicts:
             audit["flag"] = "CONFLICTING"
@@ -235,7 +242,9 @@ class ConservativeMerging:
 
         # Enforcer = most conservative gate
         min_rank = min(self._rank(t) for t in tiers)
-        enforcer_gates = [names[i] for i in range(len(tiers)) if self._rank(tiers[i]) == min_rank]
+        enforcer_gates = [
+            names[i] for i in range(len(tiers)) if self._rank(tiers[i]) == min_rank
+        ]
         audit["enforcer"] = enforcer_gates[0]
 
         # Support = gates within 1 tier of final
@@ -249,7 +258,7 @@ class ConservativeMerging:
         self,
         gate_outputs: Dict[str, RiskTier],
         gate_confidences: Dict[str, float],
-        patient_id: Optional[str]
+        patient_id: Optional[str],
     ) -> Dict:
         """Create initial audit trail structure."""
         audit = {

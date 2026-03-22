@@ -17,10 +17,12 @@ Tier mapping:
 Confidence: c5 = 1 - mu(x)
 """
 
-import numpy as np
-from typing import Dict, Tuple, Optional, List
-import sys
 import os
+import sys
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from merging.risk_lattice import RiskTier
 
@@ -40,14 +42,14 @@ class Gate5Uncertainty:
     # Network architecture (article specification)
     INPUT_DIM = 52
     HIDDEN_LAYERS = [128, 64]
-    OUTPUT_DIM = 5    # 5 tiers
+    OUTPUT_DIM = 5  # 5 tiers
     DROPOUT_RATE = 0.3
-    MC_PASSES = 20    # T = 20
+    MC_PASSES = 20  # T = 20
 
     # Uncertainty thresholds (Equation 5)
-    ABSTENTION_THRESHOLD = 0.80    # mu >= 0.80 -> R*
-    ESCALATE_2_THRESHOLD = 0.60    # 0.60 <= mu < 0.80 -> escalate 2
-    ESCALATE_1_THRESHOLD = 0.30    # 0.30 <= mu < 0.60 -> escalate 1
+    ABSTENTION_THRESHOLD = 0.80  # mu >= 0.80 -> R*
+    ESCALATE_2_THRESHOLD = 0.60  # 0.60 <= mu < 0.80 -> escalate 2
+    ESCALATE_1_THRESHOLD = 0.30  # 0.30 <= mu < 0.60 -> escalate 1
     # mu < 0.30 -> NN prediction
 
     def __init__(self, model_path: Optional[str] = None):
@@ -185,26 +187,34 @@ class Gate5Uncertainty:
         age = patient_data.get('age', 50)
 
         # Severe critical flags
-        has_severe_flags = any([
-            patient_data.get('systolic_bp', 120) < 80,
-            patient_data.get('heart_rate', 80) > 140,
-            patient_data.get('spo2', 98) < 85,
-            patient_data.get('gcs', 15) < 12,
-        ])
+        has_severe_flags = any(
+            [
+                patient_data.get('systolic_bp', 120) < 80,
+                patient_data.get('heart_rate', 80) > 140,
+                patient_data.get('spo2', 98) < 85,
+                patient_data.get('gcs', 15) < 12,
+            ]
+        )
 
-        hemodynamic_flags = sum([
-            patient_data.get('systolic_bp', 120) < 90,
-            patient_data.get('heart_rate', 80) > 120,
-            patient_data.get('spo2', 98) < 90,
-        ])
+        hemodynamic_flags = sum(
+            [
+                patient_data.get('systolic_bp', 120) < 90,
+                patient_data.get('heart_rate', 80) > 120,
+                patient_data.get('spo2', 98) < 90,
+            ]
+        )
 
-        neuro_flags = sum([
-            patient_data.get('dysarthria', False),
-            patient_data.get('ataxia', False),
-            patient_data.get('diplopia', False),
-        ])
+        neuro_flags = sum(
+            [
+                patient_data.get('dysarthria', False),
+                patient_data.get('ataxia', False),
+                patient_data.get('diplopia', False),
+            ]
+        )
 
-        has_critical = (hemodynamic_flags >= 2) or (hemodynamic_flags >= 1 and neuro_flags >= 1)
+        has_critical = (hemodynamic_flags >= 2) or (
+            hemodynamic_flags >= 1 and neuro_flags >= 1
+        )
 
         # Benign indicators
         chronic_onset = patient_data.get('symptom_onset_hours', 999) > 48
@@ -214,7 +224,7 @@ class Gate5Uncertainty:
         if has_severe_flags or has_critical:
             base_tier = RiskTier.R1.value
             noise_std = 0.2
-        elif (age > 75 and hemodynamic_flags >= 1):
+        elif age > 75 and hemodynamic_flags >= 1:
             base_tier = RiskTier.R2.value
             noise_std = 0.3
         elif age > 70 or hemodynamic_flags >= 1 or neuro_flags >= 1:

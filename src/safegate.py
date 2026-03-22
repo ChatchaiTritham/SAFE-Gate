@@ -8,23 +8,29 @@ Main system implementation coordinating:
   Stage 4: Output (risk tier, safety certificate, audit trail)
 """
 
-import time
-from typing import Dict, Tuple, Optional, List
-
-import sys
 import os
+import sys
+import time
+from typing import Dict, List, Optional, Tuple
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from merging.risk_lattice import RiskTier
-from merging.conservative_merging import ConservativeMerging
-from merging.safety_certificate import SafetyCertificateGenerator, SafetyCertificate
 from gates.gate1_critical_flags import Gate1CriticalFlags
 from gates.gate2_moderate_risk import Gate2ModerateRisk
 from gates.gate3_data_quality import Gate3DataQuality
 from gates.gate4_titrate_logic import Gate4TiTrATELogic
 from gates.gate5_uncertainty import Gate5Uncertainty
 from gates.gate6_temporal_risk import Gate6TemporalRisk
+from merging.conservative_merging import ConservativeMerging
+from merging.risk_lattice import RiskTier
+from merging.safety_certificate import SafetyCertificate, SafetyCertificateGenerator
 from utils.audit_trail import AuditTrailGenerator
+
+DEFAULT_CONFIDENCE_FALLBACK = 0.0
+MILLISECONDS_PER_SECOND = 1000
+LATENCY_PRECISION_DIGITS = 2
+DEFAULT_CLASSIFICATION_MODE = "acwcm"
+PATIENT_ID_FIELD_NAME = "patient_id"
 
 
 class SAFEGate:
@@ -43,7 +49,7 @@ class SAFEGate:
       - Critical Non-Dilution (CND)
     """
 
-    def __init__(self, mode: str = "acwcm"):
+    def __init__(self, mode: str = DEFAULT_CLASSIFICATION_MODE):
         """
         Initialize SAFE-Gate system.
 
@@ -57,7 +63,7 @@ class SAFEGate:
             'G3': Gate3DataQuality(),
             'G4': Gate4TiTrATELogic(),
             'G5': Gate5Uncertainty(),
-            'G6': Gate6TemporalRisk()
+            'G6': Gate6TemporalRisk(),
         }
 
         self.merger = ConservativeMerging(mode=mode)
@@ -71,7 +77,7 @@ class SAFEGate:
         patient_data: Dict,
         patient_id: Optional[str] = None,
         return_audit_trail: bool = True,
-        return_certificate: bool = True
+        return_certificate: bool = True,
     ) -> Dict:
         """
         Perform triage classification for a patient.
@@ -91,7 +97,7 @@ class SAFEGate:
               - 'audit_trail': Full audit trail (if requested)
               - 'latency_ms': Processing time
         """
-        start = time.time()
+        start_time_seconds = time.time()
 
         # --- Stage 2: Parallel gate evaluation ---
         gate_outputs = {}
@@ -105,7 +111,7 @@ class SAFEGate:
             gate_reasonings[name] = {
                 'tier': tier,
                 'confidence': conf,
-                'reasoning': reasoning
+                'reasoning': reasoning,
             }
 
         # --- Stage 3: ACWCM merging (Algorithm 1) ---
@@ -128,7 +134,7 @@ class SAFEGate:
                 gate_confidences=gate_confidences,
                 gate_reasonings=gate_reasonings,
                 classify_fn=lambda pd: self._quick_classify(pd),
-                feature_names=list(patient_data.keys())
+                feature_names=list(patient_data.keys()),
             )
 
         # --- Audit trail ---
@@ -141,18 +147,20 @@ class SAFEGate:
                 final_tier=str(final_tier),
                 enforcing_gate=enforcing_gate,
                 merging_audit=merge_audit,
-                theorem_verification=merge_audit.get('safety_properties', {})
+                theorem_verification=merge_audit.get('safety_properties', {}),
             )
             audit_trail['conflict_resolution'] = conflict_audit
 
-        latency_ms = (time.time() - start) * 1000
+        latency_ms = (time.time() - start_time_seconds) * MILLISECONDS_PER_SECOND
         self.decision_count += 1
 
         result = {
             'final_tier': str(final_tier),
-            'confidence': gate_confidences.get(enforcing_gate, 0.0),
+            'confidence': gate_confidences.get(
+                enforcing_gate, DEFAULT_CONFIDENCE_FALLBACK
+            ),
             'enforcing_gate': enforcing_gate,
-            'latency_ms': round(latency_ms, 2),
+            'latency_ms': round(latency_ms, LATENCY_PRECISION_DIGITS),
             'decision_number': self.decision_count,
             'mode': self.mode,
             'gate_outputs': {g: str(t) for g, t in gate_outputs.items()},
@@ -178,11 +186,7 @@ class SAFEGate:
         final_tier, _, _ = self.merger.merge(gate_outputs, gate_confidences)
         return {'final_tier': str(final_tier)}
 
-    def batch_classify(
-        self,
-        patients: list,
-        show_progress: bool = True
-    ) -> list:
+    def batch_classify(self, patients: list, show_progress: bool = True) -> list:
         """Classify multiple patients."""
         results = []
         iterator = patients
@@ -190,16 +194,18 @@ class SAFEGate:
         if show_progress:
             try:
                 from tqdm import tqdm
+
                 iterator = tqdm(patients, desc="Classifying patients")
             except ImportError:
                 pass
 
         for patient in iterator:
-            pid = patient.get('patient_id')
+            patient_identifier = patient.get(PATIENT_ID_FIELD_NAME)
             result = self.classify(
-                patient, pid,
+                patient,
+                patient_identifier,
                 return_audit_trail=False,
-                return_certificate=False
+                return_certificate=False,
             )
             results.append(result)
         return results
@@ -226,7 +232,9 @@ def main():
     print()
 
     safegate = SAFEGate(mode="acwcm")
-    print(f"System initialised with {len(safegate.gates)} gates (mode: {safegate.mode})")
+    print(
+        f"System initialised with {len(safegate.gates)} gates (mode: {safegate.mode})"
+    )
     print()
 
     # Example 1: Critical case
@@ -234,15 +242,25 @@ def main():
     print("-" * 70)
     critical = {
         'patient_id': 'P001',
-        'age': 72, 'gender': 'male',
-        'systolic_bp': 85, 'diastolic_bp': 55,
-        'heart_rate': 125, 'spo2': 88, 'gcs': 13, 'temperature': 37.2,
-        'symptom_onset_hours': 1.5, 'symptom_duration_days': 0.1,
-        'vertigo_severity': 'severe', 'sudden_onset': True,
+        'age': 72,
+        'gender': 'male',
+        'systolic_bp': 85,
+        'diastolic_bp': 55,
+        'heart_rate': 125,
+        'spo2': 88,
+        'gcs': 13,
+        'temperature': 37.2,
+        'symptom_onset_hours': 1.5,
+        'symptom_duration_days': 0.1,
+        'vertigo_severity': 'severe',
+        'sudden_onset': True,
         'progression_pattern': 'worsening',
-        'dysarthria': True, 'ataxia': True,
-        'hypertension': True, 'atrial_fibrillation': True,
-        'diabetes': False, 'prior_stroke': True,
+        'dysarthria': True,
+        'ataxia': True,
+        'hypertension': True,
+        'atrial_fibrillation': True,
+        'diabetes': False,
+        'prior_stroke': True,
         'hints_head_impulse': 'abnormal',
         'hints_nystagmus': 'central',
         'hints_test_of_skew': 'positive',
@@ -255,8 +273,10 @@ def main():
     print(f"  Latency:         {r1['latency_ms']:.2f} ms")
     if 'safety_certificate' in r1:
         sc = r1['safety_certificate']
-        print(f"  Certificate:     delta_min={sc['delta_min']}, "
-              f"delta_cf={sc['delta_cf']}, enforcer={sc['g_enforce']}")
+        print(
+            f"  Certificate:     delta_min={sc['delta_min']}, "
+            f"delta_cf={sc['delta_cf']}, enforcer={sc['g_enforce']}"
+        )
     print()
 
     # Example 2: Safe discharge case
@@ -264,15 +284,25 @@ def main():
     print("-" * 70)
     safe = {
         'patient_id': 'P247',
-        'age': 34, 'gender': 'female',
-        'systolic_bp': 118, 'diastolic_bp': 72,
-        'heart_rate': 76, 'spo2': 99, 'gcs': 15, 'temperature': 36.8,
-        'symptom_onset_hours': 72, 'symptom_duration_days': 3,
-        'vertigo_severity': 'mild', 'sudden_onset': False,
+        'age': 34,
+        'gender': 'female',
+        'systolic_bp': 118,
+        'diastolic_bp': 72,
+        'heart_rate': 76,
+        'spo2': 99,
+        'gcs': 15,
+        'temperature': 36.8,
+        'symptom_onset_hours': 72,
+        'symptom_duration_days': 3,
+        'vertigo_severity': 'mild',
+        'sudden_onset': False,
         'progression_pattern': 'improving',
-        'dysarthria': False, 'ataxia': False,
-        'hypertension': False, 'atrial_fibrillation': False,
-        'diabetes': False, 'prior_stroke': False,
+        'dysarthria': False,
+        'ataxia': False,
+        'hypertension': False,
+        'atrial_fibrillation': False,
+        'diabetes': False,
+        'prior_stroke': False,
         'hints_head_impulse': 'normal',
         'hints_nystagmus': 'peripheral',
         'hints_test_of_skew': 'negative',
@@ -286,8 +316,10 @@ def main():
     print(f"  Latency:         {r2['latency_ms']:.2f} ms")
     if 'safety_certificate' in r2:
         sc = r2['safety_certificate']
-        print(f"  Certificate:     delta_min={sc['delta_min']}, "
-              f"delta_cf={sc['delta_cf']}, enforcer={sc['g_enforce']}")
+        print(
+            f"  Certificate:     delta_min={sc['delta_min']}, "
+            f"delta_cf={sc['delta_cf']}, enforcer={sc['g_enforce']}"
+        )
     print()
 
     # Example 3: Incomplete data (expected R*)

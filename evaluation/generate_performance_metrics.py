@@ -30,14 +30,15 @@ plt.rcParams['font.size'] = 10
 output_dir = Path(__file__).parent / 'figures'
 output_dir.mkdir(exist_ok=True)
 
-print("="*80)
+print("=" * 80)
 print("SAFE-Gate Performance Metrics Generation")
-print("="*80)
+print("=" * 80)
 
 # ==============================================================================
 # STEP 1: Generate Synthetic Test Dataset
 # ==============================================================================
 print("\n[STEP 1/7] Generating Synthetic Test Dataset...")
+
 
 def generate_test_dataset(n_samples=1000, random_state=42):
     """Generate synthetic test dataset with known ground truth."""
@@ -74,7 +75,9 @@ def generate_test_dataset(n_samples=1000, random_state=42):
                 'duration_hours': np.random.uniform(0.5, 6),
                 'focal_neuro_deficit': np.random.choice([True, False], p=[0.8, 0.2]),
                 'altered_mental_status': np.random.choice([True, False], p=[0.7, 0.3]),
-                'vertical_skew_deviation': np.random.choice([True, False], p=[0.6, 0.4]),
+                'vertical_skew_deviation': np.random.choice(
+                    [True, False], p=[0.6, 0.4]
+                ),
                 'new_onset_diplopia': np.random.choice([True, False], p=[0.5, 0.5]),
                 'dysarthria': np.random.choice([True, False], p=[0.6, 0.4]),
                 'ataxia': np.random.choice([True, False], p=[0.5, 0.5]),
@@ -82,7 +85,9 @@ def generate_test_dataset(n_samples=1000, random_state=42):
                 'hypertension': np.random.choice([True, False], p=[0.7, 0.3]),
                 'diabetes': np.random.choice([True, False], p=[0.6, 0.4]),
                 'atrial_fibrillation': np.random.choice([True, False], p=[0.5, 0.5]),
-                'cardiovascular_disease_history': np.random.choice([True, False], p=[0.6, 0.4]),
+                'cardiovascular_disease_history': np.random.choice(
+                    [True, False], p=[0.6, 0.4]
+                ),
                 'stroke_history': np.random.choice([True, False], p=[0.4, 0.6]),
                 'headache_severe': np.random.choice([True, False], p=[0.6, 0.4]),
                 'nausea_vomiting': np.random.choice([True, False], p=[0.7, 0.3]),
@@ -113,7 +118,9 @@ def generate_test_dataset(n_samples=1000, random_state=42):
                 'duration_hours': np.random.uniform(2, 12),
                 'focal_neuro_deficit': np.random.choice([True, False], p=[0.6, 0.4]),
                 'altered_mental_status': np.random.choice([True, False], p=[0.3, 0.7]),
-                'vertical_skew_deviation': np.random.choice([True, False], p=[0.3, 0.7]),
+                'vertical_skew_deviation': np.random.choice(
+                    [True, False], p=[0.3, 0.7]
+                ),
                 'new_onset_diplopia': np.random.choice([True, False], p=[0.4, 0.6]),
                 'dysarthria': np.random.choice([True, False], p=[0.3, 0.7]),
                 'ataxia': np.random.choice([True, False], p=[0.4, 0.6]),
@@ -121,7 +128,9 @@ def generate_test_dataset(n_samples=1000, random_state=42):
                 'hypertension': np.random.choice([True, False], p=[0.6, 0.4]),
                 'diabetes': np.random.choice([True, False], p=[0.4, 0.6]),
                 'atrial_fibrillation': np.random.choice([True, False], p=[0.3, 0.7]),
-                'cardiovascular_disease_history': np.random.choice([True, False], p=[0.5, 0.5]),
+                'cardiovascular_disease_history': np.random.choice(
+                    [True, False], p=[0.5, 0.5]
+                ),
                 'stroke_history': np.random.choice([True, False], p=[0.3, 0.7]),
                 'headache_severe': np.random.choice([True, False], p=[0.4, 0.6]),
                 'nausea_vomiting': np.random.choice([True, False], p=[0.5, 0.5]),
@@ -160,7 +169,9 @@ def generate_test_dataset(n_samples=1000, random_state=42):
                 'hypertension': np.random.choice([True, False], p=[0.4, 0.6]),
                 'diabetes': np.random.choice([True, False], p=[0.3, 0.7]),
                 'atrial_fibrillation': False,
-                'cardiovascular_disease_history': np.random.choice([True, False], p=[0.3, 0.7]),
+                'cardiovascular_disease_history': np.random.choice(
+                    [True, False], p=[0.3, 0.7]
+                ),
                 'stroke_history': False,
                 'headache_severe': np.random.choice([True, False], p=[0.3, 0.7]),
                 'nausea_vomiting': np.random.choice([True, False], p=[0.4, 0.6]),
@@ -260,6 +271,7 @@ def generate_test_dataset(n_samples=1000, random_state=42):
 
     return pd.DataFrame(data), labels
 
+
 # Generate dataset
 df_test, y_true = generate_test_dataset(n_samples=1000)
 print(f"[OK] Generated {len(df_test)} test samples")
@@ -304,17 +316,36 @@ cm = confusion_matrix(y_true_filtered, y_pred_filtered, labels=tier_order)
 
 # Plot confusion matrix
 fig, ax = plt.subplots(figsize=(10, 8))
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=tier_order,
-            yticklabels=tier_order, cbar_kws={'label': 'Count'}, ax=ax)
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt='d',
+    cmap='Blues',
+    xticklabels=tier_order,
+    yticklabels=tier_order,
+    cbar_kws={'label': 'Count'},
+    ax=ax,
+)
 ax.set_xlabel('Predicted Risk Tier', fontsize=12, fontweight='bold')
 ax.set_ylabel('True Risk Tier', fontsize=12, fontweight='bold')
-ax.set_title('SAFE-Gate Confusion Matrix\n(Excluding R* Abstentions)',
-             fontsize=14, fontweight='bold', pad=20)
+ax.set_title(
+    'SAFE-Gate Confusion Matrix\n(Excluding R* Abstentions)',
+    fontsize=14,
+    fontweight='bold',
+    pad=20,
+)
 
 # Add accuracy text
 accuracy = np.trace(cm) / np.sum(cm)
-ax.text(0.5, -0.15, f'Overall Accuracy: {accuracy:.2%} (n={np.sum(cm)})',
-        ha='center', transform=ax.transAxes, fontsize=11, fontweight='bold')
+ax.text(
+    0.5,
+    -0.15,
+    f'Overall Accuracy: {accuracy:.2%} (n={np.sum(cm)})',
+    ha='center',
+    transform=ax.transAxes,
+    fontsize=11,
+    fontweight='bold',
+)
 
 plt.tight_layout()
 plt.savefig(output_dir / 'confusion_matrix.png', dpi=300, bbox_inches='tight')
@@ -328,17 +359,20 @@ plt.close()
 print("\n[STEP 4/7] Calculating Per-Class Metrics...")
 
 # Generate classification report
-report = classification_report(y_true_filtered, y_pred_filtered,
-                               labels=tier_order, output_dict=True)
+report = classification_report(
+    y_true_filtered, y_pred_filtered, labels=tier_order, output_dict=True
+)
 
 # Extract metrics
-metrics_df = pd.DataFrame({
-    'Risk Tier': tier_order,
-    'Precision': [report[tier]['precision'] for tier in tier_order],
-    'Recall': [report[tier]['recall'] for tier in tier_order],
-    'F1-Score': [report[tier]['f1-score'] for tier in tier_order],
-    'Support': [report[tier]['support'] for tier in tier_order],
-})
+metrics_df = pd.DataFrame(
+    {
+        'Risk Tier': tier_order,
+        'Precision': [report[tier]['precision'] for tier in tier_order],
+        'Recall': [report[tier]['recall'] for tier in tier_order],
+        'F1-Score': [report[tier]['f1-score'] for tier in tier_order],
+        'Support': [report[tier]['support'] for tier in tier_order],
+    }
+)
 
 print(metrics_df.to_string(index=False))
 
@@ -347,12 +381,33 @@ fig, ax = plt.subplots(figsize=(12, 6))
 x = np.arange(len(tier_order))
 width = 0.25
 
-bars1 = ax.bar(x - width, metrics_df['Precision'], width, label='Precision',
-               color='#3498db', alpha=0.8, edgecolor='black')
-bars2 = ax.bar(x, metrics_df['Recall'], width, label='Recall',
-               color='#e74c3c', alpha=0.8, edgecolor='black')
-bars3 = ax.bar(x + width, metrics_df['F1-Score'], width, label='F1-Score',
-               color='#2ecc71', alpha=0.8, edgecolor='black')
+bars1 = ax.bar(
+    x - width,
+    metrics_df['Precision'],
+    width,
+    label='Precision',
+    color='#3498db',
+    alpha=0.8,
+    edgecolor='black',
+)
+bars2 = ax.bar(
+    x,
+    metrics_df['Recall'],
+    width,
+    label='Recall',
+    color='#e74c3c',
+    alpha=0.8,
+    edgecolor='black',
+)
+bars3 = ax.bar(
+    x + width,
+    metrics_df['F1-Score'],
+    width,
+    label='F1-Score',
+    color='#2ecc71',
+    alpha=0.8,
+    edgecolor='black',
+)
 
 ax.set_xlabel('Risk Tier', fontsize=12, fontweight='bold')
 ax.set_ylabel('Score', fontsize=12, fontweight='bold')
@@ -367,8 +422,14 @@ ax.set_ylim(0, 1.1)
 for bars in [bars1, bars2, bars3]:
     for bar in bars:
         height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height + 0.02,
-                f'{height:.2f}', ha='center', va='bottom', fontsize=8)
+        ax.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            height + 0.02,
+            f'{height:.2f}',
+            ha='center',
+            va='bottom',
+            fontsize=8,
+        )
 
 plt.tight_layout()
 plt.savefig(output_dir / 'per_class_metrics.png', dpi=300, bbox_inches='tight')
@@ -388,7 +449,9 @@ critical_true = [y_true[i] for i in critical_cases]
 
 # Count false negatives (critical cases predicted as safe)
 false_negatives = sum(1 for pred in critical_predictions if pred in ['R4', 'R5'])
-true_positives = sum(1 for pred in critical_predictions if pred in ['R*', 'R1', 'R2', 'R3'])
+true_positives = sum(
+    1 for pred in critical_predictions if pred in ['R*', 'R1', 'R2', 'R3']
+)
 
 sensitivity = true_positives / len(critical_cases) if len(critical_cases) > 0 else 0
 
@@ -402,11 +465,19 @@ safety_data = {
 }
 
 colors = ['#2ecc71', '#e74c3c']
-wedges, texts, autotexts = ax1.pie(safety_data.values(), labels=safety_data.keys(),
-                                     autopct='%1.1f%%', colors=colors, startangle=90,
-                                     textprops={'fontsize': 11, 'fontweight': 'bold'})
-ax1.set_title(f'Critical Case Handling (R1 & R2)\nSensitivity: {sensitivity:.1%}',
-              fontsize=12, fontweight='bold')
+wedges, texts, autotexts = ax1.pie(
+    safety_data.values(),
+    labels=safety_data.keys(),
+    autopct='%1.1f%%',
+    colors=colors,
+    startangle=90,
+    textprops={'fontsize': 11, 'fontweight': 'bold'},
+)
+ax1.set_title(
+    f'Critical Case Handling (R1 & R2)\nSensitivity: {sensitivity:.1%}',
+    fontsize=12,
+    fontweight='bold',
+)
 
 # Subplot 2: Abstention rate
 abstention_count = sum(1 for pred in y_pred if pred == 'R*')
@@ -418,11 +489,19 @@ abstention_data = {
 }
 
 colors2 = ['#3498db', '#f39c12']
-wedges2, texts2, autotexts2 = ax2.pie(abstention_data.values(), labels=abstention_data.keys(),
-                                        autopct='%1.1f%%', colors=colors2, startangle=90,
-                                        textprops={'fontsize': 11, 'fontweight': 'bold'})
-ax2.set_title(f'Classification vs Abstention\nTotal Cases: {len(y_pred)}',
-              fontsize=12, fontweight='bold')
+wedges2, texts2, autotexts2 = ax2.pie(
+    abstention_data.values(),
+    labels=abstention_data.keys(),
+    autopct='%1.1f%%',
+    colors=colors2,
+    startangle=90,
+    textprops={'fontsize': 11, 'fontweight': 'bold'},
+)
+ax2.set_title(
+    f'Classification vs Abstention\nTotal Cases: {len(y_pred)}',
+    fontsize=12,
+    fontweight='bold',
+)
 
 plt.tight_layout()
 plt.savefig(output_dir / 'safety_performance.png', dpi=300, bbox_inches='tight')
@@ -471,25 +550,35 @@ baseline_metrics = {
 fig, ax = plt.subplots(figsize=(12, 6))
 
 methods = list(baseline_metrics.keys())
-metrics_names = list(baseline_metrics['SAFE-Gate'].keys())[:4]  # Exclude FN for bar chart
+metrics_names = list(baseline_metrics['SAFE-Gate'].keys())[
+    :4
+]  # Exclude FN for bar chart
 
 x = np.arange(len(methods))
 width = 0.2
 
 for i, metric in enumerate(metrics_names):
     values = [baseline_metrics[method][metric] for method in methods]
-    offset = (i - len(metrics_names)/2 + 0.5) * width
+    offset = (i - len(metrics_names) / 2 + 0.5) * width
     bars = ax.bar(x + offset, values, width, label=metric, alpha=0.8, edgecolor='black')
 
     # Add value labels
     for bar in bars:
         height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height + 0.01,
-                f'{height:.2f}', ha='center', va='bottom', fontsize=8)
+        ax.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            height + 0.01,
+            f'{height:.2f}',
+            ha='center',
+            va='bottom',
+            fontsize=8,
+        )
 
 ax.set_xlabel('Method', fontsize=12, fontweight='bold')
 ax.set_ylabel('Score', fontsize=12, fontweight='bold')
-ax.set_title('Baseline Comparison: SAFE-Gate vs. ML Models', fontsize=14, fontweight='bold')
+ax.set_title(
+    'Baseline Comparison: SAFE-Gate vs. ML Models', fontsize=14, fontweight='bold'
+)
 ax.set_xticks(x)
 ax.set_xticklabels(methods, rotation=0)
 ax.legend(loc='lower right', fontsize=9)
@@ -516,7 +605,9 @@ fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
 # True distribution
 true_dist = pd.Series(y_true).value_counts().sort_index()
-ax1.bar(true_dist.index, true_dist.values, color='#3498db', alpha=0.8, edgecolor='black')
+ax1.bar(
+    true_dist.index, true_dist.values, color='#3498db', alpha=0.8, edgecolor='black'
+)
 ax1.set_xlabel('Risk Tier', fontsize=12, fontweight='bold')
 ax1.set_ylabel('Count', fontsize=12, fontweight='bold')
 ax1.set_title('True Risk Tier Distribution', fontsize=12, fontweight='bold')
@@ -527,7 +618,9 @@ for i, (tier, count) in enumerate(true_dist.items()):
 
 # Predicted distribution
 pred_dist = pd.Series(y_pred).value_counts().sort_index()
-ax2.bar(pred_dist.index, pred_dist.values, color='#e74c3c', alpha=0.8, edgecolor='black')
+ax2.bar(
+    pred_dist.index, pred_dist.values, color='#e74c3c', alpha=0.8, edgecolor='black'
+)
 ax2.set_xlabel('Risk Tier', fontsize=12, fontweight='bold')
 ax2.set_ylabel('Count', fontsize=12, fontweight='bold')
 ax2.set_title('Predicted Risk Tier Distribution', fontsize=12, fontweight='bold')
@@ -544,14 +637,24 @@ plt.close()
 
 # Support per class
 fig, ax = plt.subplots(figsize=(10, 6))
-ax.bar(metrics_df['Risk Tier'], metrics_df['Support'], color='#9b59b6', alpha=0.8, edgecolor='black')
+ax.bar(
+    metrics_df['Risk Tier'],
+    metrics_df['Support'],
+    color='#9b59b6',
+    alpha=0.8,
+    edgecolor='black',
+)
 ax.set_xlabel('Risk Tier', fontsize=12, fontweight='bold')
 ax.set_ylabel('Support (Number of Samples)', fontsize=12, fontweight='bold')
 ax.set_title('Support Distribution per Risk Tier', fontsize=14, fontweight='bold')
 ax.grid(axis='y', alpha=0.3)
 
-for i, (tier, support) in enumerate(zip(metrics_df['Risk Tier'], metrics_df['Support'])):
-    ax.text(i, support + 2, str(int(support)), ha='center', va='bottom', fontweight='bold')
+for i, (tier, support) in enumerate(
+    zip(metrics_df['Risk Tier'], metrics_df['Support'])
+):
+    ax.text(
+        i, support + 2, str(int(support)), ha='center', va='bottom', fontweight='bold'
+    )
 
 plt.tight_layout()
 plt.savefig(output_dir / 'support_distribution.png', dpi=300, bbox_inches='tight')
@@ -584,9 +687,9 @@ print(f"[OK] Saved: performance_summary.json")
 # ==============================================================================
 # Final Summary
 # ==============================================================================
-print("\n" + "="*80)
+print("\n" + "=" * 80)
 print("PERFORMANCE METRICS GENERATION COMPLETE")
-print("="*80)
+print("=" * 80)
 print(f"\nGenerated Figures:")
 print(f"  1. confusion_matrix.png/pdf")
 print(f"  2. per_class_metrics.png/pdf")
@@ -600,6 +703,6 @@ print(f"  Overall Accuracy: {accuracy:.2%}")
 print(f"  Critical Sensitivity: {sensitivity:.2%}")
 print(f"  False Negatives: {false_negatives}")
 print(f"  Abstention Rate: {abstention_count / len(y_pred):.2%}")
-print("\n" + "="*80)
+print("\n" + "=" * 80)
 print("All figures ready for manuscript!")
-print("="*80)
+print("=" * 80)

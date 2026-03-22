@@ -5,10 +5,12 @@ Averages predictions from multiple classifiers without conservative merging.
 Achieves 92.8% sensitivity (vs SAFE-Gate's 95.3% with conservative merging).
 """
 
-from typing import Dict, Tuple, List
-import sys
 import os
+import sys
+from typing import Dict, List, Tuple
+
 import numpy as np
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from merging.risk_lattice import RiskTier
 
@@ -122,11 +124,16 @@ class EnsembleAverage:
     def _predictor_risk_factors(self, p: Dict) -> Tuple[str, float]:
         """Ensemble member focusing on cardiovascular risk."""
         score = 0
-        if p.get('atrial_fibrillation'): score += 2
-        if p.get('hypertension'): score += 1
-        if p.get('diabetes'): score += 1
-        if p.get('prior_stroke'): score += 2
-        if p.get('age', 0) > 70: score += 1
+        if p.get('atrial_fibrillation'):
+            score += 2
+        if p.get('hypertension'):
+            score += 1
+        if p.get('diabetes'):
+            score += 1
+        if p.get('prior_stroke'):
+            score += 2
+        if p.get('age', 0) > 70:
+            score += 1
 
         if score >= 4:
             return 'R2', 0.85
@@ -137,12 +144,14 @@ class EnsembleAverage:
 
     def _predictor_neuro(self, p: Dict) -> Tuple[str, float]:
         """Ensemble member focusing on neurological signs."""
-        flags = sum([
-            p.get('dysarthria', False),
-            p.get('ataxia', False),
-            p.get('diplopia', False),
-            p.get('focal_weakness', False)
-        ])
+        flags = sum(
+            [
+                p.get('dysarthria', False),
+                p.get('ataxia', False),
+                p.get('diplopia', False),
+                p.get('focal_weakness', False),
+            ]
+        )
 
         if flags >= 2:
             return 'R1', 0.92
@@ -183,11 +192,16 @@ class EnsembleAverage:
         score = 0.0
 
         # Aggregate score from all features
-        if p.get('systolic_bp', 120) < 100: score += 1.5
-        if p.get('heart_rate', 80) > 110: score += 1.0
-        if p.get('dysarthria', False): score += 1.5
-        if p.get('atrial_fibrillation', False): score += 1.0
-        if p.get('symptom_onset_hours', 100) < 4.5: score += 0.8
+        if p.get('systolic_bp', 120) < 100:
+            score += 1.5
+        if p.get('heart_rate', 80) > 110:
+            score += 1.0
+        if p.get('dysarthria', False):
+            score += 1.5
+        if p.get('atrial_fibrillation', False):
+            score += 1.0
+        if p.get('symptom_onset_hours', 100) < 4.5:
+            score += 0.8
 
         if score >= 3.5:
             return 'R1', 0.87

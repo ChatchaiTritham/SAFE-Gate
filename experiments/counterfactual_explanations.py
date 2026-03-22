@@ -17,6 +17,7 @@ import seaborn as sns
 from sklearn.neighbors import NearestNeighbors
 from scipy.optimize import minimize
 import warnings
+
 warnings.filterwarnings('ignore')
 
 
@@ -34,8 +35,15 @@ class CounterfactualExplainer:
      จะเปลี่ยนจาก Risk Tier R3 เป็น R2"
     """
 
-    def __init__(self, model, X_train, y_train, feature_names=None,
-                 actionable_features=None, feature_ranges=None):
+    def __init__(
+        self,
+        model,
+        X_train,
+        y_train,
+        feature_names=None,
+        actionable_features=None,
+        feature_ranges=None,
+    ):
         """
         Initialize Counterfactual Explainer.
 
@@ -51,17 +59,23 @@ class CounterfactualExplainer:
         self.model = model
         self.X_train = X_train if isinstance(X_train, np.ndarray) else X_train.values
         self.y_train = y_train if isinstance(y_train, np.ndarray) else y_train.values
-        self.feature_names = feature_names or [f'Feature_{i}' for i in range(self.X_train.shape[1])]
+        self.feature_names = feature_names or [
+            f'Feature_{i}' for i in range(self.X_train.shape[1])
+        ]
 
         # Actionable features (can be modified)
         if actionable_features is None:
             # Default: all features except demographic (Age, Sex, etc.)
             non_actionable = ['Age', 'Sex', 'Gender', 'Race', 'Family_History']
-            self.actionable_features = [f for f in self.feature_names if f not in non_actionable]
+            self.actionable_features = [
+                f for f in self.feature_names if f not in non_actionable
+            ]
         else:
             self.actionable_features = actionable_features
 
-        self.actionable_indices = [self.feature_names.index(f) for f in self.actionable_features]
+        self.actionable_indices = [
+            self.feature_names.index(f) for f in self.actionable_features
+        ]
 
         # Feature ranges
         if feature_ranges is None:
@@ -76,8 +90,9 @@ class CounterfactualExplainer:
         self.nn = NearestNeighbors(n_neighbors=50, metric='euclidean')
         self.nn.fit(self.X_train)
 
-    def find_counterfactual(self, x_original, desired_class=None,
-                           max_changes=5, method='optimization'):
+    def find_counterfactual(
+        self, x_original, desired_class=None, max_changes=5, method='optimization'
+    ):
         """
         Find counterfactual explanation for a sample.
 
@@ -98,7 +113,9 @@ class CounterfactualExplainer:
             desired_class = max(0, original_pred - 1)
 
         if method == 'optimization':
-            result = self._optimize_counterfactual(x_original, desired_class, max_changes)
+            result = self._optimize_counterfactual(
+                x_original, desired_class, max_changes
+            )
         else:
             result = self._nearest_neighbor_counterfactual(x_original, desired_class)
 
@@ -114,6 +131,7 @@ class CounterfactualExplainer:
                    respect feature ranges
                    limit number of changes
         """
+
         def objective(x):
             # L2 distance + sparsity penalty
             distance = np.sum((x - x_original) ** 2)
@@ -135,9 +153,7 @@ class CounterfactualExplainer:
                 bounds.append((x_original[i], x_original[i]))
 
         # Constraints
-        constraints = [
-            {'type': 'ineq', 'fun': constraint_prediction}
-        ]
+        constraints = [{'type': 'ineq', 'fun': constraint_prediction}]
 
         # Optimize
         result = minimize(
@@ -146,7 +162,7 @@ class CounterfactualExplainer:
             method='SLSQP',
             bounds=bounds,
             constraints=constraints,
-            options={'maxiter': 1000}
+            options={'maxiter': 1000},
         )
 
         if result.success:
@@ -158,7 +174,9 @@ class CounterfactualExplainer:
 
             return {
                 'success': True,
-                'original_prediction': int(original_pred := self.model.predict([x_original])[0]),
+                'original_prediction': int(
+                    original_pred := self.model.predict([x_original])[0]
+                ),
                 'counterfactual_prediction': int(new_pred),
                 'original_features': x_original,
                 'counterfactual_features': x_counterfactual,
@@ -166,15 +184,14 @@ class CounterfactualExplainer:
                 'distance': np.linalg.norm(x_counterfactual - x_original),
                 'n_changes': len(changes),
                 'clinical_report': self._generate_clinical_report(
-                    x_original, x_counterfactual, changes,
-                    original_pred, new_pred
-                )
+                    x_original, x_counterfactual, changes, original_pred, new_pred
+                ),
             }
         else:
             return {
                 'success': False,
                 'message': 'Could not find valid counterfactual',
-                'original_prediction': int(self.model.predict([x_original])[0])
+                'original_prediction': int(self.model.predict([x_original])[0]),
             }
 
     def _nearest_neighbor_counterfactual(self, x_original, desired_class):
@@ -189,7 +206,7 @@ class CounterfactualExplainer:
         if len(target_indices) == 0:
             return {
                 'success': False,
-                'message': f'No training samples with class {desired_class}'
+                'message': f'No training samples with class {desired_class}',
             }
 
         X_target = self.X_train[target_indices]
@@ -213,9 +230,12 @@ class CounterfactualExplainer:
             'distance': distances[nearest_idx],
             'n_changes': len(changes),
             'clinical_report': self._generate_clinical_report(
-                x_original, x_counterfactual, changes,
-                self.model.predict([x_original])[0], desired_class
-            )
+                x_original,
+                x_counterfactual,
+                changes,
+                self.model.predict([x_original])[0],
+                desired_class,
+            ),
         }
 
     def _extract_changes(self, x_original, x_counterfactual, threshold=0.01):
@@ -225,21 +245,24 @@ class CounterfactualExplainer:
         for i in self.actionable_indices:
             diff = x_counterfactual[i] - x_original[i]
             if abs(diff) > threshold:
-                changes.append({
-                    'feature': self.feature_names[i],
-                    'feature_idx': i,
-                    'original_value': float(x_original[i]),
-                    'counterfactual_value': float(x_counterfactual[i]),
-                    'change': float(diff),
-                    'percent_change': float(100 * diff / (x_original[i] + 1e-8))
-                })
+                changes.append(
+                    {
+                        'feature': self.feature_names[i],
+                        'feature_idx': i,
+                        'original_value': float(x_original[i]),
+                        'counterfactual_value': float(x_counterfactual[i]),
+                        'change': float(diff),
+                        'percent_change': float(100 * diff / (x_original[i] + 1e-8)),
+                    }
+                )
 
         # Sort by absolute change magnitude
         changes.sort(key=lambda x: abs(x['change']), reverse=True)
         return changes
 
-    def _generate_clinical_report(self, x_original, x_counterfactual, changes,
-                                   original_pred, new_pred):
+    def _generate_clinical_report(
+        self, x_original, x_counterfactual, changes, original_pred, new_pred
+    ):
         """Generate human-readable clinical report."""
 
         report = f"""
@@ -284,7 +307,9 @@ NEXT STEPS:
 
         return report
 
-    def plot_counterfactual_comparison(self, result, save_path='experiments/counterfactual_comparison.png'):
+    def plot_counterfactual_comparison(
+        self, result, save_path='experiments/counterfactual_comparison.png'
+    ):
         """
         Visualize original vs counterfactual features.
 
@@ -301,7 +326,7 @@ NEXT STEPS:
             return
 
         # Top 10 changes
-        top_changes = changes[:min(10, len(changes))]
+        top_changes = changes[: min(10, len(changes))]
 
         features = [c['feature'] for c in top_changes]
         original = [c['original_value'] for c in top_changes]
@@ -312,14 +337,26 @@ NEXT STEPS:
         x = np.arange(len(features))
         width = 0.35
 
-        bars1 = ax.barh(x - width/2, original, width, label='Original', color='#e74c3c', alpha=0.8)
-        bars2 = ax.barh(x + width/2, counterfactual, width, label='Counterfactual', color='#2ecc71', alpha=0.8)
+        bars1 = ax.barh(
+            x - width / 2, original, width, label='Original', color='#e74c3c', alpha=0.8
+        )
+        bars2 = ax.barh(
+            x + width / 2,
+            counterfactual,
+            width,
+            label='Counterfactual',
+            color='#2ecc71',
+            alpha=0.8,
+        )
 
         ax.set_yticks(x)
         ax.set_yticklabels(features)
         ax.set_xlabel('Feature Value', fontsize=12, fontweight='bold')
-        ax.set_title(f'Counterfactual Explanation: R{result["original_prediction"]+1} → R{result["counterfactual_prediction"]+1}',
-                     fontsize=14, fontweight='bold')
+        ax.set_title(
+            f'Counterfactual Explanation: R{result["original_prediction"]+1} → R{result["counterfactual_prediction"]+1}',
+            fontsize=14,
+            fontweight='bold',
+        )
         ax.legend(fontsize=11)
         ax.grid(axis='x', alpha=0.3)
 
@@ -328,7 +365,9 @@ NEXT STEPS:
         print(f"✓ Counterfactual comparison saved to {save_path}")
         plt.close()
 
-    def plot_feature_changes_radar(self, result, save_path='experiments/counterfactual_radar.png'):
+    def plot_feature_changes_radar(
+        self, result, save_path='experiments/counterfactual_radar.png'
+    ):
         """
         Radar chart showing feature changes (normalized).
 
@@ -372,17 +411,30 @@ NEXT STEPS:
 
         fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(projection='polar'))
 
-        ax.plot(angles, original_norm, 'o-', linewidth=2, label='Original', color='#e74c3c')
+        ax.plot(
+            angles, original_norm, 'o-', linewidth=2, label='Original', color='#e74c3c'
+        )
         ax.fill(angles, original_norm, alpha=0.25, color='#e74c3c')
 
-        ax.plot(angles, counterfactual_norm, 'o-', linewidth=2, label='Counterfactual', color='#2ecc71')
+        ax.plot(
+            angles,
+            counterfactual_norm,
+            'o-',
+            linewidth=2,
+            label='Counterfactual',
+            color='#2ecc71',
+        )
         ax.fill(angles, counterfactual_norm, alpha=0.25, color='#2ecc71')
 
         ax.set_xticks(angles[:-1])
         ax.set_xticklabels(categories, size=10)
         ax.set_ylim(0, 1)
-        ax.set_title(f'Feature Changes: R{result["original_prediction"]+1} → R{result["counterfactual_prediction"]+1}',
-                     size=14, fontweight='bold', pad=20)
+        ax.set_title(
+            f'Feature Changes: R{result["original_prediction"]+1} → R{result["counterfactual_prediction"]+1}',
+            size=14,
+            fontweight='bold',
+            pad=20,
+        )
         ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
         ax.grid(True)
 
@@ -391,7 +443,9 @@ NEXT STEPS:
         print(f"✓ Radar chart saved to {save_path}")
         plt.close()
 
-    def plot_change_magnitude(self, result, save_path='experiments/counterfactual_magnitude.png'):
+    def plot_change_magnitude(
+        self, result, save_path='experiments/counterfactual_magnitude.png'
+    ):
         """
         Bar chart showing magnitude of changes (sorted).
 
@@ -412,22 +466,35 @@ NEXT STEPS:
         bars = ax.barh(features, magnitudes, color=colors, alpha=0.7)
 
         ax.set_xlabel('Magnitude of Change', fontsize=12, fontweight='bold')
-        ax.set_title('Change Magnitude by Feature\n(Red=Decrease, Green=Increase)',
-                     fontsize=14, fontweight='bold')
+        ax.set_title(
+            'Change Magnitude by Feature\n(Red=Decrease, Green=Increase)',
+            fontsize=14,
+            fontweight='bold',
+        )
         ax.grid(axis='x', alpha=0.3)
 
         # Add value labels
         for i, (bar, mag) in enumerate(zip(bars, magnitudes)):
-            ax.text(mag, bar.get_y() + bar.get_height()/2, f'{mag:.2f}',
-                   ha='left', va='center', fontsize=9)
+            ax.text(
+                mag,
+                bar.get_y() + bar.get_height() / 2,
+                f'{mag:.2f}',
+                ha='left',
+                va='center',
+                fontsize=9,
+            )
 
         plt.tight_layout()
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"✓ Change magnitude plot saved to {save_path}")
         plt.close()
 
-    def plot_what_if_scenarios(self, x_original, features_to_vary,
-                              save_path='experiments/counterfactual_whatif.png'):
+    def plot_what_if_scenarios(
+        self,
+        x_original,
+        features_to_vary,
+        save_path='experiments/counterfactual_whatif.png',
+    ):
         """
         What-if analysis: vary features and show prediction changes.
 
@@ -456,8 +523,13 @@ NEXT STEPS:
             # Plot
             ax = axes[i]
             ax.plot(values, predictions, linewidth=2, color='steelblue')
-            ax.axvline(x_original[feat_idx], color='red', linestyle='--',
-                      label='Current', linewidth=2)
+            ax.axvline(
+                x_original[feat_idx],
+                color='red',
+                linestyle='--',
+                label='Current',
+                linewidth=2,
+            )
             ax.set_xlabel(feature, fontsize=11, fontweight='bold')
             ax.set_ylabel('Predicted Risk Tier', fontsize=11, fontweight='bold')
             ax.set_title(f'Impact of {feature}', fontsize=12, fontweight='bold')
@@ -466,8 +538,11 @@ NEXT STEPS:
             ax.set_yticks(range(5))
             ax.set_yticklabels(['R1', 'R2', 'R3', 'R4', 'R5'])
 
-        plt.suptitle('What-If Analysis: Feature Impact on Risk Prediction',
-                     fontsize=14, fontweight='bold')
+        plt.suptitle(
+            'What-If Analysis: Feature Impact on Risk Prediction',
+            fontsize=14,
+            fontweight='bold',
+        )
         plt.tight_layout()
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"✓ What-if scenarios saved to {save_path}")
@@ -486,17 +561,22 @@ if __name__ == "__main__":
 
     # Generate synthetic medical data
     X, y = make_classification(
-        n_samples=500,
-        n_features=12,
-        n_informative=8,
-        n_classes=5,
-        random_state=42
+        n_samples=500, n_features=12, n_informative=8, n_classes=5, random_state=42
     )
 
     feature_names = [
-        'Age', 'BMI', 'Blood_Pressure', 'Heart_Rate', 'Cholesterol',
-        'Glucose', 'Smoking', 'Exercise', 'Family_History', 'Stress_Level',
-        'Sleep_Hours', 'Diet_Score'
+        'Age',
+        'BMI',
+        'Blood_Pressure',
+        'Heart_Rate',
+        'Cholesterol',
+        'Glucose',
+        'Smoking',
+        'Exercise',
+        'Family_History',
+        'Stress_Level',
+        'Sleep_Hours',
+        'Diet_Score',
     ]
 
     # Actionable features (exclude Age, Family_History)
@@ -510,15 +590,19 @@ if __name__ == "__main__":
 
     # Train model
     print("\nTraining model...")
-    model = XGBClassifier(max_depth=6, n_estimators=100, random_state=42, eval_metric='mlogloss')
+    model = XGBClassifier(
+        max_depth=6, n_estimators=100, random_state=42, eval_metric='mlogloss'
+    )
     model.fit(X_train, y_train)
     print("✓ Model trained")
 
     # Initialize counterfactual explainer
     cf_explainer = CounterfactualExplainer(
-        model, X_train, y_train,
+        model,
+        X_train,
+        y_train,
         feature_names=feature_names,
-        actionable_features=actionable
+        actionable_features=actionable,
     )
 
     # Select high-risk patient
@@ -551,8 +635,7 @@ if __name__ == "__main__":
         cf_explainer.plot_feature_changes_radar(result)
         cf_explainer.plot_change_magnitude(result)
         cf_explainer.plot_what_if_scenarios(
-            x_patient,
-            features_to_vary=['BMI', 'Exercise', 'Smoking', 'Stress_Level']
+            x_patient, features_to_vary=['BMI', 'Exercise', 'Smoking', 'Stress_Level']
         )
 
         print("\n" + "=" * 70)
