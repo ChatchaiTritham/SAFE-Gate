@@ -9,7 +9,8 @@ Generates per-case safety certificates containing:
 """
 
 import copy
-from typing import Dict, Tuple, Optional, List
+from typing import Dict, List, Optional, Tuple
+
 from .risk_lattice import RiskTier
 
 
@@ -23,7 +24,7 @@ class SafetyCertificate:
         g_enforce: str,
         rationale: str,
         gate_outputs: Optional[Dict] = None,
-        r_final: Optional[str] = None
+        r_final: Optional[str] = None,
     ):
         self.delta_min = delta_min
         self.delta_cf = delta_cf
@@ -39,7 +40,7 @@ class SafetyCertificate:
             "g_enforce": self.g_enforce,
             "rationale": self.rationale,
             "gate_outputs": self.gate_outputs,
-            "r_final": self.r_final
+            "r_final": self.r_final,
         }
 
     def __repr__(self):
@@ -74,7 +75,7 @@ class SafetyCertificateGenerator:
         gate_confidences: Dict[str, float],
         gate_reasonings: Optional[Dict] = None,
         classify_fn=None,
-        feature_names: Optional[List[str]] = None
+        feature_names: Optional[List[str]] = None,
     ) -> SafetyCertificate:
         """
         Generate safety certificate for a single case (Algorithm 2).
@@ -95,7 +96,9 @@ class SafetyCertificateGenerator:
 
         # Line 1: g_enforce = argmin_i rank(r_i) — most conservative gate
         min_rank = min(self._rank(t) for t in gate_outputs.values())
-        enforce_gates = [g for g, t in gate_outputs.items() if self._rank(t) == min_rank]
+        enforce_gates = [
+            g for g, t in gate_outputs.items() if self._rank(t) == min_rank
+        ]
         g_enforce = enforce_gates[0]
 
         # Line 2: delta_min = rank(r_final) - rank(r_{g_enforce})
@@ -120,7 +123,7 @@ class SafetyCertificateGenerator:
         for g, t in gate_outputs.items():
             gate_summary[g] = {
                 "tier": str(t),
-                "confidence": gate_confidences.get(g, 0.0)
+                "confidence": gate_confidences.get(g, 0.0),
             }
 
         return SafetyCertificate(
@@ -129,7 +132,7 @@ class SafetyCertificateGenerator:
             g_enforce=g_enforce,
             rationale=rationale,
             gate_outputs=gate_summary,
-            r_final=str(r_final)
+            r_final=str(r_final),
         )
 
     def _compute_counterfactual_distance(
@@ -138,7 +141,7 @@ class SafetyCertificateGenerator:
         r_final: RiskTier,
         classify_fn,
         feature_names: List[str],
-        max_subset_size: int = 10
+        max_subset_size: int = 10,
     ) -> int:
         """
         Greedy feature perturbation to find minimum features to change tier.
@@ -168,6 +171,7 @@ class SafetyCertificateGenerator:
                 # Test a sample of pairs/triples for tractability
                 import itertools
                 import random
+
                 combos = list(itertools.combinations(feature_names, k))
                 if len(combos) > 100:
                     combos = random.sample(combos, 100)
@@ -229,7 +233,7 @@ class SafetyCertificateGenerator:
         g_enforce: str,
         gate_reasonings: Optional[Dict],
         gate_outputs: Dict,
-        gate_confidences: Dict
+        gate_confidences: Dict,
     ) -> str:
         """Extract clinical rationale from the enforcing gate."""
         if gate_reasonings and g_enforce in gate_reasonings:

@@ -15,6 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
+
 class HyperparameterTuner:
     """Automated hyperparameter tuning for SAFE-Gate Gate2 (XGBoost)."""
 
@@ -43,17 +44,13 @@ class HyperparameterTuner:
 
         # Train model
         model = xgb.XGBClassifier(
-            **params,
-            random_state=42,
-            eval_metric='mlogloss',
-            use_label_encoder=False
+            **params, random_state=42, eval_metric='mlogloss', use_label_encoder=False
         )
 
         # Cross-validation
         f1_scorer = make_scorer(f1_score, average='macro')
         scores = cross_val_score(
-            model, self.X_train, self.y_train,
-            cv=5, scoring=f1_scorer, n_jobs=-1
+            model, self.X_train, self.y_train, cv=5, scoring=f1_scorer, n_jobs=-1
         )
 
         return scores.mean()
@@ -65,14 +62,14 @@ class HyperparameterTuner:
         study = optuna.create_study(
             direction='maximize',
             study_name='safegate_gate2',
-            sampler=optuna.samplers.TPESampler(seed=42)
+            sampler=optuna.samplers.TPESampler(seed=42),
         )
 
         study.optimize(
             self.objective,
             n_trials=n_trials,
             show_progress_bar=True,
-            callbacks=[self._callback]
+            callbacks=[self._callback],
         )
 
         self.best_params = study.best_params
@@ -95,7 +92,7 @@ class HyperparameterTuner:
             **self.best_params,
             random_state=42,
             eval_metric='mlogloss',
-            use_label_encoder=False
+            use_label_encoder=False,
         )
         model.fit(self.X_train, self.y_train)
 
@@ -113,15 +110,12 @@ if __name__ == "__main__":
     from sklearn.datasets import make_classification
 
     X, y = make_classification(
-        n_samples=1000,
-        n_features=20,
-        n_informative=15,
-        n_classes=5,
-        random_state=42
+        n_samples=1000, n_features=20, n_informative=15, n_classes=5, random_state=42
     )
 
     # Split data
     from sklearn.model_selection import train_test_split
+
     X_train, X_val, y_train, y_val = train_test_split(
         X, y, test_size=0.2, random_state=42
     )
@@ -135,10 +129,12 @@ if __name__ == "__main__":
 
     # Save results
     import json
+
     with open('experiments/best_hyperparameters.json', 'w') as f:
-        json.dump({
-            'best_params': tuner.best_params,
-            'best_score': float(tuner.best_score)
-        }, f, indent=2)
+        json.dump(
+            {'best_params': tuner.best_params, 'best_score': float(tuner.best_score)},
+            f,
+            indent=2,
+        )
 
     print("\n✓ Best hyperparameters saved to experiments/best_hyperparameters.json")

@@ -5,9 +5,9 @@ Generates complete, faithful audit trails documenting decision logic for
 clinical review, quality assurance, and medicolegal documentation.
 """
 
-from typing import Dict, List, Optional
-from datetime import datetime
 import json
+from datetime import datetime
+from typing import Dict, List, Optional
 
 
 class AuditTrailGenerator:
@@ -30,7 +30,7 @@ class AuditTrailGenerator:
         final_tier: str,
         enforcing_gate: str,
         merging_audit: Dict,
-        theorem_verification: Optional[Dict] = None
+        theorem_verification: Optional[Dict] = None,
     ) -> Dict:
         """
         Generate complete audit trail for a single patient decision.
@@ -51,20 +51,17 @@ class AuditTrailGenerator:
             'metadata': {
                 'patient_id': patient_id,
                 'timestamp': datetime.now().isoformat(),
-                'system': 'SAFE-Gate v1.0.0'
+                'system': 'SAFE-Gate v1.0.0',
             },
-            'input_data': {
-                'num_features': len(patient_data),
-                'features': patient_data
-            },
+            'input_data': {'num_features': len(patient_data), 'features': patient_data},
             'gate_evaluations': {},
             'merging': merging_audit,
             'final_decision': {
                 'tier': final_tier,
                 'enforcing_gate': enforcing_gate,
-                'description': self._get_tier_description(final_tier)
+                'description': self._get_tier_description(final_tier),
             },
-            'theorem_verification': theorem_verification or {}
+            'theorem_verification': theorem_verification or {},
         }
 
         # Document individual gate outputs
@@ -72,7 +69,7 @@ class AuditTrailGenerator:
             audit_trail['gate_evaluations'][gate_name] = {
                 'tier': str(gate_result.get('tier', 'Unknown')),
                 'confidence': gate_result.get('confidence', 0.0),
-                'reasoning': gate_result.get('reasoning', {})
+                'reasoning': gate_result.get('reasoning', {}),
             }
 
         return audit_trail
@@ -85,7 +82,7 @@ class AuditTrailGenerator:
             'R2': 'High Risk: Suspected stroke, urgent evaluation (<15 min)',
             'R3': 'Moderate: Acute vertigo, standard evaluation (30-120 min)',
             'R4': 'Low Risk: Positional dizziness, delayed evaluation OK (1-4 hours)',
-            'R5': 'Minimal: Chronic dizziness, safe discharge to outpatient'
+            'R5': 'Minimal: Chronic dizziness, safe discharge to outpatient',
         }
         return descriptions.get(tier_str, 'Unknown tier')
 
@@ -128,7 +125,9 @@ class AuditTrailGenerator:
             gate_data = gate_evals[gate_name]
             report_lines.append(f"  {gate_name}:")
             report_lines.append(f"    Tier: {gate_data.get('tier', 'Unknown')}")
-            report_lines.append(f"    Confidence: {gate_data.get('confidence', 0.0):.2f}")
+            report_lines.append(
+                f"    Confidence: {gate_data.get('confidence', 0.0):.2f}"
+            )
 
             reasoning = gate_data.get('reasoning', {})
             if 'decision' in reasoning:

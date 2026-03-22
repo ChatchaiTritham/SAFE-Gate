@@ -7,8 +7,11 @@ Improves model performance through intelligent feature transformation
 import numpy as np
 import pandas as pd
 from sklearn.feature_selection import (
-    SelectKBest, f_classif, mutual_info_classif,
-    RFE, RFECV
+    SelectKBest,
+    f_classif,
+    mutual_info_classif,
+    RFE,
+    RFECV,
 )
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
@@ -66,11 +69,9 @@ class AutomatedFeatureEngineering:
         else:
             feature_names = [f'feature_{i}' for i in range(X.shape[1])]
 
-        df_scores = pd.DataFrame({
-            'feature': feature_names,
-            'f_score': f_scores,
-            'mi_score': mi_scores
-        })
+        df_scores = pd.DataFrame(
+            {'feature': feature_names, 'f_score': f_scores, 'mi_score': mi_scores}
+        )
 
         df_scores = df_scores.sort_values('f_score', ascending=False)
 
@@ -99,10 +100,7 @@ class AutomatedFeatureEngineering:
 
         # Base estimator
         estimator = RandomForestClassifier(
-            n_estimators=50,
-            max_depth=8,
-            random_state=42,
-            n_jobs=-1
+            n_estimators=50, max_depth=8, random_state=42, n_jobs=-1
         )
 
         # RFE with CV
@@ -112,7 +110,7 @@ class AutomatedFeatureEngineering:
             cv=5,
             scoring='f1_macro',
             n_jobs=-1,
-            verbose=0
+            verbose=0,
         )
 
         selector.fit(X, y)
@@ -143,9 +141,7 @@ class AutomatedFeatureEngineering:
         print(f"\n[3/4] Creating Interaction Features (degree={degree})...")
 
         self.poly = PolynomialFeatures(
-            degree=degree,
-            interaction_only=interaction_only,
-            include_bias=False
+            degree=degree, interaction_only=interaction_only, include_bias=False
         )
 
         X_poly = self.poly.fit_transform(X)
@@ -199,10 +195,7 @@ class AutomatedFeatureEngineering:
 
         # Train Random Forest
         rf = RandomForestClassifier(
-            n_estimators=100,
-            max_depth=10,
-            random_state=42,
-            n_jobs=-1
+            n_estimators=100, max_depth=10, random_state=42, n_jobs=-1
         )
         rf.fit(X, y)
 
@@ -212,10 +205,9 @@ class AutomatedFeatureEngineering:
         else:
             feature_names = [f'feature_{i}' for i in range(X.shape[1])]
 
-        importance_df = pd.DataFrame({
-            'feature': feature_names,
-            'importance': rf.feature_importances_
-        }).sort_values('importance', ascending=False)
+        importance_df = pd.DataFrame(
+            {'feature': feature_names, 'importance': rf.feature_importances_}
+        ).sort_values('importance', ascending=False)
 
         print(f"\nTop {top_k} Most Important Features:")
         print(importance_df.head(top_k).to_string(index=False))
@@ -226,7 +218,9 @@ class AutomatedFeatureEngineering:
         self.feature_importance = importance_df
         return importance_df
 
-    def _plot_feature_importance(self, df, save_path='experiments/feature_importance.png'):
+    def _plot_feature_importance(
+        self, df, save_path='experiments/feature_importance.png'
+    ):
         """Plot feature importance."""
         plt.figure(figsize=(10, 6))
         sns.barplot(data=df, x='importance', y='feature', palette='viridis')
@@ -250,9 +244,9 @@ class AutomatedFeatureEngineering:
         Returns:
             Transformed training data
         """
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("AUTOMATED FEATURE ENGINEERING PIPELINE")
-        print("="*60)
+        print("=" * 60)
 
         # Step 1: Feature importance analysis
         importance_df = self.analyze_feature_importance(X_train, y_train)
@@ -270,7 +264,7 @@ class AutomatedFeatureEngineering:
 
         # Step 3: Create interactions (selective)
         # Only create interactions for top 20 features to avoid explosion
-        top_20 = top_features[:min(20, len(top_features))]
+        top_20 = top_features[: min(20, len(top_features))]
         if isinstance(X_train, pd.DataFrame):
             X_top = X_train[top_20].values
         else:
@@ -281,9 +275,9 @@ class AutomatedFeatureEngineering:
         # Step 4: PCA for dimension reduction
         X_final = self.reduce_dimensions_pca(X_inter, n_components=0.95)
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("PIPELINE COMPLETE")
-        print("="*60)
+        print("=" * 60)
         print(f"Original features: {X_train.shape[1]}")
         print(f"Selected features: {len(top_features)}")
         print(f"After interactions: {X_inter.shape[1]}")
@@ -306,7 +300,7 @@ if __name__ == "__main__":
         n_informative=20,
         n_redundant=15,
         n_classes=5,
-        random_state=42
+        random_state=42,
     )
 
     X_train, X_test, y_train, y_test = train_test_split(
@@ -320,9 +314,9 @@ if __name__ == "__main__":
     X_train_transformed = fe.build_optimal_pipeline(X_train, y_train)
 
     # Test baseline vs optimized
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("PERFORMANCE COMPARISON")
-    print("="*60)
+    print("=" * 60)
 
     # Baseline: Original features
     clf_baseline = RandomForestClassifier(n_estimators=100, random_state=42)

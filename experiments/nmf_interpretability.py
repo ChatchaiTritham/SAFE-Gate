@@ -26,6 +26,7 @@ from sklearn.decomposition import NMF
 from sklearn.preprocessing import MinMaxScaler
 from pathlib import Path
 import warnings
+
 warnings.filterwarnings('ignore')
 
 
@@ -77,7 +78,9 @@ class NMFInterpreter:
             self.feature_names = X.columns.tolist()
             X_array = X.values
         else:
-            self.feature_names = feature_names or [f'Feature_{i}' for i in range(X.shape[1])]
+            self.feature_names = feature_names or [
+                f'Feature_{i}' for i in range(X.shape[1])
+            ]
             X_array = X
 
         # Scale to [0, 1] (NMF requires non-negative)
@@ -87,21 +90,23 @@ class NMFInterpreter:
         self.nmf_model = NMF(
             n_components=self.n_components,
             init='nndsvda',  # Non-negative double SVD initialization
-            solver='cd',      # Coordinate descent
+            solver='cd',  # Coordinate descent
             max_iter=500,
             random_state=self.random_state,
-            alpha_W=0.1,     # L1 regularization for sparsity
+            alpha_W=0.1,  # L1 regularization for sparsity
             alpha_H=0.1,
-            l1_ratio=0.5
+            l1_ratio=0.5,
         )
 
         self.W = self.nmf_model.fit_transform(X_scaled)  # Patient loadings
-        self.H = self.nmf_model.components_              # Feature loadings
+        self.H = self.nmf_model.components_  # Feature loadings
 
         # Auto-name components based on top features
         self.component_names = self._auto_name_components()
 
-        print(f"✓ NMF fitted (reconstruction error: {self.nmf_model.reconstruction_err_:.3f})")
+        print(
+            f"✓ NMF fitted (reconstruction error: {self.nmf_model.reconstruction_err_:.3f})"
+        )
 
         return self
 
@@ -140,8 +145,11 @@ class NMFInterpreter:
 
         self.component_names = names
 
-    def plot_components_heatmap(self, top_features=15,
-                                save_path='experiments/charts/nmf_01_components_heatmap.png'):
+    def plot_components_heatmap(
+        self,
+        top_features=15,
+        save_path='experiments/charts/nmf_01_components_heatmap.png',
+    ):
         """
         Heatmap showing feature loadings for each syndrome.
 
@@ -178,14 +186,17 @@ class NMFInterpreter:
             annot=False,
             fmt='.2f',
             cbar_kws={'label': 'Feature Loading'},
-            linewidths=0.5
+            linewidths=0.5,
         )
 
         ax.set_xlabel('Features (Symptoms)', fontsize=12, fontweight='bold')
         ax.set_ylabel('Clinical Syndromes', fontsize=12, fontweight='bold')
-        ax.set_title('NMF Components: Clinical Syndrome Patterns\n' +
-                     '(Feature loadings show which symptoms define each syndrome)',
-                     fontsize=14, fontweight='bold')
+        ax.set_title(
+            'NMF Components: Clinical Syndrome Patterns\n'
+            + '(Feature loadings show which symptoms define each syndrome)',
+            fontsize=14,
+            fontweight='bold',
+        )
 
         plt.xticks(rotation=45, ha='right')
         plt.yticks(rotation=0)
@@ -196,8 +207,12 @@ class NMFInterpreter:
         print(f"✓ Components heatmap saved to {save_path}")
         plt.close()
 
-    def plot_component_loadings(self, component_idx=0, top_n=15,
-                                save_path='experiments/charts/nmf_02_component_loadings.png'):
+    def plot_component_loadings(
+        self,
+        component_idx=0,
+        top_n=15,
+        save_path='experiments/charts/nmf_02_component_loadings.png',
+    ):
         """
         Bar chart showing top features for a specific syndrome.
 
@@ -224,9 +239,12 @@ class NMFInterpreter:
         ax.set_yticks(range(len(top_features)))
         ax.set_yticklabels(top_features)
         ax.set_xlabel('Feature Loading', fontsize=12, fontweight='bold')
-        ax.set_title(f'{self.component_names[component_idx]}\n' +
-                     f'Top {top_n} Defining Features',
-                     fontsize=14, fontweight='bold')
+        ax.set_title(
+            f'{self.component_names[component_idx]}\n'
+            + f'Top {top_n} Defining Features',
+            fontsize=14,
+            fontweight='bold',
+        )
         ax.grid(axis='x', alpha=0.3)
 
         # Add value labels
@@ -238,7 +256,9 @@ class NMFInterpreter:
         print(f"✓ Component loadings saved to {save_path}")
         plt.close()
 
-    def plot_patient_space(self, y=None, save_path='experiments/charts/nmf_03_patient_space.png'):
+    def plot_patient_space(
+        self, y=None, save_path='experiments/charts/nmf_03_patient_space.png'
+    ):
         """
         2D visualization of patients in syndrome space.
 
@@ -264,7 +284,7 @@ class NMFInterpreter:
                 s=50,
                 alpha=0.6,
                 edgecolors='black',
-                linewidth=0.5
+                linewidth=0.5,
             )
             cbar = plt.colorbar(scatter, ax=ax)
             cbar.set_label('Risk Tier', fontsize=11, fontweight='bold')
@@ -275,16 +295,20 @@ class NMFInterpreter:
                 s=50,
                 alpha=0.6,
                 edgecolors='black',
-                linewidth=0.5
+                linewidth=0.5,
             )
 
-        ax.set_xlabel(f'{self.component_names[0]} Loading',
-                     fontsize=12, fontweight='bold')
-        ax.set_ylabel(f'{self.component_names[1]} Loading',
-                     fontsize=12, fontweight='bold')
-        ax.set_title('Patient Distribution in Syndrome Space\n' +
-                     '(First 2 NMF Components)',
-                     fontsize=14, fontweight='bold')
+        ax.set_xlabel(
+            f'{self.component_names[0]} Loading', fontsize=12, fontweight='bold'
+        )
+        ax.set_ylabel(
+            f'{self.component_names[1]} Loading', fontsize=12, fontweight='bold'
+        )
+        ax.set_title(
+            'Patient Distribution in Syndrome Space\n' + '(First 2 NMF Components)',
+            fontsize=14,
+            fontweight='bold',
+        )
         ax.grid(alpha=0.3)
 
         plt.tight_layout()
@@ -292,7 +316,9 @@ class NMFInterpreter:
         print(f"✓ Patient space plot saved to {save_path}")
         plt.close()
 
-    def plot_syndrome_composition(self, save_path='experiments/charts/nmf_04_syndrome_composition.png'):
+    def plot_syndrome_composition(
+        self, save_path='experiments/charts/nmf_04_syndrome_composition.png'
+    ):
         """
         Stacked bar chart showing syndrome prevalence across patients.
 
@@ -318,31 +344,40 @@ class NMFInterpreter:
             alpha=0.8,
             edgecolor='black',
             linewidth=1.5,
-            capsize=5
+            capsize=5,
         )
 
         ax.set_xticks(range(self.n_components))
         ax.set_xticklabels(self.component_names, rotation=45, ha='right')
         ax.set_ylabel('Average Patient Loading', fontsize=12, fontweight='bold')
-        ax.set_title('Clinical Syndrome Prevalence\n' +
-                     '(Average across all patients)',
-                     fontsize=14, fontweight='bold')
+        ax.set_title(
+            'Clinical Syndrome Prevalence\n' + '(Average across all patients)',
+            fontsize=14,
+            fontweight='bold',
+        )
         ax.grid(axis='y', alpha=0.3)
 
         # Add value labels
         for bar, val, std in zip(bars, avg_loadings, std_loadings):
             height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height,
-                   f'{val:.3f}\n±{std:.3f}',
-                   ha='center', va='bottom', fontsize=9, fontweight='bold')
+            ax.text(
+                bar.get_x() + bar.get_width() / 2.0,
+                height,
+                f'{val:.3f}\n±{std:.3f}',
+                ha='center',
+                va='bottom',
+                fontsize=9,
+                fontweight='bold',
+            )
 
         plt.tight_layout()
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"✓ Syndrome composition saved to {save_path}")
         plt.close()
 
-    def plot_patient_profile(self, patient_idx=0,
-                            save_path='experiments/charts/nmf_05_patient_profile.png'):
+    def plot_patient_profile(
+        self, patient_idx=0, save_path='experiments/charts/nmf_05_patient_profile.png'
+    ):
         """
         Radar chart showing syndrome composition for a specific patient.
 
@@ -366,20 +401,39 @@ class NMFInterpreter:
 
         fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(projection='polar'))
 
-        ax.plot(angles, patient_loadings_plot, 'o-', linewidth=2, color='steelblue', label='Patient')
+        ax.plot(
+            angles,
+            patient_loadings_plot,
+            'o-',
+            linewidth=2,
+            color='steelblue',
+            label='Patient',
+        )
         ax.fill(angles, patient_loadings_plot, alpha=0.25, color='steelblue')
 
         # Add average for comparison
         avg_loadings = self.W.mean(axis=0).tolist()
         avg_loadings += avg_loadings[:1]
-        ax.plot(angles, avg_loadings, 'o--', linewidth=2, color='red', label='Average', alpha=0.6)
+        ax.plot(
+            angles,
+            avg_loadings,
+            'o--',
+            linewidth=2,
+            color='red',
+            label='Average',
+            alpha=0.6,
+        )
 
         ax.set_xticks(angles[:-1])
         ax.set_xticklabels(self.component_names, size=9)
         ax.set_ylim(0, max(patient_loadings.max(), self.W.mean(axis=0).max()) * 1.2)
-        ax.set_title(f'Patient #{patient_idx} Syndrome Profile\n' +
-                     '(Comparison with population average)',
-                     fontsize=14, fontweight='bold', pad=20)
+        ax.set_title(
+            f'Patient #{patient_idx} Syndrome Profile\n'
+            + '(Comparison with population average)',
+            fontsize=14,
+            fontweight='bold',
+            pad=20,
+        )
         ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
         ax.grid(True)
 
@@ -388,7 +442,9 @@ class NMFInterpreter:
         print(f"✓ Patient profile saved to {save_path}")
         plt.close()
 
-    def plot_syndrome_correlation(self, save_path='experiments/charts/nmf_06_syndrome_correlation.png'):
+    def plot_syndrome_correlation(
+        self, save_path='experiments/charts/nmf_06_syndrome_correlation.png'
+    ):
         """
         Correlation heatmap between syndromes.
 
@@ -416,12 +472,15 @@ class NMFInterpreter:
             vmax=1,
             square=True,
             cbar_kws={'label': 'Correlation'},
-            linewidths=0.5
+            linewidths=0.5,
         )
 
-        ax.set_title('Syndrome Co-occurrence Patterns\n' +
-                     '(Correlation between clinical syndromes)',
-                     fontsize=14, fontweight='bold')
+        ax.set_title(
+            'Syndrome Co-occurrence Patterns\n'
+            + '(Correlation between clinical syndromes)',
+            fontsize=14,
+            fontweight='bold',
+        )
 
         plt.tight_layout()
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
@@ -460,14 +519,16 @@ class NMFInterpreter:
             top_syndromes_idx = avg_profile.argsort()[-3:][::-1]
             top_syndromes = [self.component_names[idx] for idx in top_syndromes_idx]
 
-            archetype_info.append({
-                'archetype_id': i,
-                'n_patients': n_patients,
-                'percentage': 100 * n_patients / len(self.W),
-                'avg_profile': avg_profile,
-                'top_syndromes': top_syndromes,
-                'description': f"Archetype {i+1}: {', '.join(top_syndromes[:2])}"
-            })
+            archetype_info.append(
+                {
+                    'archetype_id': i,
+                    'n_patients': n_patients,
+                    'percentage': 100 * n_patients / len(self.W),
+                    'avg_profile': avg_profile,
+                    'top_syndromes': top_syndromes,
+                    'description': f"Archetype {i+1}: {', '.join(top_syndromes[:2])}",
+                }
+            )
 
         return archetype_info, archetypes
 
@@ -488,8 +549,10 @@ class NMFInterpreter:
         patient_loadings = self.W[patient_idx]
 
         # Rank syndromes by loading
-        syndrome_ranking = [(self.component_names[i], patient_loadings[i])
-                           for i in range(self.n_components)]
+        syndrome_ranking = [
+            (self.component_names[i], patient_loadings[i])
+            for i in range(self.n_components)
+        ]
         syndrome_ranking.sort(key=lambda x: x[1], reverse=True)
 
         # Get top features for top syndrome
@@ -573,25 +636,37 @@ if __name__ == "__main__":
 
     # Generate synthetic medical data
     X, y = make_classification(
-        n_samples=500,
-        n_features=15,
-        n_informative=12,
-        n_classes=5,
-        random_state=42
+        n_samples=500, n_features=15, n_informative=12, n_classes=5, random_state=42
     )
 
     feature_names = [
-        'Age', 'BMI', 'Blood_Pressure', 'Heart_Rate', 'Cholesterol',
-        'Glucose', 'Smoking', 'Exercise', 'Family_History', 'Stress_Level',
-        'Sleep_Hours', 'Alcohol', 'Diet_Score', 'Medication', 'Previous_Events'
+        'Age',
+        'BMI',
+        'Blood_Pressure',
+        'Heart_Rate',
+        'Cholesterol',
+        'Glucose',
+        'Smoking',
+        'Exercise',
+        'Family_History',
+        'Stress_Level',
+        'Sleep_Hours',
+        'Alcohol',
+        'Diet_Score',
+        'Medication',
+        'Previous_Events',
     ]
 
     X_df = pd.DataFrame(X, columns=feature_names)
-    X_train, X_test, y_train, y_test = train_test_split(X_df, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y, test_size=0.2, random_state=42
+    )
 
     # Train model for predictions
     print("\nTraining model...")
-    model = XGBClassifier(max_depth=6, n_estimators=100, random_state=42, eval_metric='mlogloss')
+    model = XGBClassifier(
+        max_depth=6, n_estimators=100, random_state=42, eval_metric='mlogloss'
+    )
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     print("✓ Model trained")
@@ -605,13 +680,15 @@ if __name__ == "__main__":
     nmf_interpreter.fit(X_train)
 
     # Manually name components (based on domain knowledge)
-    nmf_interpreter.name_components([
-        'Syndrome 1: Cardiovascular',
-        'Syndrome 2: Metabolic',
-        'Syndrome 3: Neurological',
-        'Syndrome 4: Lifestyle',
-        'Syndrome 5: Stress-related'
-    ])
+    nmf_interpreter.name_components(
+        [
+            'Syndrome 1: Cardiovascular',
+            'Syndrome 2: Metabolic',
+            'Syndrome 3: Neurological',
+            'Syndrome 4: Lifestyle',
+            'Syndrome 5: Stress-related',
+        ]
+    )
 
     print("\n" + "=" * 70)
     print("Generating NMF Visualizations (6 Charts)")
@@ -654,7 +731,9 @@ if __name__ == "__main__":
     print("Patient Archetypes")
     print("=" * 70)
 
-    archetypes, assignments = nmf_interpreter.identify_patient_archetypes(n_archetypes=3)
+    archetypes, assignments = nmf_interpreter.identify_patient_archetypes(
+        n_archetypes=3
+    )
 
     for arch in archetypes:
         print(f"\n{arch['description']}")

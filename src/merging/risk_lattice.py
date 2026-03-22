@@ -11,12 +11,13 @@ from typing import List, Optional
 
 class RiskTier(Enum):
     """Risk tier enumeration with conservative ordering."""
+
     R_STAR = 0  # Abstention (most conservative)
-    R1 = 1      # Critical (life-threatening, immediate care)
-    R2 = 2      # High Risk (suspected stroke, urgent evaluation)
-    R3 = 3      # Moderate (acute vertigo, standard evaluation)
-    R4 = 4      # Low Risk (positional dizziness, delayed OK)
-    R5 = 5      # Minimal (chronic dizziness, safe discharge)
+    R1 = 1  # Critical (life-threatening, immediate care)
+    R2 = 2  # High Risk (suspected stroke, urgent evaluation)
+    R3 = 3  # Moderate (acute vertigo, standard evaluation)
+    R4 = 4  # Low Risk (positional dizziness, delayed OK)
+    R5 = 5  # Minimal (chronic dizziness, safe discharge)
 
     def __str__(self):
         if self == RiskTier.R_STAR:
@@ -50,7 +51,7 @@ class RiskTier(Enum):
             RiskTier.R2: "High Risk: Suspected stroke, urgent evaluation (<15 min)",
             RiskTier.R3: "Moderate: Acute vertigo, standard evaluation (30-120 min)",
             RiskTier.R4: "Low Risk: Positional dizziness, delayed evaluation OK (1-4 hours)",
-            RiskTier.R5: "Minimal: Chronic dizziness, safe discharge to outpatient"
+            RiskTier.R5: "Minimal: Chronic dizziness, safe discharge to outpatient",
         }
         return descriptions.get(self, "Unknown tier")
 
@@ -87,7 +88,9 @@ class RiskLattice:
         return min(tiers, key=lambda t: t.value)
 
     @staticmethod
-    def verify_conservative_property(final_tier: RiskTier, gate_tiers: List[RiskTier]) -> bool:
+    def verify_conservative_property(
+        final_tier: RiskTier, gate_tiers: List[RiskTier]
+    ) -> bool:
         """
         Verify that final tier satisfies conservative property.
 
@@ -115,7 +118,7 @@ class RiskLattice:
             'R2': RiskTier.R2,
             'R3': RiskTier.R3,
             'R4': RiskTier.R4,
-            'R5': RiskTier.R5
+            'R5': RiskTier.R5,
         }
         tier = mapping.get(tier_str.upper())
         if tier is None:

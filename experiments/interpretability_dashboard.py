@@ -56,8 +56,17 @@ class InterpretabilityDashboard:
        - Combined insights
     """
 
-    def __init__(self, model, X_train, y_train, X_test, y_test,
-                 feature_names=None, actionable_features=None, n_syndromes=5):
+    def __init__(
+        self,
+        model,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
+        feature_names=None,
+        actionable_features=None,
+        n_syndromes=5,
+    ):
         """
         Initialize dashboard.
 
@@ -89,9 +98,11 @@ class InterpretabilityDashboard:
         # Initialize Counterfactual explainer
         print("\nInitializing Counterfactual Explainer...")
         self.cf_explainer = CounterfactualExplainer(
-            model, X_train, y_train,
+            model,
+            X_train,
+            y_train,
             feature_names=self.feature_names,
-            actionable_features=actionable_features
+            actionable_features=actionable_features,
         )
         print("✓ Counterfactual Explainer ready")
 
@@ -124,42 +135,35 @@ class InterpretabilityDashboard:
         # 1. Global importance
         print("\n[1/8] Global Feature Importance...")
         self.shap_importance = self.shap_explainer.plot_global_importance(
-            self.X_test,
-            save_path=f'{output_dir}/shap_01_global_importance.png'
+            self.X_test, save_path=f'{output_dir}/shap_01_global_importance.png'
         )
         charts['global_importance'] = f'{output_dir}/shap_01_global_importance.png'
 
         # 2. Summary plot
         print("[2/8] Summary Plot...")
         self.shap_explainer.plot_summary(
-            self.X_test,
-            save_path=f'{output_dir}/shap_02_summary_plot.png'
+            self.X_test, save_path=f'{output_dir}/shap_02_summary_plot.png'
         )
         charts['summary'] = f'{output_dir}/shap_02_summary_plot.png'
 
         # 3. Waterfall
         print("[3/8] Waterfall Plot...")
         self.shap_explainer.plot_waterfall(
-            self.X_test,
-            sample_idx=0,
-            save_path=f'{output_dir}/shap_03_waterfall.png'
+            self.X_test, sample_idx=0, save_path=f'{output_dir}/shap_03_waterfall.png'
         )
         charts['waterfall'] = f'{output_dir}/shap_03_waterfall.png'
 
         # 4. Force plot
         print("[4/8] Force Plot...")
         self.shap_explainer.plot_force(
-            self.X_test,
-            sample_idx=0,
-            save_path=f'{output_dir}/shap_04_force_plot.png'
+            self.X_test, sample_idx=0, save_path=f'{output_dir}/shap_04_force_plot.png'
         )
         charts['force'] = f'{output_dir}/shap_04_force_plot.png'
 
         # 5. Decision plot
         print("[5/8] Decision Plot...")
         self.shap_explainer.plot_decision(
-            self.X_test,
-            save_path=f'{output_dir}/shap_05_decision_plot.png'
+            self.X_test, save_path=f'{output_dir}/shap_05_decision_plot.png'
         )
         charts['decision'] = f'{output_dir}/shap_05_decision_plot.png'
 
@@ -167,33 +171,30 @@ class InterpretabilityDashboard:
         print("[6/8] Dependence Plot...")
         top_feature = self.shap_importance.iloc[0]['Feature']
         self.shap_explainer.plot_dependence(
-            self.X_test,
-            top_feature,
-            save_path=f'{output_dir}/shap_06_dependence.png'
+            self.X_test, top_feature, save_path=f'{output_dir}/shap_06_dependence.png'
         )
         charts['dependence'] = f'{output_dir}/shap_06_dependence.png'
 
         # 7. Interaction heatmap
         print("[7/8] Interaction Heatmap...")
         self.shap_explainer.plot_interaction_heatmap(
-            self.X_test,
-            save_path=f'{output_dir}/shap_07_interaction_heatmap.png'
+            self.X_test, save_path=f'{output_dir}/shap_07_interaction_heatmap.png'
         )
         charts['interaction'] = f'{output_dir}/shap_07_interaction_heatmap.png'
 
         # 8. Beeswarm
         print("[8/8] Beeswarm Plot...")
         self.shap_explainer.plot_beeswarm(
-            self.X_test,
-            save_path=f'{output_dir}/shap_08_beeswarm.png'
+            self.X_test, save_path=f'{output_dir}/shap_08_beeswarm.png'
         )
         charts['beeswarm'] = f'{output_dir}/shap_08_beeswarm.png'
 
         print("\n✓ All SHAP charts generated!")
         return charts
 
-    def generate_all_counterfactual_charts(self, sample_idx=0,
-                                           output_dir='experiments/charts'):
+    def generate_all_counterfactual_charts(
+        self, sample_idx=0, output_dir='experiments/charts'
+    ):
         """
         Generate all 4 Counterfactual charts for a specific patient.
 
@@ -224,36 +225,34 @@ class InterpretabilityDashboard:
 
         # Find counterfactual
         cf_result = self.cf_explainer.find_counterfactual(
-            x_patient,
-            method='optimization'
+            x_patient, method='optimization'
         )
 
         charts = {}
 
         if cf_result['success']:
-            print(f"✓ Counterfactual found: R{current_pred + 1} → R{cf_result['counterfactual_prediction'] + 1}")
+            print(
+                f"✓ Counterfactual found: R{current_pred + 1} → R{cf_result['counterfactual_prediction'] + 1}"
+            )
 
             # 1. Comparison chart
             print("\n[1/4] Counterfactual Comparison...")
             self.cf_explainer.plot_counterfactual_comparison(
-                cf_result,
-                save_path=f'{output_dir}/cf_01_comparison.png'
+                cf_result, save_path=f'{output_dir}/cf_01_comparison.png'
             )
             charts['comparison'] = f'{output_dir}/cf_01_comparison.png'
 
             # 2. Radar chart
             print("[2/4] Radar Chart...")
             self.cf_explainer.plot_feature_changes_radar(
-                cf_result,
-                save_path=f'{output_dir}/cf_02_radar.png'
+                cf_result, save_path=f'{output_dir}/cf_02_radar.png'
             )
             charts['radar'] = f'{output_dir}/cf_02_radar.png'
 
             # 3. Change magnitude
             print("[3/4] Change Magnitude...")
             self.cf_explainer.plot_change_magnitude(
-                cf_result,
-                save_path=f'{output_dir}/cf_03_magnitude.png'
+                cf_result, save_path=f'{output_dir}/cf_03_magnitude.png'
             )
             charts['magnitude'] = f'{output_dir}/cf_03_magnitude.png'
 
@@ -262,9 +261,7 @@ class InterpretabilityDashboard:
             # Use top 4 actionable features
             actionable = self.cf_explainer.actionable_features[:4]
             self.cf_explainer.plot_what_if_scenarios(
-                x_patient,
-                actionable,
-                save_path=f'{output_dir}/cf_04_whatif.png'
+                x_patient, actionable, save_path=f'{output_dir}/cf_04_whatif.png'
             )
             charts['whatif'] = f'{output_dir}/cf_04_whatif.png'
 
@@ -302,8 +299,7 @@ class InterpretabilityDashboard:
         # 2. Component loadings
         print("[2/6] Component Loadings...")
         self.nmf_interpreter.plot_component_loadings(
-            component_idx=0,
-            save_path=f'{output_dir}/nmf_02_component_loadings.png'
+            component_idx=0, save_path=f'{output_dir}/nmf_02_component_loadings.png'
         )
         charts['component_loadings'] = f'{output_dir}/nmf_02_component_loadings.png'
 
@@ -311,7 +307,7 @@ class InterpretabilityDashboard:
         print("[3/6] Patient Space...")
         self.nmf_interpreter.plot_patient_space(
             y=self.y_test if hasattr(self, 'y_test') else None,
-            save_path=f'{output_dir}/nmf_03_patient_space.png'
+            save_path=f'{output_dir}/nmf_03_patient_space.png',
         )
         charts['patient_space'] = f'{output_dir}/nmf_03_patient_space.png'
 
@@ -325,8 +321,7 @@ class InterpretabilityDashboard:
         # 5. Patient profile
         print("[5/6] Patient Profile...")
         self.nmf_interpreter.plot_patient_profile(
-            patient_idx=0,
-            save_path=f'{output_dir}/nmf_05_patient_profile.png'
+            patient_idx=0, save_path=f'{output_dir}/nmf_05_patient_profile.png'
         )
         charts['patient_profile'] = f'{output_dir}/nmf_05_patient_profile.png'
 
@@ -340,7 +335,9 @@ class InterpretabilityDashboard:
         print("\n✓ All NMF charts generated!")
         return charts
 
-    def generate_complete_dashboard(self, sample_idx=0, output_dir='experiments/charts'):
+    def generate_complete_dashboard(
+        self, sample_idx=0, output_dir='experiments/charts'
+    ):
         """
         Generate complete dashboard with all 18 charts + clinical reports.
 
@@ -364,7 +361,7 @@ class InterpretabilityDashboard:
             'shap_charts': {},
             'cf_charts': {},
             'nmf_charts': {},
-            'clinical_reports': {}
+            'clinical_reports': {},
         }
 
         # Generate SHAP charts
@@ -391,7 +388,7 @@ class InterpretabilityDashboard:
         shap_report = self.shap_explainer.generate_clinical_report(
             self.X_test,
             sample_idx=sample_idx,
-            predicted_class=f"R{y_pred[sample_idx] + 1}"
+            predicted_class=f"R{y_pred[sample_idx] + 1}",
         )
         results['clinical_reports']['shap'] = shap_report
 
@@ -403,8 +400,7 @@ class InterpretabilityDashboard:
         # NMF report
         print("[3/3] NMF Syndrome Analysis Report...")
         nmf_report = self.nmf_interpreter.generate_clinical_report(
-            patient_idx=sample_idx,
-            y_pred=y_pred[sample_idx]
+            patient_idx=sample_idx, y_pred=y_pred[sample_idx]
         )
         results['clinical_reports']['nmf'] = nmf_report
 
@@ -423,7 +419,11 @@ class InterpretabilityDashboard:
         print("\n" + "=" * 80)
         print("DASHBOARD GENERATION COMPLETE!")
         print("=" * 80)
-        total_charts = len(results['shap_charts']) + len(results['cf_charts']) + len(results['nmf_charts'])
+        total_charts = (
+            len(results['shap_charts'])
+            + len(results['cf_charts'])
+            + len(results['nmf_charts'])
+        )
         print(f"\nGenerated Files ({total_charts} charts):")
         print("\nSHAP Charts:")
         for name, path in results['shap_charts'].items():
@@ -606,7 +606,9 @@ XAI Methods: SHAP + Counterfactual Explanations
 
         return report
 
-    def analyze_patient_cohort(self, patient_indices, output_dir='experiments/cohort_analysis'):
+    def analyze_patient_cohort(
+        self, patient_indices, output_dir='experiments/cohort_analysis'
+    ):
         """
         Analyze multiple patients and generate summary statistics.
 
@@ -635,14 +637,20 @@ XAI Methods: SHAP + Counterfactual Explanations
             cf_result = self.cf_explainer.find_counterfactual(x_patient)
 
             if cf_result['success']:
-                cohort_results.append({
-                    'patient_idx': idx,
-                    'original_risk': cf_result['original_prediction'] + 1,
-                    'target_risk': cf_result['counterfactual_prediction'] + 1,
-                    'n_changes': cf_result['n_changes'],
-                    'distance': cf_result['distance'],
-                    'top_change': cf_result['changes'][0]['feature'] if cf_result['changes'] else 'N/A'
-                })
+                cohort_results.append(
+                    {
+                        'patient_idx': idx,
+                        'original_risk': cf_result['original_prediction'] + 1,
+                        'target_risk': cf_result['counterfactual_prediction'] + 1,
+                        'n_changes': cf_result['n_changes'],
+                        'distance': cf_result['distance'],
+                        'top_change': (
+                            cf_result['changes'][0]['feature']
+                            if cf_result['changes']
+                            else 'N/A'
+                        ),
+                    }
+                )
 
         # Create summary
         summary_df = pd.DataFrame(cohort_results)
@@ -673,17 +681,22 @@ if __name__ == "__main__":
 
     # Generate synthetic medical data
     X, y = make_classification(
-        n_samples=500,
-        n_features=12,
-        n_informative=8,
-        n_classes=5,
-        random_state=42
+        n_samples=500, n_features=12, n_informative=8, n_classes=5, random_state=42
     )
 
     feature_names = [
-        'Age', 'BMI', 'Blood_Pressure', 'Heart_Rate', 'Cholesterol',
-        'Glucose', 'Smoking', 'Exercise', 'Family_History', 'Stress_Level',
-        'Sleep_Hours', 'Diet_Score'
+        'Age',
+        'BMI',
+        'Blood_Pressure',
+        'Heart_Rate',
+        'Cholesterol',
+        'Glucose',
+        'Smoking',
+        'Exercise',
+        'Family_History',
+        'Stress_Level',
+        'Sleep_Hours',
+        'Diet_Score',
     ]
 
     actionable = [f for f in feature_names if f not in ['Age', 'Family_History']]
@@ -696,10 +709,7 @@ if __name__ == "__main__":
     # Train model
     print("\nTraining XGBoost model...")
     model = XGBClassifier(
-        max_depth=6,
-        n_estimators=100,
-        random_state=42,
-        eval_metric='mlogloss'
+        max_depth=6, n_estimators=100, random_state=42, eval_metric='mlogloss'
     )
     model.fit(X_train, y_train)
 
@@ -714,13 +724,12 @@ if __name__ == "__main__":
         X_test=X_test,
         y_test=y_test,
         feature_names=feature_names,
-        actionable_features=actionable
+        actionable_features=actionable,
     )
 
     # Generate complete dashboard
     results = dashboard.generate_complete_dashboard(
-        sample_idx=0,
-        output_dir='experiments/charts'
+        sample_idx=0, output_dir='experiments/charts'
     )
 
     # Print combined report
@@ -734,11 +743,13 @@ if __name__ == "__main__":
     print("BONUS: COHORT ANALYSIS")
     print("=" * 80)
 
-    high_risk_patients = [i for i, pred in enumerate(model.predict(X_test)) if pred >= 3]
+    high_risk_patients = [
+        i for i, pred in enumerate(model.predict(X_test)) if pred >= 3
+    ]
     if len(high_risk_patients) > 0:
         cohort_df = dashboard.analyze_patient_cohort(
-            high_risk_patients[:min(5, len(high_risk_patients))],
-            output_dir='experiments/cohort_analysis'
+            high_risk_patients[: min(5, len(high_risk_patients))],
+            output_dir='experiments/cohort_analysis',
         )
 
     print("\n" + "=" * 80)

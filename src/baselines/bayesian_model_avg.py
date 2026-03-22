@@ -6,8 +6,9 @@ confidence-weighted softmax transformation. BMA computes the
 posterior-weighted average.
 """
 
-import numpy as np
 from typing import Dict, List
+
+import numpy as np
 
 
 class BayesianModelAveraging:
@@ -27,7 +28,7 @@ class BayesianModelAveraging:
         self,
         gate_outputs: Dict[str, str],
         gate_confidences: Dict[str, float],
-        gate_val_scores: Dict[str, float] = None
+        gate_val_scores: Dict[str, float] = None,
     ) -> Dict:
         """
         Combine gate predictions via BMA.
@@ -61,15 +62,17 @@ class BayesianModelAveraging:
             combined += weights[i] * p
 
         # Normalise
-        combined /= (combined.sum() + 1e-10)
+        combined /= combined.sum() + 1e-10
 
         best_idx = np.argmax(combined)
         best_tier = self.TIERS[best_idx]
 
         return {
             'final_tier': best_tier,
-            'probabilities': {self.TIERS[i]: round(float(combined[i]), 4) for i in range(n_tiers)},
-            'abstain': False
+            'probabilities': {
+                self.TIERS[i]: round(float(combined[i]), 4) for i in range(n_tiers)
+            },
+            'abstain': False,
         }
 
     def _tier_to_distribution(self, tier: str, confidence: float, n: int) -> np.ndarray:
