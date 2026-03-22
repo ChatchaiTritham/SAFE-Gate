@@ -5,9 +5,10 @@ Rule-based triage using Emergency Severity Index version 4.
 Achieves 87.5% sensitivity on test set.
 """
 
-from typing import Dict, Tuple
-import sys
 import os
+import sys
+from typing import Dict, Tuple
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from merging.risk_lattice import RiskTier
 
@@ -111,11 +112,13 @@ class ESIGuidelines:
             resources += 1
 
         # Labs for risk factors
-        if any([
-            patient.get('hypertension'),
-            patient.get('diabetes'),
-            patient.get('atrial_fibrillation')
-        ]):
+        if any(
+            [
+                patient.get('hypertension'),
+                patient.get('diabetes'),
+                patient.get('atrial_fibrillation'),
+            ]
+        ):
             resources += 1
 
         # Specialist consult
@@ -123,11 +126,13 @@ class ESIGuidelines:
             resources += 1
 
         # HINTS examination
-        if any([
-            patient.get('hints_head_impulse'),
-            patient.get('hints_nystagmus'),
-            patient.get('hints_test_of_skew')
-        ]):
+        if any(
+            [
+                patient.get('hints_head_impulse'),
+                patient.get('hints_nystagmus'),
+                patient.get('hints_test_of_skew'),
+            ]
+        ):
             resources += 1
 
         return min(resources, 3)  # Cap at 3

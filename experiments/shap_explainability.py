@@ -29,6 +29,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 import warnings
+
 warnings.filterwarnings('ignore')
 
 
@@ -80,10 +81,7 @@ class SHAPExplainer:
             # Fallback to KernelExplainer (slower, model-agnostic)
             print("TreeExplainer failed, using KernelExplainer...")
             background = shap.sample(self.X_train, min(100, len(self.X_train)))
-            self.explainer = shap.KernelExplainer(
-                self.model.predict_proba,
-                background
-            )
+            self.explainer = shap.KernelExplainer(self.model.predict_proba, background)
             print("✓ KernelExplainer initialized")
 
     def compute_shap_values(self, X):
@@ -96,8 +94,9 @@ class SHAPExplainer:
         print("✓ SHAP values computed")
         return self.shap_values
 
-    def plot_global_importance(self, X, top_n=20,
-                               save_path='experiments/charts/shap_01_global_importance.png'):
+    def plot_global_importance(
+        self, X, top_n=20, save_path='experiments/charts/shap_01_global_importance.png'
+    ):
         """
         Global Feature Importance using SHAP values.
 
@@ -121,33 +120,50 @@ class SHAPExplainer:
         importance = np.mean(shap_abs, axis=0)
 
         # Create DataFrame
-        importance_df = pd.DataFrame({
-            'Feature': self.feature_names,
-            'Importance (Mean |SHAP|)': importance,
-            'Game Theory Role': ['Important Player' if imp > importance.mean()
-                                 else 'Minor Player' for imp in importance]
-        }).sort_values('Importance (Mean |SHAP|)', ascending=False)
+        importance_df = pd.DataFrame(
+            {
+                'Feature': self.feature_names,
+                'Importance (Mean |SHAP|)': importance,
+                'Game Theory Role': [
+                    'Important Player' if imp > importance.mean() else 'Minor Player'
+                    for imp in importance
+                ],
+            }
+        ).sort_values('Importance (Mean |SHAP|)', ascending=False)
 
         # Plot
         fig, ax = plt.subplots(figsize=(12, 8))
 
         top_features = importance_df.head(top_n)
-        colors = ['#e74c3c' if role == 'Important Player' else '#95a5a6'
-                  for role in top_features['Game Theory Role']]
+        colors = [
+            '#e74c3c' if role == 'Important Player' else '#95a5a6'
+            for role in top_features['Game Theory Role']
+        ]
 
-        bars = ax.barh(range(len(top_features)), top_features['Importance (Mean |SHAP|)'],
-                      color=colors, alpha=0.8)
+        bars = ax.barh(
+            range(len(top_features)),
+            top_features['Importance (Mean |SHAP|)'],
+            color=colors,
+            alpha=0.8,
+        )
 
         ax.set_yticks(range(len(top_features)))
         ax.set_yticklabels(top_features['Feature'])
-        ax.set_xlabel('Mean |SHAP Value| (Feature Contribution)', fontsize=12, fontweight='bold')
-        ax.set_title('Global Feature Importance (Game Theory: Shapley Values)\n' +
-                     'Red = Important Players, Gray = Minor Players',
-                     fontsize=14, fontweight='bold')
+        ax.set_xlabel(
+            'Mean |SHAP Value| (Feature Contribution)', fontsize=12, fontweight='bold'
+        )
+        ax.set_title(
+            'Global Feature Importance (Game Theory: Shapley Values)\n'
+            + 'Red = Important Players, Gray = Minor Players',
+            fontsize=14,
+            fontweight='bold',
+        )
         ax.grid(axis='x', alpha=0.3)
 
         # Add value labels
-        for i, (bar, val) in enumerate(zip(bars, top_features['Importance (Mean |SHAP|)'])):
+        for i, (bar, val) in enumerate(
+            zip(bars, top_features['Importance (Mean |SHAP|)'])
+        ):
             ax.text(val, i, f'  {val:.3f}', va='center', fontsize=9)
 
         plt.tight_layout()
@@ -172,7 +188,11 @@ class SHAPExplainer:
         X_array = X.values if isinstance(X, pd.DataFrame) else X
 
         # For multi-class, show class 0
-        shap_plot = self.shap_values[0] if isinstance(self.shap_values, list) else self.shap_values
+        shap_plot = (
+            self.shap_values[0]
+            if isinstance(self.shap_values, list)
+            else self.shap_values
+        )
 
         plt.figure(figsize=(12, 10))
         shap.summary_plot(
@@ -180,17 +200,22 @@ class SHAPExplainer:
             X_array,
             feature_names=self.feature_names,
             show=False,
-            max_display=20
+            max_display=20,
         )
-        plt.title('SHAP Summary Plot\n(Feature Value Impact on Predictions)',
-                  fontsize=14, fontweight='bold', pad=20)
+        plt.title(
+            'SHAP Summary Plot\n(Feature Value Impact on Predictions)',
+            fontsize=14,
+            fontweight='bold',
+            pad=20,
+        )
         plt.tight_layout()
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"✓ Summary plot saved to {save_path}")
         plt.close()
 
-    def plot_waterfall(self, X, sample_idx=0,
-                      save_path='experiments/charts/shap_03_waterfall.png'):
+    def plot_waterfall(
+        self, X, sample_idx=0, save_path='experiments/charts/shap_03_waterfall.png'
+    ):
         """
         Waterfall plot - shows how features push prediction from base value.
 
@@ -217,21 +242,25 @@ class SHAPExplainer:
             values=sample_shap,
             base_values=base_value,
             data=X_array[sample_idx],
-            feature_names=self.feature_names
+            feature_names=self.feature_names,
         )
 
         plt.figure(figsize=(12, 8))
         shap.plots.waterfall(explanation, show=False, max_display=15)
-        plt.title(f'SHAP Waterfall Plot (Sample #{sample_idx})\n' +
-                  'Game Theory: Sequential Coalition Formation',
-                  fontsize=14, fontweight='bold')
+        plt.title(
+            f'SHAP Waterfall Plot (Sample #{sample_idx})\n'
+            + 'Game Theory: Sequential Coalition Formation',
+            fontsize=14,
+            fontweight='bold',
+        )
         plt.tight_layout()
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"✓ Waterfall plot saved to {save_path}")
         plt.close()
 
-    def plot_force(self, X, sample_idx=0,
-                   save_path='experiments/charts/shap_04_force_plot.png'):
+    def plot_force(
+        self, X, sample_idx=0, save_path='experiments/charts/shap_04_force_plot.png'
+    ):
         """
         Force plot - visualize forces pushing prediction higher or lower.
 
@@ -258,19 +287,26 @@ class SHAPExplainer:
             X_array[sample_idx],
             feature_names=self.feature_names,
             matplotlib=True,
-            show=False
+            show=False,
         )
 
-        plt.title(f'SHAP Force Plot (Sample #{sample_idx})\n' +
-                  'Red = Increase Risk, Blue = Decrease Risk',
-                  fontsize=14, fontweight='bold')
+        plt.title(
+            f'SHAP Force Plot (Sample #{sample_idx})\n'
+            + 'Red = Increase Risk, Blue = Decrease Risk',
+            fontsize=14,
+            fontweight='bold',
+        )
         plt.tight_layout()
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"✓ Force plot saved to {save_path}")
         plt.close()
 
-    def plot_decision(self, X, sample_indices=None,
-                     save_path='experiments/charts/shap_05_decision_plot.png'):
+    def plot_decision(
+        self,
+        X,
+        sample_indices=None,
+        save_path='experiments/charts/shap_05_decision_plot.png',
+    ):
         """
         Decision plot - trace decision path for multiple patients.
 
@@ -298,17 +334,25 @@ class SHAPExplainer:
             shap_plot,
             X_array[sample_indices],
             feature_names=self.feature_names,
-            show=False
+            show=False,
         )
-        plt.title('SHAP Decision Plot\n(Cumulative Feature Effects)',
-                  fontsize=14, fontweight='bold')
+        plt.title(
+            'SHAP Decision Plot\n(Cumulative Feature Effects)',
+            fontsize=14,
+            fontweight='bold',
+        )
         plt.tight_layout()
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"✓ Decision plot saved to {save_path}")
         plt.close()
 
-    def plot_dependence(self, X, feature_name, interaction_feature=None,
-                       save_path='experiments/charts/shap_06_dependence.png'):
+    def plot_dependence(
+        self,
+        X,
+        feature_name,
+        interaction_feature=None,
+        save_path='experiments/charts/shap_06_dependence.png',
+    ):
         """
         Dependence plot - shows how one feature affects predictions.
 
@@ -336,7 +380,11 @@ class SHAPExplainer:
             interaction_idx = 'auto'
 
         # Plot
-        shap_plot = self.shap_values[0] if isinstance(self.shap_values, list) else self.shap_values
+        shap_plot = (
+            self.shap_values[0]
+            if isinstance(self.shap_values, list)
+            else self.shap_values
+        )
 
         plt.figure(figsize=(10, 7))
         shap.dependence_plot(
@@ -345,18 +393,25 @@ class SHAPExplainer:
             X_array,
             feature_names=self.feature_names,
             interaction_index=interaction_idx,
-            show=False
+            show=False,
         )
-        plt.title(f'SHAP Dependence Plot: {feature_name}\n' +
-                  '(How feature value affects SHAP value)',
-                  fontsize=14, fontweight='bold')
+        plt.title(
+            f'SHAP Dependence Plot: {feature_name}\n'
+            + '(How feature value affects SHAP value)',
+            fontsize=14,
+            fontweight='bold',
+        )
         plt.tight_layout()
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"✓ Dependence plot saved to {save_path}")
         plt.close()
 
-    def plot_interaction_heatmap(self, X, top_n=15,
-                                 save_path='experiments/charts/shap_07_interaction_heatmap.png'):
+    def plot_interaction_heatmap(
+        self,
+        X,
+        top_n=15,
+        save_path='experiments/charts/shap_07_interaction_heatmap.png',
+    ):
         """
         Feature interaction heatmap.
 
@@ -368,8 +423,11 @@ class SHAPExplainer:
         X_array = X.values if isinstance(X, pd.DataFrame) else X
 
         # Get top features by importance
-        shap_abs = np.abs(self.shap_values[0] if isinstance(self.shap_values, list)
-                          else self.shap_values)
+        shap_abs = np.abs(
+            self.shap_values[0]
+            if isinstance(self.shap_values, list)
+            else self.shap_values
+        )
         importance = np.mean(shap_abs, axis=0)
         top_indices = importance.argsort()[-top_n:][::-1]
         top_features = [self.feature_names[i] for i in top_indices]
@@ -391,11 +449,14 @@ class SHAPExplainer:
             vmin=-1,
             vmax=1,
             square=True,
-            cbar_kws={'label': 'SHAP Correlation'}
+            cbar_kws={'label': 'SHAP Correlation'},
         )
-        ax.set_title('Feature Interaction Heatmap (SHAP Correlation)\n' +
-                     'Game Theory: Coalition Synergies',
-                     fontsize=14, fontweight='bold')
+        ax.set_title(
+            'Feature Interaction Heatmap (SHAP Correlation)\n'
+            + 'Game Theory: Coalition Synergies',
+            fontsize=14,
+            fontweight='bold',
+        )
         plt.tight_layout()
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"✓ Interaction heatmap saved to {save_path}")
@@ -411,22 +472,32 @@ class SHAPExplainer:
             self.compute_shap_values(X)
 
         X_array = X.values if isinstance(X, pd.DataFrame) else X
-        shap_plot = self.shap_values[0] if isinstance(self.shap_values, list) else self.shap_values
+        shap_plot = (
+            self.shap_values[0]
+            if isinstance(self.shap_values, list)
+            else self.shap_values
+        )
 
         plt.figure(figsize=(12, 10))
         shap.plots.beeswarm(
             shap.Explanation(
                 values=shap_plot,
-                base_values=self.explainer.expected_value[0] if isinstance(self.shap_values, list)
-                           else self.explainer.expected_value,
+                base_values=(
+                    self.explainer.expected_value[0]
+                    if isinstance(self.shap_values, list)
+                    else self.explainer.expected_value
+                ),
                 data=X_array,
-                feature_names=self.feature_names
+                feature_names=self.feature_names,
             ),
             show=False,
-            max_display=20
+            max_display=20,
         )
-        plt.title('SHAP Beeswarm Plot\n(Feature Impact Distribution)',
-                  fontsize=14, fontweight='bold')
+        plt.title(
+            'SHAP Beeswarm Plot\n(Feature Impact Distribution)',
+            fontsize=14,
+            fontweight='bold',
+        )
         plt.tight_layout()
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"✓ Beeswarm plot saved to {save_path}")
@@ -522,25 +593,37 @@ if __name__ == "__main__":
 
     # Generate data
     X, y = make_classification(
-        n_samples=500,
-        n_features=15,
-        n_informative=10,
-        n_classes=5,
-        random_state=42
+        n_samples=500, n_features=15, n_informative=10, n_classes=5, random_state=42
     )
 
     feature_names = [
-        'Age', 'BMI', 'Blood_Pressure', 'Heart_Rate', 'Cholesterol',
-        'Glucose', 'Smoking', 'Exercise', 'Family_History', 'Stress_Level',
-        'Sleep_Hours', 'Alcohol', 'Diet_Score', 'Medication', 'Previous_Events'
+        'Age',
+        'BMI',
+        'Blood_Pressure',
+        'Heart_Rate',
+        'Cholesterol',
+        'Glucose',
+        'Smoking',
+        'Exercise',
+        'Family_History',
+        'Stress_Level',
+        'Sleep_Hours',
+        'Alcohol',
+        'Diet_Score',
+        'Medication',
+        'Previous_Events',
     ]
 
     X_df = pd.DataFrame(X, columns=feature_names)
-    X_train, X_test, y_train, y_test = train_test_split(X_df, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_df, y, test_size=0.2, random_state=42
+    )
 
     # Train model
     print("\nTraining model...")
-    model = XGBClassifier(max_depth=6, n_estimators=100, random_state=42, eval_metric='mlogloss')
+    model = XGBClassifier(
+        max_depth=6, n_estimators=100, random_state=42, eval_metric='mlogloss'
+    )
     model.fit(X_train, y_train)
     print("✓ Model trained")
 
@@ -589,8 +672,9 @@ if __name__ == "__main__":
     print("Clinical Report")
     print("=" * 70)
     y_pred = model.predict(X_test)
-    report = explainer.generate_clinical_report(X_test, sample_idx=0,
-                                                predicted_class=f"R{y_pred[0]+1}")
+    report = explainer.generate_clinical_report(
+        X_test, sample_idx=0, predicted_class=f"R{y_pred[0]+1}"
+    )
     print(report)
 
     print("\n" + "=" * 70)

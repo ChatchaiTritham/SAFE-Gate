@@ -1,6 +1,6 @@
 # SAFE-Gate: Safety-Assured Fusion Engine with Gated Expert Triage
 
-![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue.svg)
+![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 ![Tests](https://img.shields.io/badge/Tests-10%2F10%20Passing-brightgreen.svg)
 ![Safety Violations](https://img.shields.io/badge/Safety%20Violations-0%2F6398-brightgreen.svg)
@@ -130,6 +130,21 @@ print(f"Latency:        {result['latency_ms']:.2f} ms")
 ```bash
 python tests/test_full_system.py
 ```
+
+## Tutorials And Demos
+
+- Notebook:
+  - `notebooks/00_quickstart.ipynb`: quick interactive walkthrough for SAFE-Gate
+- Evaluation-oriented scripts:
+  - `evaluation/generate_performance_metrics.py`: evaluation summary generation
+  - `evaluation/create_manuscript_figures.py`: manuscript-style figures
+  - `experiments/interpretability_dashboard.py`: interpretability workflow entry point
+
+## Cross-Repository Tutorial Charts
+
+- `../tutorial_surface_comparison.png`: scripts vs examples vs notebooks across all repositories
+- `../tutorial_asset_density.png`: interactive/tutorial asset density normalized by repository size
+- `../tutorial_maturity_report.md`: combined maturity summary
 
 ### Batch Classification
 
@@ -352,8 +367,22 @@ details.
 
 ---
 
-## Authors
+## Contact
 
-- **Chatchai Tritham** -- Naresuan University, Thailand
-- **Chakkrit Snae Namahoot** -- Naresuan University, Thailand
-  ([chakkrits@nu.ac.th](mailto:chakkrits@nu.ac.th))
+### Contact Author
+
+**Chatchai Tritham** (PhD Candidate)
+
+- Email: [chatchait66@nu.ac.th](mailto:chatchait66@nu.ac.th)
+- Department of Computer Science and Information Technology
+- Faculty of Science, Naresuan University
+- Phitsanulok 65000, Thailand
+
+### Supervisor
+
+**Chakkrit Snae Namahoot**
+
+- Email: [chakkrits@nu.ac.th](mailto:chakkrits@nu.ac.th)
+- Department of Computer Science
+- Faculty of Science, Naresuan University
+- Phitsanulok 65000, Thailand

@@ -14,10 +14,12 @@ Tier mapping (from article Section 3.6):
 Confidence: c4 = max_s similarity(x, s)
 """
 
-import numpy as np
-from typing import Dict, Tuple, List
-import sys
 import os
+import sys
+from typing import Dict, List, Tuple
+
+import numpy as np
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from merging.risk_lattice import RiskTier
 
@@ -53,24 +55,24 @@ class Gate4TiTrATELogic:
         # Higher weight = stronger discriminator for syndrome matching
         self.feature_weights = {
             # HINTS protocol (highest discriminative power)
-            'hints_head_impulse': 3.0,     # abnormal=peripheral, normal=central
-            'hints_nystagmus': 3.0,        # horizontal=peripheral, vertical/direction-changing=central
-            'hints_test_of_skew': 3.0,     # negative=peripheral, positive=central
+            'hints_head_impulse': 3.0,  # abnormal=peripheral, normal=central
+            'hints_nystagmus': 3.0,  # horizontal=peripheral, vertical/direction-changing=central
+            'hints_test_of_skew': 3.0,  # negative=peripheral, positive=central
             # Trigger pattern (strong BPPV discriminator)
-            'positional_triggers': 2.5,    # present=BPPV, absent=other
-            'sudden_onset': 2.0,           # True for neuritis, False for Meniere gradual
+            'positional_triggers': 2.5,  # present=BPPV, absent=other
+            'sudden_onset': 2.0,  # True for neuritis, False for Meniere gradual
             # Duration / timing
             'symptom_duration_days': 2.0,  # seconds-minutes=BPPV, hours-days=neuritis, episodic=Meniere
-            'symptom_onset_hours': 1.5,    # recent vs chronic
-            'episodic_pattern': 2.0,       # recurrent episodes = Meniere
+            'symptom_onset_hours': 1.5,  # recent vs chronic
+            'episodic_pattern': 2.0,  # recurrent episodes = Meniere
             # Auditory symptoms (Meniere discriminator)
-            'hearing_loss': 2.5,           # present=Meniere, absent=BPPV/neuritis
-            'tinnitus': 2.0,              # present=Meniere
-            'aural_fullness': 2.0,        # present=Meniere
+            'hearing_loss': 2.5,  # present=Meniere, absent=BPPV/neuritis
+            'tinnitus': 2.0,  # present=Meniere
+            'aural_fullness': 2.0,  # present=Meniere
             # Associated features
-            'nausea_vomiting': 1.0,        # common in all, low discriminant
-            'vertigo_severity': 1.0,       # severity (1-10 scale)
-            'progression_pattern': 1.5,    # improving/stable/worsening
+            'nausea_vomiting': 1.0,  # common in all, low discriminant
+            'vertigo_severity': 1.0,  # severity (1-10 scale)
+            'progression_pattern': 1.5,  # improving/stable/worsening
         }
 
         # ---- Reference syndrome profiles ----
@@ -79,61 +81,66 @@ class Gate4TiTrATELogic:
 
         self.syndrome_profiles = {
             'BPPV': {
-                'hints_head_impulse': 'normal',       # or not assessable (not triggered)
-                'hints_nystagmus': 'peripheral',      # torsional, positional
+                'hints_head_impulse': 'normal',  # or not assessable (not triggered)
+                'hints_nystagmus': 'peripheral',  # torsional, positional
                 'hints_test_of_skew': 'negative',
                 'positional_triggers': True,
                 'sudden_onset': True,
-                'symptom_duration_days': (0.0, 0.08), # seconds to minutes (<2 hours)
-                'symptom_onset_hours': (0.0, 999),    # any onset time
-                'episodic_pattern': True,              # recurrent brief episodes
+                'symptom_duration_days': (0.0, 0.08),  # seconds to minutes (<2 hours)
+                'symptom_onset_hours': (0.0, 999),  # any onset time
+                'episodic_pattern': True,  # recurrent brief episodes
                 'hearing_loss': False,
                 'tinnitus': False,
                 'aural_fullness': False,
-                'nausea_vomiting': True,               # common with positional
-                'vertigo_severity': (3, 8),            # moderate-severe but brief
-                'progression_pattern': 'stable',       # self-limiting episodes
+                'nausea_vomiting': True,  # common with positional
+                'vertigo_severity': (3, 8),  # moderate-severe but brief
+                'progression_pattern': 'stable',  # self-limiting episodes
             },
             'Vestibular_Neuritis': {
-                'hints_head_impulse': 'abnormal',     # positive head thrust
-                'hints_nystagmus': 'peripheral',      # horizontal, unidirectional
+                'hints_head_impulse': 'abnormal',  # positive head thrust
+                'hints_nystagmus': 'peripheral',  # horizontal, unidirectional
                 'hints_test_of_skew': 'negative',
                 'positional_triggers': False,
-                'sudden_onset': True,                  # acute onset
-                'symptom_duration_days': (1.0, 14.0), # days to 2 weeks
-                'symptom_onset_hours': (0.0, 72.0),   # recent onset
-                'episodic_pattern': False,             # single prolonged episode
-                'hearing_loss': False,                 # preserved hearing
+                'sudden_onset': True,  # acute onset
+                'symptom_duration_days': (1.0, 14.0),  # days to 2 weeks
+                'symptom_onset_hours': (0.0, 72.0),  # recent onset
+                'episodic_pattern': False,  # single prolonged episode
+                'hearing_loss': False,  # preserved hearing
                 'tinnitus': False,
                 'aural_fullness': False,
-                'nausea_vomiting': True,               # prominent
-                'vertigo_severity': (5, 10),           # severe
-                'progression_pattern': 'improving',    # gradual improvement
+                'nausea_vomiting': True,  # prominent
+                'vertigo_severity': (5, 10),  # severe
+                'progression_pattern': 'improving',  # gradual improvement
             },
             'Meniere_Disease': {
-                'hints_head_impulse': 'normal',       # between attacks
-                'hints_nystagmus': 'peripheral',      # during attack
+                'hints_head_impulse': 'normal',  # between attacks
+                'hints_nystagmus': 'peripheral',  # during attack
                 'hints_test_of_skew': 'negative',
                 'positional_triggers': False,
-                'sudden_onset': False,                 # gradual build-up
-                'symptom_duration_days': (0.08, 1.0), # 20 minutes to hours
-                'symptom_onset_hours': (0.0, 999),    # variable
-                'episodic_pattern': True,              # hallmark recurrent episodes
-                'hearing_loss': True,                  # fluctuating, low-frequency
-                'tinnitus': True,                      # characteristic
-                'aural_fullness': True,                # characteristic triad
+                'sudden_onset': False,  # gradual build-up
+                'symptom_duration_days': (0.08, 1.0),  # 20 minutes to hours
+                'symptom_onset_hours': (0.0, 999),  # variable
+                'episodic_pattern': True,  # hallmark recurrent episodes
+                'hearing_loss': True,  # fluctuating, low-frequency
+                'tinnitus': True,  # characteristic
+                'aural_fullness': True,  # characteristic triad
                 'nausea_vomiting': True,
                 'vertigo_severity': (4, 9),
-                'progression_pattern': 'episodic',     # waxing/waning
-            }
+                'progression_pattern': 'episodic',  # waxing/waning
+            },
         }
 
         # Red flag features that override benign classification
         self.red_flag_features = [
-            'dysarthria', 'ataxia', 'diplopia',
-            'facial_weakness', 'limb_weakness',
-            'crossed_sensory_loss', 'vertical_skew_deviation',
-            'thunderclap_headache', 'worst_headache_ever',
+            'dysarthria',
+            'ataxia',
+            'diplopia',
+            'facial_weakness',
+            'limb_weakness',
+            'crossed_sensory_loss',
+            'vertical_skew_deviation',
+            'thunderclap_headache',
+            'worst_headache_ever',
         ]
 
     def evaluate(self, patient_data: Dict) -> Tuple[RiskTier, float, Dict]:
@@ -177,12 +184,17 @@ class Gate4TiTrATELogic:
             if patient_data.get(flag, False):
                 red_flags.append(flag.replace('_', ' '))
         # Also check HINTS central signs
-        if patient_data.get('hints_nystagmus') in ['central', 'vertical', 'direction_changing']:
+        if patient_data.get('hints_nystagmus') in [
+            'central',
+            'vertical',
+            'direction_changing',
+        ]:
             red_flags.append('central nystagmus pattern')
         if patient_data.get('hints_test_of_skew') == 'positive':
             red_flags.append('positive test of skew')
-        if patient_data.get('hints_head_impulse') == 'normal' and \
-           patient_data.get('hints_nystagmus') in ['central', 'vertical', 'direction_changing']:
+        if patient_data.get('hints_head_impulse') == 'normal' and patient_data.get(
+            'hints_nystagmus'
+        ) in ['central', 'vertical', 'direction_changing']:
             red_flags.append('normal HIT with central nystagmus (HINTS central)')
 
         reasoning['red_flags_present'] = red_flags
@@ -223,9 +235,7 @@ class Gate4TiTrATELogic:
         return tier, confidence, reasoning
 
     def _compute_similarity(
-        self,
-        patient_data: Dict,
-        profile: Dict
+        self, patient_data: Dict, profile: Dict
     ) -> Tuple[float, Dict]:
         """
         Compute weighted Hamming similarity between patient and syndrome profile.
@@ -256,13 +266,21 @@ class Gate4TiTrATELogic:
 
             if not match:
                 weighted_distance += weight
-                detail[feature] = {'status': 'mismatch', 'match': False,
-                                   'patient': str(patient_val), 'expected': str(expected),
-                                   'weight': weight}
+                detail[feature] = {
+                    'status': 'mismatch',
+                    'match': False,
+                    'patient': str(patient_val),
+                    'expected': str(expected),
+                    'weight': weight,
+                }
             else:
-                detail[feature] = {'status': 'match', 'match': True,
-                                   'patient': str(patient_val), 'expected': str(expected),
-                                   'weight': weight}
+                detail[feature] = {
+                    'status': 'match',
+                    'match': True,
+                    'patient': str(patient_val),
+                    'expected': str(expected),
+                    'weight': weight,
+                }
 
         # Compute similarity
         if total_weight > 0:
@@ -296,7 +314,13 @@ class Gate4TiTrATELogic:
                 return patient_val == expected
             # Handle string representations
             if isinstance(patient_val, str):
-                truthy = patient_val.lower() in ('true', 'yes', '1', 'present', 'positive')
+                truthy = patient_val.lower() in (
+                    'true',
+                    'yes',
+                    '1',
+                    'present',
+                    'positive',
+                )
                 return truthy == expected
             # Handle numeric (1/0)
             try:
@@ -312,12 +336,21 @@ class Gate4TiTrATELogic:
             # Synonym handling for nystagmus
             peripheral_synonyms = {'peripheral', 'horizontal', 'unidirectional'}
             central_synonyms = {'central', 'vertical', 'direction_changing'}
-            if expected.lower() in peripheral_synonyms and patient_val.lower() in peripheral_synonyms:
+            if (
+                expected.lower() in peripheral_synonyms
+                and patient_val.lower() in peripheral_synonyms
+            ):
                 return True
-            if expected.lower() in central_synonyms and patient_val.lower() in central_synonyms:
+            if (
+                expected.lower() in central_synonyms
+                and patient_val.lower() in central_synonyms
+            ):
                 return True
             # Progression pattern synonyms
-            if expected.lower() in ('stable', 'episodic') and patient_val.lower() in ('stable', 'episodic'):
+            if expected.lower() in ('stable', 'episodic') and patient_val.lower() in (
+                'stable',
+                'episodic',
+            ):
                 return True
             return False
 

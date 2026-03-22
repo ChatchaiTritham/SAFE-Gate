@@ -13,5 +13,5 @@ __all__ = [
     'Gate3DataQuality',
     'Gate4TiTrATELogic',
     'Gate5Uncertainty',
-    'Gate6TemporalRisk'
+    'Gate6TemporalRisk',
 ]

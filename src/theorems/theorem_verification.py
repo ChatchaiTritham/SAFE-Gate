@@ -6,14 +6,14 @@ Target: Zero violations across all 800 test cases.
 """
 
 import json
+import os
+import sys
 from pathlib import Path
 from typing import Dict, List
-import sys
-import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from safegate import SAFEGate
 from merging.risk_lattice import RiskTier
+from safegate import SAFEGate
 
 
 class TheoremVerifier:
@@ -42,11 +42,7 @@ class TheoremVerifier:
         Returns:
             Verification results with violations
         """
-        results = {
-            'total_cases': len(test_cases),
-            'theorems': {},
-            'summary': {}
-        }
+        results = {'total_cases': len(test_cases), 'theorems': {}, 'summary': {}}
 
         print(f"Verifying 6 theorems on {len(test_cases)} cases...")
 
@@ -73,7 +69,7 @@ class TheoremVerifier:
                 'holds': len(violations) == 0,
                 'violations': len(violations),
                 'violation_rate': len(violations) / len(test_cases),
-                'examples': violations[:5]  # First 5 violations
+                'examples': violations[:5],  # First 5 violations
             }
 
         # Summary
@@ -81,7 +77,7 @@ class TheoremVerifier:
         results['summary'] = {
             'total_violations': total_violations,
             'violation_rate': total_violations / (len(test_cases) * 6),
-            'all_pass': total_violations == 0
+            'all_pass': total_violations == 0,
         }
 
         return results
@@ -99,12 +95,14 @@ class TheoremVerifier:
 
         # Critical patient discharged as low-risk
         if ground_truth in ['R1', 'R2'] and predicted in ['R4', 'R5']:
-            self.violations['theorem1'].append({
-                'patient_id': case.get('patient_id'),
-                'ground_truth': ground_truth,
-                'predicted': predicted,
-                'violation': 'Critical patient false discharge'
-            })
+            self.violations['theorem1'].append(
+                {
+                    'patient_id': case.get('patient_id'),
+                    'ground_truth': ground_truth,
+                    'predicted': predicted,
+                    'violation': 'Critical patient false discharge',
+                }
+            )
 
     def _verify_theorem2(self, case: Dict, result: Dict):
         """
@@ -121,10 +119,12 @@ class TheoremVerifier:
         if 'theorem2_conservative_bias' in theorem_ver:
             holds = theorem_ver['theorem2_conservative_bias'].get('holds', True)
             if not holds:
-                self.violations['theorem2'].append({
-                    'patient_id': case.get('patient_id'),
-                    'violation': 'Conservative property not preserved'
-                })
+                self.violations['theorem2'].append(
+                    {
+                        'patient_id': case.get('patient_id'),
+                        'violation': 'Conservative property not preserved',
+                    }
+                )
 
     def _verify_theorem3(self, case: Dict, result: Dict):
         """
@@ -146,12 +146,14 @@ class TheoremVerifier:
             if 'completeness' in g3_reasoning:
                 completeness = g3_reasoning['completeness']
                 if completeness < 0.85 and predicted != 'R*':
-                    self.violations['theorem3'].append({
-                        'patient_id': case.get('patient_id'),
-                        'completeness': completeness,
-                        'predicted': predicted,
-                        'violation': 'Low completeness without R*'
-                    })
+                    self.violations['theorem3'].append(
+                        {
+                            'patient_id': case.get('patient_id'),
+                            'completeness': completeness,
+                            'predicted': predicted,
+                            'violation': 'Low completeness without R*',
+                        }
+                    )
 
         # G5 uncertainty check
         if 'G5' in gate_evals:
@@ -159,12 +161,14 @@ class TheoremVerifier:
             if 'mc_predictions' in g5_reasoning:
                 uncertainty = g5_reasoning['mc_predictions'].get('std', 0)
                 if uncertainty > 0.4 and predicted != 'R*':
-                    self.violations['theorem3'].append({
-                        'patient_id': case.get('patient_id'),
-                        'uncertainty': uncertainty,
-                        'predicted': predicted,
-                        'violation': 'High uncertainty without R*'
-                    })
+                    self.violations['theorem3'].append(
+                        {
+                            'patient_id': case.get('patient_id'),
+                            'uncertainty': uncertainty,
+                            'predicted': predicted,
+                            'violation': 'High uncertainty without R*',
+                        }
+                    )
 
     def _verify_theorem4(self, case: Dict, result: Dict):
         """
@@ -182,12 +186,14 @@ class TheoremVerifier:
 
         # Severe symptoms should not predict R5 (minimal)
         if severity == 'severe' and predicted == 'R5':
-            self.violations['theorem4'].append({
-                'patient_id': case.get('patient_id'),
-                'severity': severity,
-                'predicted': predicted,
-                'violation': 'Severe symptoms classified as minimal risk'
-            })
+            self.violations['theorem4'].append(
+                {
+                    'patient_id': case.get('patient_id'),
+                    'severity': severity,
+                    'predicted': predicted,
+                    'violation': 'Severe symptoms classified as minimal risk',
+                }
+            )
 
     def _verify_theorem5(self, case: Dict, result: Dict):
         """
@@ -206,12 +212,14 @@ class TheoremVerifier:
             predicted = result['final_tier']
 
             if completeness < 0.85 and predicted != 'R*':
-                self.violations['theorem5'].append({
-                    'patient_id': case.get('patient_id'),
-                    'completeness': completeness,
-                    'predicted': predicted,
-                    'violation': 'Theorem 5 violation: low completeness without R*'
-                })
+                self.violations['theorem5'].append(
+                    {
+                        'patient_id': case.get('patient_id'),
+                        'completeness': completeness,
+                        'predicted': predicted,
+                        'violation': 'Theorem 5 violation: low completeness without R*',
+                    }
+                )
 
     def _verify_theorem6(self, case: Dict, result: Dict):
         """
@@ -225,33 +233,39 @@ class TheoremVerifier:
         onset = case.get('symptom_onset_hours', 999)
         predicted = result['final_tier']
 
-        has_neuro = any([
-            case.get('dysarthria', False),
-            case.get('ataxia', False),
-            case.get('diplopia', False)
-        ])
+        has_neuro = any(
+            [
+                case.get('dysarthria', False),
+                case.get('ataxia', False),
+                case.get('diplopia', False),
+            ]
+        )
 
         # Within thrombolysis window + neuro signs
         if onset < 4.5 and has_neuro:
             if predicted not in ['R*', 'R1', 'R2']:
-                self.violations['theorem6'].append({
-                    'patient_id': case.get('patient_id'),
-                    'onset_hours': onset,
-                    'has_neuro': True,
-                    'predicted': predicted,
-                    'violation': 'Acute neuro case not in {R*, R1, R2}'
-                })
+                self.violations['theorem6'].append(
+                    {
+                        'patient_id': case.get('patient_id'),
+                        'onset_hours': onset,
+                        'has_neuro': True,
+                        'predicted': predicted,
+                        'violation': 'Acute neuro case not in {R*, R1, R2}',
+                    }
+                )
 
         # Chronic without critical signs
         if onset > 168 and not has_neuro:
             if predicted in ['R1', 'R2']:
-                self.violations['theorem6'].append({
-                    'patient_id': case.get('patient_id'),
-                    'onset_hours': onset,
-                    'has_neuro': False,
-                    'predicted': predicted,
-                    'violation': 'Chronic stable case in {R1, R2}'
-                })
+                self.violations['theorem6'].append(
+                    {
+                        'patient_id': case.get('patient_id'),
+                        'onset_hours': onset,
+                        'has_neuro': False,
+                        'predicted': predicted,
+                        'violation': 'Chronic stable case in {R1, R2}',
+                    }
+                )
 
     def print_results(self, results: Dict):
         """Print verification results."""
@@ -284,7 +298,13 @@ class TheoremVerifier:
 def main():
     """Run theorem verification on test set."""
     # Load test data
-    test_file = Path(__file__).parent.parent.parent / 'data' / 'synthetic' / 'test' / 'synthetic_test_804.json'
+    test_file = (
+        Path(__file__).parent.parent.parent
+        / 'data'
+        / 'synthetic'
+        / 'test'
+        / 'synthetic_test_804.json'
+    )
 
     with open(test_file) as f:
         test_cases = json.load(f)
@@ -299,7 +319,12 @@ def main():
     verifier.print_results(results)
 
     # Save results
-    output_file = Path(__file__).parent.parent.parent / 'experiments' / 'results' / 'theorem_verification.json'
+    output_file = (
+        Path(__file__).parent.parent.parent
+        / 'experiments'
+        / 'results'
+        / 'theorem_verification.json'
+    )
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
     with open(output_file, 'w') as f:

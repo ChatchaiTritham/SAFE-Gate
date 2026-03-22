@@ -6,8 +6,9 @@ applies Dempster's combination rule, and selects the tier with
 highest combined belief.
 """
 
+from typing import Dict, List, Tuple
+
 import numpy as np
-from typing import Dict, Tuple, List
 
 
 class DempsterShaferCombination:
@@ -22,9 +23,7 @@ class DempsterShaferCombination:
     TIERS = ['R1', 'R2', 'R3', 'R4', 'R5']
 
     def classify(
-        self,
-        gate_outputs: Dict[str, str],
-        gate_confidences: Dict[str, float]
+        self, gate_outputs: Dict[str, str], gate_confidences: Dict[str, float]
     ) -> Dict:
         """
         Combine gate evidence using Dempster's rule.
@@ -56,7 +55,7 @@ class DempsterShaferCombination:
             'final_tier': best_tier,
             'beliefs': {t: round(combined.get(t, 0.0), 4) for t in self.TIERS},
             'abstain': abstain,
-            'abstain_rate': combined.get('Theta', 0.0)
+            'abstain_rate': combined.get('Theta', 0.0),
         }
 
     def _gate_to_mass(self, tier: str, confidence: float) -> Dict[str, float]:

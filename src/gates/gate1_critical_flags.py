@@ -7,9 +7,10 @@ clinical categories. Any single positive rule immediately produces R1 at
 maximal confidence; all 18 rules negative yields R5 with c1=1.0.
 """
 
-from typing import Dict, Tuple
-import sys
 import os
+import sys
+from typing import Dict, Tuple
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from merging.risk_lattice import RiskTier
 
@@ -31,10 +32,10 @@ class Gate1CriticalFlags:
     def __init__(self):
         """Initialize red flag rules matching article Table 1."""
         # Category 1: Hemodynamic instability
-        self.sbp_low = 90       # SBP < 90 mmHg
-        self.sbp_high = 180     # SBP > 180 mmHg
-        self.hr_low = 50        # HR < 50 bpm (severe bradycardia)
-        self.hr_high = 150      # HR > 150 bpm (severe tachycardia)
+        self.sbp_low = 90  # SBP < 90 mmHg
+        self.sbp_high = 180  # SBP > 180 mmHg
+        self.hr_low = 50  # HR < 50 bpm (severe bradycardia)
+        self.hr_high = 150  # HR > 150 bpm (severe tachycardia)
 
         # Category 2: Altered mental status
         self.gcs_threshold = 14  # GCS < 14
@@ -75,21 +76,29 @@ class Gate1CriticalFlags:
             'triggers': [],
             'mechanism': 'rule-based',
             'n_rules': 18,
-            'categories': 5
+            'categories': 5,
         }
 
         # --- Category 1: Hemodynamic instability ---
         sbp = patient_data.get('systolic_bp', 120)
         if sbp < self.sbp_low:
-            reasoning['triggers'].append(f'Hemodynamic: SBP {sbp} < {self.sbp_low} mmHg')
+            reasoning['triggers'].append(
+                f'Hemodynamic: SBP {sbp} < {self.sbp_low} mmHg'
+            )
         if sbp > self.sbp_high:
-            reasoning['triggers'].append(f'Hemodynamic: SBP {sbp} > {self.sbp_high} mmHg (hypertensive emergency)')
+            reasoning['triggers'].append(
+                f'Hemodynamic: SBP {sbp} > {self.sbp_high} mmHg (hypertensive emergency)'
+            )
 
         hr = patient_data.get('heart_rate', 80)
         if hr < self.hr_low:
-            reasoning['triggers'].append(f'Hemodynamic: HR {hr} < {self.hr_low} bpm (severe bradycardia)')
+            reasoning['triggers'].append(
+                f'Hemodynamic: HR {hr} < {self.hr_low} bpm (severe bradycardia)'
+            )
         if hr > self.hr_high:
-            reasoning['triggers'].append(f'Hemodynamic: HR {hr} > {self.hr_high} bpm (severe tachycardia)')
+            reasoning['triggers'].append(
+                f'Hemodynamic: HR {hr} > {self.hr_high} bpm (severe tachycardia)'
+            )
 
         dbp = patient_data.get('diastolic_bp', 80)
         if dbp > 120:
@@ -98,7 +107,9 @@ class Gate1CriticalFlags:
         # --- Category 2: Altered mental status ---
         gcs = patient_data.get('gcs', 15)
         if gcs < self.gcs_threshold:
-            reasoning['triggers'].append(f'Altered mental status: GCS {gcs} < {self.gcs_threshold}')
+            reasoning['triggers'].append(
+                f'Altered mental status: GCS {gcs} < {self.gcs_threshold}'
+            )
 
         # --- Category 3: Acute focal neurological deficits ---
         for field in self.focal_deficit_fields:

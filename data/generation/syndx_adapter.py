@@ -18,6 +18,7 @@ sys.path.insert(0, str(syndx_path))
 try:
     from syndx.phase1_knowledge.domain_config import create_vestibular_domain
     from syndx.phase1_knowledge.xai_explorer import XAIGuidedExplorer
+
     SYNDX_AVAILABLE = True
 except ImportError:
     print("Warning: SynDX not found. Will use fallback generator.")
@@ -50,17 +51,16 @@ class SAFEGateSynDXAdapter:
 
         # Risk tier distribution from paper
         self.tier_distribution = {
-            'R1': 0.059,   # 5.9%
-            'R2': 0.158,   # 15.8%
-            'R3': 0.373,   # 37.3%
-            'R4': 0.276,   # 27.6%
-            'R5': 0.134    # 13.4%
+            'R1': 0.059,  # 5.9%
+            'R2': 0.158,  # 15.8%
+            'R3': 0.373,  # 37.3%
+            'R4': 0.276,  # 27.6%
+            'R5': 0.134,  # 13.4%
         }
 
         # Calculate target counts
         self.tier_counts = {
-            tier: int(n_total * prob)
-            for tier, prob in self.tier_distribution.items()
+            tier: int(n_total * prob) for tier, prob in self.tier_distribution.items()
         }
 
     def generate_all_cases(self):
@@ -93,7 +93,7 @@ class SAFEGateSynDXAdapter:
             parameter_space=param_space,
             n_target=self.n_total,
             nmf_factors=20,
-            random_state=self.random_state
+            random_state=self.random_state,
         )
 
         # Execute exploration
@@ -101,7 +101,7 @@ class SAFEGateSynDXAdapter:
 
         # Convert archetypes to SAFE-Gate format
         cases = []
-        for archetype in archetypes[:self.n_total]:
+        for archetype in archetypes[: self.n_total]:
             case = self._convert_archetype_to_safegate(archetype)
             cases.append(case)
 
@@ -175,7 +175,9 @@ class SAFEGateSynDXAdapter:
         case['new_onset_diplopia'] = case['diplopia']
         case['crossed_sensory_loss'] = self._sample_neuro_flag(target_tier)
         case['severe_ataxia'] = case['ataxia']
-        case['nystagmus_with_diplopia'] = case['diplopia'] and self._sample_neuro_flag(target_tier)
+        case['nystagmus_with_diplopia'] = case['diplopia'] and self._sample_neuro_flag(
+            target_tier
+        )
 
         # Symptom triggers
         case['sudden_onset'] = target_tier in ['R1', 'R2']
@@ -204,11 +206,11 @@ class SAFEGateSynDXAdapter:
     def _sample_age(self, tier: str) -> int:
         """Sample age based on risk tier."""
         age_params = {
-            'R1': (75, 10),   # Mean 75, std 10
+            'R1': (75, 10),  # Mean 75, std 10
             'R2': (70, 12),
             'R3': (60, 15),
             'R4': (55, 15),
-            'R5': (50, 18)
+            'R5': (50, 18),
         }
         mean, std = age_params[tier]
         age = int(np.random.normal(mean, std))
@@ -267,13 +269,11 @@ class SAFEGateSynDXAdapter:
         """Sample progression pattern."""
         if tier in ['R1', 'R2']:
             return np.random.choice(
-                ['rapidly_progressive', 'sudden_worsening', 'stable'],
-                p=[0.4, 0.4, 0.2]
+                ['rapidly_progressive', 'sudden_worsening', 'stable'], p=[0.4, 0.4, 0.2]
             )
         else:
             return np.random.choice(
-                ['stable', 'gradually_improving', 'resolved'],
-                p=[0.5, 0.3, 0.2]
+                ['stable', 'gradually_improving', 'resolved'], p=[0.5, 0.3, 0.2]
             )
 
     def _sample_hints(self, tier: str) -> dict:
@@ -282,11 +282,15 @@ class SAFEGateSynDXAdapter:
 
         if tier in ['R1', 'R2']:  # Central pattern
             hints['hints_head_impulse'] = 'normal'
-            hints['hints_nystagmus'] = np.random.choice(['vertical', 'direction_changing', 'central'])
+            hints['hints_nystagmus'] = np.random.choice(
+                ['vertical', 'direction_changing', 'central']
+            )
             hints['hints_test_of_skew'] = 'positive'
         else:  # Peripheral pattern
             hints['hints_head_impulse'] = 'abnormal'
-            hints['hints_nystagmus'] = np.random.choice(['horizontal', 'unidirectional', 'peripheral'])
+            hints['hints_nystagmus'] = np.random.choice(
+                ['horizontal', 'unidirectional', 'peripheral']
+            )
             hints['hints_test_of_skew'] = 'negative'
 
         return hints
@@ -298,7 +302,13 @@ class SAFEGateSynDXAdapter:
             'R2': {'htn': 0.7, 'af': 0.4, 'dm': 0.4, 'prior_stroke': 0.2, 'cad': 0.3},
             'R3': {'htn': 0.5, 'af': 0.2, 'dm': 0.3, 'prior_stroke': 0.1, 'cad': 0.2},
             'R4': {'htn': 0.4, 'af': 0.1, 'dm': 0.2, 'prior_stroke': 0.05, 'cad': 0.1},
-            'R5': {'htn': 0.3, 'af': 0.05, 'dm': 0.15, 'prior_stroke': 0.02, 'cad': 0.05}
+            'R5': {
+                'htn': 0.3,
+                'af': 0.05,
+                'dm': 0.15,
+                'prior_stroke': 0.02,
+                'cad': 0.05,
+            },
         }
         prob = probs[tier].get(factor, 0.2)
         return np.random.random() < prob
@@ -316,8 +326,9 @@ class SAFEGateSynDXAdapter:
         """Convert SynDX archetype to SAFE-Gate format."""
         # This would map SynDX archetype fields to SAFE-Gate's 52 features
         # For now, use fallback generator
-        tier = np.random.choice(list(self.tier_counts.keys()),
-                               p=list(self.tier_distribution.values()))
+        tier = np.random.choice(
+            list(self.tier_counts.keys()), p=list(self.tier_distribution.values())
+        )
         return self._generate_single_case(tier)
 
     def split_train_val_test(self, cases):
@@ -336,7 +347,7 @@ class SAFEGateSynDXAdapter:
         n_test = 800
 
         # Ensure we have exactly 6,400 cases
-        cases = cases[:self.n_total]
+        cases = cases[: self.n_total]
 
         # Stratified split by risk tier
         train, val, test = [], [], []
@@ -350,8 +361,8 @@ class SAFEGateSynDXAdapter:
             n_tier_val = int(n_tier * 0.125)
 
             train.extend(tier_cases[:n_tier_train])
-            val.extend(tier_cases[n_tier_train:n_tier_train + n_tier_val])
-            test.extend(tier_cases[n_tier_train + n_tier_val:])
+            val.extend(tier_cases[n_tier_train : n_tier_train + n_tier_val])
+            test.extend(tier_cases[n_tier_train + n_tier_val :])
 
         return train, val, test
 

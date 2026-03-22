@@ -32,12 +32,11 @@ class SAFEGateDataGenerator:
             'R2': 0.158,
             'R3': 0.373,
             'R4': 0.276,
-            'R5': 0.134
+            'R5': 0.134,
         }
 
         self.tier_counts = {
-            tier: int(n_total * prob)
-            for tier, prob in self.tier_distribution.items()
+            tier: int(n_total * prob) for tier, prob in self.tier_distribution.items()
         }
 
     def generate_all_cases(self):
@@ -101,7 +100,9 @@ class SAFEGateDataGenerator:
         case['new_onset_diplopia'] = case['diplopia']
         case['crossed_sensory_loss'] = np.random.random() < neuro_prob
         case['severe_ataxia'] = case['ataxia']
-        case['nystagmus_with_diplopia'] = case['diplopia'] and (np.random.random() < 0.5)
+        case['nystagmus_with_diplopia'] = case['diplopia'] and (
+            np.random.random() < 0.5
+        )
 
         # Symptom characteristics
         case['sudden_onset'] = tier in ['R1', 'R2']
@@ -120,7 +121,13 @@ class SAFEGateDataGenerator:
         return case
 
     def _age(self, tier):
-        params = {'R1': (75, 10), 'R2': (70, 12), 'R3': (60, 15), 'R4': (55, 15), 'R5': (50, 18)}
+        params = {
+            'R1': (75, 10),
+            'R2': (70, 12),
+            'R3': (60, 15),
+            'R4': (55, 15),
+            'R5': (50, 18),
+        }
         mean, std = params[tier]
         return int(np.clip(np.random.normal(mean, std), 18, 95))
 
@@ -155,7 +162,7 @@ class SAFEGateDataGenerator:
             'R2': (1.0, 4.5),
             'R3': (4.5, 48.0),
             'R4': (24.0, 168.0),
-            'R5': (168.0, 720.0)
+            'R5': (168.0, 720.0),
         }
         return float(np.random.uniform(*ranges[tier]))
 
@@ -169,22 +176,30 @@ class SAFEGateDataGenerator:
 
     def _progression(self, tier):
         if tier in ['R1', 'R2']:
-            return np.random.choice(['rapidly_progressive', 'sudden_worsening', 'stable'], p=[0.4, 0.4, 0.2])
+            return np.random.choice(
+                ['rapidly_progressive', 'sudden_worsening', 'stable'], p=[0.4, 0.4, 0.2]
+            )
         else:
-            return np.random.choice(['stable', 'gradually_improving', 'resolved'], p=[0.5, 0.3, 0.2])
+            return np.random.choice(
+                ['stable', 'gradually_improving', 'resolved'], p=[0.5, 0.3, 0.2]
+            )
 
     def _hints(self, tier):
         if tier in ['R1', 'R2']:  # Central
             return {
                 'hints_head_impulse': 'normal',
-                'hints_nystagmus': np.random.choice(['vertical', 'direction_changing', 'central']),
-                'hints_test_of_skew': 'positive'
+                'hints_nystagmus': np.random.choice(
+                    ['vertical', 'direction_changing', 'central']
+                ),
+                'hints_test_of_skew': 'positive',
             }
         else:  # Peripheral
             return {
                 'hints_head_impulse': 'abnormal',
-                'hints_nystagmus': np.random.choice(['horizontal', 'unidirectional', 'peripheral']),
-                'hints_test_of_skew': 'negative'
+                'hints_nystagmus': np.random.choice(
+                    ['horizontal', 'unidirectional', 'peripheral']
+                ),
+                'hints_test_of_skew': 'negative',
             }
 
     def _rf(self, tier, factor):
@@ -193,7 +208,7 @@ class SAFEGateDataGenerator:
             'R2': {'htn': 0.7, 'af': 0.4, 'dm': 0.4, 'stroke': 0.2, 'cad': 0.3},
             'R3': {'htn': 0.5, 'af': 0.2, 'dm': 0.3, 'stroke': 0.1, 'cad': 0.2},
             'R4': {'htn': 0.4, 'af': 0.1, 'dm': 0.2, 'stroke': 0.05, 'cad': 0.1},
-            'R5': {'htn': 0.3, 'af': 0.05, 'dm': 0.15, 'stroke': 0.02, 'cad': 0.05}
+            'R5': {'htn': 0.3, 'af': 0.05, 'dm': 0.15, 'stroke': 0.02, 'cad': 0.05},
         }
         return np.random.random() < probs[tier][factor]
 
@@ -208,8 +223,8 @@ class SAFEGateDataGenerator:
             n_val = int(n * 0.125)
 
             train.extend(tier_cases[:n_train])
-            val.extend(tier_cases[n_train:n_train + n_val])
-            test.extend(tier_cases[n_train + n_val:])
+            val.extend(tier_cases[n_train : n_train + n_val])
+            test.extend(tier_cases[n_train + n_val :])
 
         return train, val, test
 

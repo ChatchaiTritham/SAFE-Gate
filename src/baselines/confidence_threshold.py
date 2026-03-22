@@ -5,10 +5,12 @@ XGBoost with threshold-based abstention mechanism.
 Achieves 88.9% sensitivity with 15.2% abstention rate.
 """
 
-from typing import Dict, Tuple
-import sys
 import os
+import sys
+from typing import Dict, Tuple
+
 import numpy as np
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from merging.risk_lattice import RiskTier
 
@@ -74,13 +76,7 @@ class ConfidenceThreshold:
         Returns prediction with confidence score.
         """
         # Feature-based scoring (simulates XGBoost output)
-        scores = {
-            'R1': 0.0,
-            'R2': 0.0,
-            'R3': 0.0,
-            'R4': 0.0,
-            'R5': 0.0
-        }
+        scores = {'R1': 0.0, 'R2': 0.0, 'R3': 0.0, 'R4': 0.0, 'R5': 0.0}
 
         # Critical vital signs
         bp = patient.get('systolic_bp', 120)
@@ -105,11 +101,13 @@ class ConfidenceThreshold:
             scores['R1'] += 0.25
 
         # Neurological flags
-        neuro_count = sum([
-            patient.get('dysarthria', False),
-            patient.get('ataxia', False),
-            patient.get('diplopia', False)
-        ])
+        neuro_count = sum(
+            [
+                patient.get('dysarthria', False),
+                patient.get('ataxia', False),
+                patient.get('diplopia', False),
+            ]
+        )
 
         if neuro_count >= 2:
             scores['R1'] += 0.30

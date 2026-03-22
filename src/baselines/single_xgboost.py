@@ -5,10 +5,12 @@ Standard XGBoost classifier without ensemble or abstention mechanisms.
 Achieves 91.2% sensitivity on test set.
 """
 
-from typing import Dict, Tuple
-import sys
 import os
+import sys
+from typing import Dict, Tuple
+
 import numpy as np
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from merging.risk_lattice import RiskTier
 
@@ -117,7 +119,11 @@ class SingleXGBoost:
             score -= 1.0
 
         # HINTS findings (moderate weight)
-        if patient.get('hints_nystagmus') in ['vertical', 'direction_changing', 'central']:
+        if patient.get('hints_nystagmus') in [
+            'vertical',
+            'direction_changing',
+            'central',
+        ]:
             score += 1.2
         if patient.get('hints_test_of_skew') == 'positive':
             score += 1.0
@@ -157,6 +163,7 @@ class SingleXGBoost:
         """Load trained XGBoost model."""
         try:
             import pickle
+
             with open(model_path, 'rb') as f:
                 self.model = pickle.load(f)
             return True
