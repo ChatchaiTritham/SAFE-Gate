@@ -60,7 +60,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'safegate=src.safegate:main',
+            'safegate=safegate:main',
         ],
     },
     keywords='clinical-decision-support triage formal-verification safety emergency-medicine',
