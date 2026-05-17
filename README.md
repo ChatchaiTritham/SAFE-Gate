@@ -83,10 +83,6 @@ lower-acuity tier.
 
 ## Manuscript Alignment
 
-Canonical manuscript package:
-
-- `D:\PhD-NU\Manuscript\Manuscript\SC_SAFE-Gate\sn-article-template`
-
 Use the `SC_SAFE-Gate` package as the active manuscript alignment package while
 the manuscript remains in preparation. This repository supports the SAFE-Gate
 manuscript's safety-gated ensemble contribution:
