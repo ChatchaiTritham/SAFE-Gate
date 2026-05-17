@@ -16,7 +16,7 @@ setup(
     name='safegate',
     version='1.0.0',
     author='Chatchai Tritham, Chakkrit Snae Namahoot',
-    author_email='chakkrits@nu.ac.th',
+    author_email="chatchait66@nu.ac.th, chakkrits@nu.ac.th",
     description='Safety-Assured Fusion Engine with Gated Expert Triage for clinical decision support',
     long_description=read_readme(),
     long_description_content_type='text/markdown',
