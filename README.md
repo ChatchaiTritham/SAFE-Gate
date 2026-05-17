@@ -81,6 +81,42 @@ lower-acuity tier.
 
 ---
 
+## Manuscript Alignment
+
+Canonical manuscript package:
+
+- `D:\PhD-NU\Manuscript\Manuscript\SC_SAFE-Gate\sn-article-template`
+
+Use the `SC_SAFE-Gate` package as the active manuscript alignment package while
+the manuscript remains in preparation. This repository supports the SAFE-Gate
+manuscript's safety-gated ensemble contribution:
+
+- formulas: risk lattice, ACWCM confidence-weighted consensus, over-triage cost,
+  and safety-bounded aggregation
+- pseudocode: conflict detection, ACWCM fusion, and safety certificate
+  generation
+- logic: conservative preservation, abstention correctness, and critical
+  non-dilution
+- data/results: held-out synthetic vertigo-triage cases, baseline fusion
+  comparisons, ablation behavior, and robustness checks
+- figures: architecture, risk lattice, sensitivity, ablation, robustness,
+  certificate, confusion, radar, and support-distribution artifacts
+
+SAFE-Gate is a related safety-gated ensemble framework. It is not a duplicate of
+SURgul/SRGL, which is tracked as governance/reproducibility evidence.
+
+## Methodological References
+
+The manuscript and repository are grounded in:
+
+- emergency triage best practice and conservative management of critical cases
+- TiTrATE-style vestibular syndrome reasoning
+- lattice-based conservative merging
+- uncertainty-aware ensemble comparison
+- documented safety properties for high-risk clinical decision support
+
+---
+
 ## Quick Start
 
 ### Installation
@@ -138,7 +174,36 @@ python tests/test_full_system.py
 - Evaluation-oriented scripts:
   - `evaluation/generate_performance_metrics.py`: evaluation summary generation
   - `evaluation/create_manuscript_figures.py`: manuscript-style figures
+  - `scripts/generate_manuscript_manifest.py`: curated manuscript figure manifest and visual QA sheet
   - `experiments/interpretability_dashboard.py`: interpretability workflow entry point
+
+## Curated Manuscript Figures
+
+Curated manuscript figure exports are maintained for a manuscript that is still
+in preparation. This status does not imply publication, acceptance, or final
+journal readiness for every evaluation, demo, or exploratory artifact.
+
+Regenerate manuscript figure exports:
+
+```bash
+python evaluation/create_manuscript_figures.py
+```
+
+Regenerate the manifest and visual QA sheet:
+
+```bash
+python scripts/generate_manuscript_manifest.py
+```
+
+Outputs:
+
+- `evaluation/manuscript_figures/`: selected PDF and PNG manuscript figures
+- `FIGURE_MANIFEST.csv`: figure role, source script, source artifact, caption,
+  and intended article section
+- `evaluation/manuscript_figures/visual_qa_contact_sheet.png`: visual QA sheet
+
+The broader `evaluation/figures/` directory remains an evaluation archive unless
+a figure is promoted into the manifest.
 
 ## Cross-Repository Tutorial Charts
 
@@ -342,19 +407,19 @@ for bug reports and feature requests. Include:
 
 ## Citation
 
-If you use SAFE-Gate in your research, please cite:
+If you use SAFE-Gate while the associated manuscript remains in preparation,
+cite the software repository:
 
 ```bibtex
-@article{tritham2026safegate,
+@software{tritham2026safegate,
   title     = {{SAFE-Gate}: An Adaptive Knowledge-Based Expert System for
                Emergency Triage Safety with Confidence-Weighted Conservative
                Merging and Formal Safety Guarantees},
   author    = {Tritham, Chatchai and Snae Namahoot, Chakkrit},
-  journal   = {Soft Computing},
-  publisher = {Springer},
   year      = {2026},
   url       = {https://github.com/ChatchaiTritham/SAFE-Gate},
-  license   = {MIT}
+  license   = {MIT},
+  note      = {Research software; associated manuscript in preparation}
 }
 ```
 

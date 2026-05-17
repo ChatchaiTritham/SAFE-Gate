@@ -2,13 +2,13 @@
 
 **Date:** 2026-01-25
 **Repository:** D:\PhD\Manuscript\GitHub\SAFE-Gate
-**Purpose:** Complete visualization pipeline for manuscript publication
+**Purpose:** Visualization pipeline for an in-progress manuscript
 
 ---
 
 ## Overview
 
-Created comprehensive Python scripts to generate all performance metrics and visualizations needed for the SAFE-Gate manuscript submission to Expert Systems with Applications.
+Created Python scripts to generate performance metrics and visualizations that support the in-progress SAFE-Gate manuscript. This document does not imply journal submission, acceptance, or publication.
 
 ---
 
@@ -42,10 +42,10 @@ python evaluation/generate_performance_metrics.py
 
 **Location:** `evaluation/create_manuscript_figures.py`
 
-**Purpose:** Create publication-ready figures for manuscript
+**Purpose:** Create curated manuscript-support figures
 
 **Features:**
-- ✅ Publication-quality formatting (300 DPI)
+- ✅ Manuscript-support formatting (300 DPI)
 - ✅ Professional typography (Times New Roman)
 - ✅ Realistic performance metrics
 - ✅ PDF + PNG export
@@ -260,7 +260,7 @@ Comprehensive safety analysis in 2×2 subplot layout:
 D:\PhD\Manuscript\GitHub\SAFE-Gate\
 ├── evaluation/
 │   ├── generate_performance_metrics.py      # Real predictions pipeline
-│   ├── create_manuscript_figures.py         # Publication-ready figures
+│   ├── create_manuscript_figures.py         # Manuscript-support figures
 │   └── README.md                            # Detailed documentation
 ```
 
@@ -287,7 +287,7 @@ D:\PhD\Manuscript\GitHub\SAFE-Gate\
 # Navigate to repository
 cd "D:\PhD\Manuscript\GitHub\SAFE-Gate"
 
-# Generate publication-ready figures
+# Generate manuscript-support figures
 python evaluation/create_manuscript_figures.py
 
 # (Optional) Generate figures from real predictions
@@ -298,7 +298,7 @@ python evaluation/generate_performance_metrics.py
 
 ### Integration with LaTeX Manuscript
 
-All figures are ready for inclusion in `main.tex`:
+Figures are available for review before inclusion in `main.tex`:
 
 ```latex
 \begin{figure}[htbp]
@@ -314,7 +314,7 @@ All figures are ready for inclusion in `main.tex`:
 ## Technical Specifications
 
 ### Figure Quality
-- **Resolution:** 300 DPI (publication standard)
+- **Resolution:** 300 DPI export
 - **Format:** PNG (raster) + PDF (vector)
 - **Font:** Times New Roman (serif)
 - **Color Scheme:** Colorblind-friendly palette
@@ -355,13 +355,13 @@ pip install numpy pandas matplotlib seaborn scikit-learn
 ## Next Steps
 
 ### For Manuscript
-1. ✅ All figures generated and ready
+1. ✅ All figures generated for review
 2. ✅ Figures copied to `manuscript/figures/`
 3. ⏳ Update `main.tex` to include figure references
 4. ⏳ Add figure captions (provided in this document)
 5. ⏳ Compile manuscript with updated figures
 
-### For Journal Submission
+### Before Journal Submission
 1. ✅ High-resolution figures (300 DPI)
 2. ✅ PDF vector graphics for scalability
 3. ✅ Professional formatting
@@ -380,7 +380,7 @@ pip install numpy pandas matplotlib seaborn scikit-learn
 
 **Created:**
 - ✅ 2 Python scripts for figure generation
-- ✅ 6 publication-ready figures (PNG + PDF)
+- ✅ 6 curated manuscript-support figures (PNG + PDF)
 - ✅ Complete documentation (README.md)
 - ✅ Figure captions for manuscript
 - ✅ LaTeX integration examples
@@ -394,9 +394,9 @@ pip install numpy pandas matplotlib seaborn scikit-learn
 
 **Ready for:**
 - ✅ Manuscript compilation
-- ✅ Journal submission
+- ⏳ Journal submission after manuscript review
 - ✅ Peer review
-- ✅ Publication
+- ⏳ Publication only after peer review and acceptance
 
 ---
 
