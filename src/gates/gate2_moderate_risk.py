@@ -59,7 +59,7 @@ class Gate2ModerateRisk:
         self.model = None
 
         # ---------- Article Equation 3 weights ----------
-        # f_demo: Demographic risk contributors
+        # f_demo: Demographic risk factors
         self.demographic_weights = {
             'age_over_60': 1.0,  # Article: age exceeding 60 = +1.0
             'male': 0.5,  # Article: male sex = +0.5
