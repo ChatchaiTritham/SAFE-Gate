@@ -1,4 +1,4 @@
-# Explainable AI (XAI) Methods for SAFE-Gate
+﻿# Explainable AI (XAI) Methods for SAFE-Gate
 
 ## Overview
 
@@ -13,23 +13,23 @@ All three methods are grounded in rigorous mathematical frameworks and designed 
 ### The Three-Dimensional XAI Framework
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     SAFE-Gate XAI                           │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  SHAP              Counterfactual           NMF             │
-│  (WHY?)            (HOW?)                   (WHAT PATTERNS?)│
-│                                                             │
-│  Feature           Actionable               Clinical        │
-│  Importance        Changes                  Syndromes       │
-│                                                             │
-│  "Which symptoms   "What changes            "What disease   │
-│   drive risk?"     reduce risk?"            patterns exist?"│
-│                                                             │
-│  Game Theory       Optimization             Matrix          │
-│  Foundation        Foundation               Factorization   │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+โ”โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”
+โ”                     SAFE-Gate XAI                           โ”
+โ”โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”ค
+โ”                                                             โ”
+โ”  SHAP              Counterfactual           NMF             โ”
+โ”  (WHY?)            (HOW?)                   (WHAT PATTERNS?)โ”
+โ”                                                             โ”
+โ”  Feature           Actionable               Clinical        โ”
+โ”  Importance        Changes                  Syndromes       โ”
+โ”                                                             โ”
+โ”  "Which symptoms   "What changes            "What disease   โ”
+โ”   drive risk?"     reduce risk?"            patterns exist?"โ”
+โ”                                                             โ”
+โ”  Game Theory       Optimization             Matrix          โ”
+โ”  Foundation        Foundation               Factorization   โ”
+โ”                                                             โ”
+โ””โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”€โ”
 ```
 
 ---
@@ -43,16 +43,16 @@ SHAP values are based on **Shapley values** from cooperative game theory (Lloyd 
 #### The Shapley Value Formula
 
 ```
-φᵢ = Σ [|S|!(|N|-|S|-1)! / |N|!] × [v(S∪{i}) - v(S)]
-    S⊆N\{i}
+ฯแตข = ฮฃ [|S|!(|N|-|S|-1)! / |N|!] ร— [v(Sโช{i}) - v(S)]
+    SโN\{i}
 ```
 
 **Where:**
-- `φᵢ` = Shapley value for feature i (contribution of symptom i)
+- `ฯแตข` = Shapley value for feature i (contribution of symptom i)
 - `S` = Coalition of features (subset of symptoms)
 - `N` = All features (all possible symptoms)
 - `v(S)` = Value function (model prediction with features S)
-- `v(S∪{i})` = Value with feature i added (prediction with symptom i added)
+- `v(Sโช{i})` = Value with feature i added (prediction with symptom i added)
 - `|S|` = Size of coalition
 
 #### Clinical Interpretation
@@ -74,12 +74,12 @@ This answers: **"What role does each symptom play in determining this patient's 
 
 | Game Theory Concept | Clinical Interpretation | Example |
 |---------------------|------------------------|---------|
-| **Important Player** | Critical symptom with high SHAP value | High blood glucose → Strong risk indicator |
-| **Minor Player** | Uncertain symptom with low SHAP value | Mild headache → Weak risk indicator |
+| **Important Player** | Critical symptom with high SHAP value | High blood glucose โ’ Strong risk indicator |
+| **Minor Player** | Uncertain symptom with low SHAP value | Mild headache โ’ Weak risk indicator |
 | **Coalition** | Combination of symptoms | Hypertension + High BMI + Smoking |
 | **Coalition Value** | Risk prediction from symptoms | R3 risk tier from combined symptoms |
 | **Shapley Value** | Fair attribution of risk | Smoking contributes +0.23 to risk score |
-| **Synergy** | Feature interaction | Age × Cholesterol interaction |
+| **Synergy** | Feature interaction | Age ร— Cholesterol interaction |
 
 ---
 
@@ -89,7 +89,7 @@ SHAP satisfies three critical properties that make it ideal for medical AI:
 
 #### 1. **Local Accuracy**
 ```
-f(x) = φ₀ + Σφᵢ
+f(x) = ฯโ€ + ฮฃฯแตข
 ```
 The prediction equals the sum of all SHAP values plus base value.
 
@@ -97,15 +97,15 @@ The prediction equals the sum of all SHAP values plus base value.
 
 #### 2. **Missingness**
 ```
-If xᵢ = 0 (feature missing), then φᵢ = 0
+If xแตข = 0 (feature missing), then ฯแตข = 0
 ```
 
 **Clinical meaning:** Features not present don't contribute to prediction.
 
 #### 3. **Consistency**
 ```
-If v(S∪{i}) - v(S) ≥ v(T∪{i}) - v(T) for all S⊆T,
-then φᵢ(v,S) ≥ φᵢ(v,T)
+If v(Sโช{i}) - v(S) โฅ v(Tโช{i}) - v(T) for all SโT,
+then ฯแตข(v,S) โฅ ฯแตข(v,T)
 ```
 
 **Clinical meaning:** If a feature always helps, it gets positive SHAP value.
@@ -263,9 +263,9 @@ Current: R3 (High Risk)
 Target:  R2 (Moderate Risk)
 
 Recommended changes:
-1. BMI: 32 → 28 (reduce by 4 points)
-2. Exercise: 0 → 3 sessions/week
-3. Smoking: 1 (yes) → 0 (no)
+1. BMI: 32 โ’ 28 (reduce by 4 points)
+2. Exercise: 0 โ’ 3 sessions/week
+3. Smoking: 1 (yes) โ’ 0 (no)
 
 Result: Risk tier changes from R3 to R2
 ```
@@ -282,24 +282,24 @@ subject to:
   - model.predict(x_counterfactual) = desired_class
   - changes only to actionable features
   - feature values within valid ranges
-  - number of changes ≤ max_changes
+  - number of changes โค max_changes
 ```
 
 **Distance Metrics:**
 
-1. **L2 Distance:** `||x - x'||₂` (Euclidean distance)
-2. **L1 Distance:** `||x - x'||₁` (Manhattan distance)
+1. **L2 Distance:** `||x - x'||โ` (Euclidean distance)
+2. **L1 Distance:** `||x - x'||โ` (Manhattan distance)
 3. **Sparsity Penalty:** Minimize number of changed features
 
 **Constraints:**
 
 1. **Actionable Features:** Only modify changeable features
-   - ✓ Actionable: BMI, Exercise, Smoking, Diet
-   - ✗ Non-actionable: Age, Sex, Family History
+   - โ“ Actionable: BMI, Exercise, Smoking, Diet
+   - โ— Non-actionable: Age, Sex, Family History
 
 2. **Clinical Feasibility:** Changes must be physiologically realistic
-   - ✓ Feasible: BMI 32 → 28 (achievable with lifestyle change)
-   - ✗ Infeasible: BMI 32 → 18 (dangerous/unrealistic)
+   - โ“ Feasible: BMI 32 โ’ 28 (achievable with lifestyle change)
+   - โ— Infeasible: BMI 32 โ’ 18 (dangerous/unrealistic)
 
 3. **Minimality:** Smallest possible change
    - Easier for patients to achieve
@@ -386,21 +386,21 @@ subject to:
 **Mathematical Formulation:**
 
 ```
-X ≈ W × H
+X โ W ร— H
 
 where:
-- X = Patient data matrix (n_patients × n_features)
-- W = Patient-syndrome loadings (n_patients × n_syndromes)
-- H = Syndrome-feature loadings (n_syndromes × n_features)
-- Non-negativity constraint: W, H ≥ 0
+- X = Patient data matrix (n_patients ร— n_features)
+- W = Patient-syndrome loadings (n_patients ร— n_syndromes)
+- H = Syndrome-feature loadings (n_syndromes ร— n_features)
+- Non-negativity constraint: W, H โฅ 0
 ```
 
 **Clinical Interpretation:**
 
 ```
-Patient A = 0.7 × Cardiovascular Syndrome
-          + 0.3 × Neurological Syndrome
-          + 0.1 × Metabolic Syndrome
+Patient A = 0.7 ร— Cardiovascular Syndrome
+          + 0.3 ร— Neurological Syndrome
+          + 0.1 ร— Metabolic Syndrome
 
 Each syndrome is defined by:
 Cardiovascular Syndrome:
@@ -608,7 +608,7 @@ The complete XAI framework provides three complementary perspectives:
 
 ## 6. Target Audiences
 
-### 6.1 แพทย์ (Physicians)
+### 6.1 เนเธเธ—เธขเน (Physicians)
 **Needs:**
 - Understand diagnostic reasoning
 - Justify treatment decisions
@@ -624,7 +624,7 @@ The complete XAI framework provides three complementary perspectives:
 
 ---
 
-### 6.2 บุคลากรทางการแพทย์ (Medical Staff)
+### 6.2 เธเธธเธเธฅเธฒเธเธฃเธ—เธฒเธเธเธฒเธฃเนเธเธ—เธขเน (Medical Staff)
 **Needs:**
 - Triage decisions
 - Risk stratification
@@ -640,7 +640,7 @@ The complete XAI framework provides three complementary perspectives:
 
 ---
 
-### 6.3 ผู้ป่วย (Patients)
+### 6.3 เธเธนเนเธเนเธงเธข (Patients)
 **Needs:**
 - Understand their risk
 - Know what actions to take
@@ -656,7 +656,7 @@ The complete XAI framework provides three complementary perspectives:
 
 ---
 
-### 6.4 คนทั่วไป (General Public)
+### 6.4 เธเธเธ—เธฑเนเธงเนเธ (General Public)
 **Needs:**
 - Health awareness
 - Prevention strategies
@@ -750,22 +750,22 @@ print(results['clinical_reports']['combined'])
 
 ```
 experiments/
-├── charts/
-│   ├── shap_01_global_importance.png
-│   ├── shap_02_summary_plot.png
-│   ├── shap_03_waterfall.png
-│   ├── shap_04_force_plot.png
-│   ├── shap_05_decision_plot.png
-│   ├── shap_06_dependence.png
-│   ├── shap_07_interaction_heatmap.png
-│   ├── shap_08_beeswarm.png
-│   ├── cf_01_comparison.png
-│   ├── cf_02_radar.png
-│   ├── cf_03_magnitude.png
-│   ├── cf_04_whatif.png
-│   └── clinical_reports_sample_0.txt
-└── cohort_analysis/
-    └── cohort_summary.csv
+โ”โ”€โ”€ charts/
+โ”   โ”โ”€โ”€ shap_01_global_importance.png
+โ”   โ”โ”€โ”€ shap_02_summary_plot.png
+โ”   โ”โ”€โ”€ shap_03_waterfall.png
+โ”   โ”โ”€โ”€ shap_04_force_plot.png
+โ”   โ”โ”€โ”€ shap_05_decision_plot.png
+โ”   โ”โ”€โ”€ shap_06_dependence.png
+โ”   โ”โ”€โ”€ shap_07_interaction_heatmap.png
+โ”   โ”โ”€โ”€ shap_08_beeswarm.png
+โ”   โ”โ”€โ”€ cf_01_comparison.png
+โ”   โ”โ”€โ”€ cf_02_radar.png
+โ”   โ”โ”€โ”€ cf_03_magnitude.png
+โ”   โ”โ”€โ”€ cf_04_whatif.png
+โ”   โ””โ”€โ”€ clinical_reports_sample_0.txt
+โ””โ”€โ”€ cohort_analysis/
+    โ””โ”€โ”€ cohort_summary.csv
 ```
 
 ---
@@ -792,7 +792,7 @@ experiments/
 1. **Lundberg & Lee (2017):** "A Unified Approach to Interpreting Model Predictions"
    - NeurIPS 2017
    - Introduced SHAP framework
-   - 5000+ citations
+   - 5000+ references
 
 2. **Lundberg et al. (2020):** "From local explanations to global understanding with explainable AI for trees"
    - Nature Machine Intelligence
@@ -870,7 +870,7 @@ experiments/
 ### SHAP Limitations
 
 1. **Computational Cost:** O(2^n) for exact computation
-   - Solution: TreeSHAP reduces to O(TLD²) for trees
+   - Solution: TreeSHAP reduces to O(TLDยฒ) for trees
 
 2. **Feature Correlation:** Can produce unexpected values with highly correlated features
    - Solution: Use feature groups or PCA preprocessing
@@ -900,12 +900,12 @@ experiments/
 
 SAFE-Gate's XAI framework provides:
 
-✅ **Transparency:** SHAP explains every prediction with mathematical rigor
-✅ **Actionability:** Counterfactuals provide specific intervention recommendations
-✅ **Clinical Trust:** Game Theory foundation ensures fairness and consistency
-✅ **Regulatory Compliance:** Meets FDA/EMA requirements for medical AI
-✅ **Multi-Stakeholder:** Serves physicians, staff, patients, and general public
-✅ **Research-Backed:** Built on peer-reviewed, widely-cited methodology
+โ… **Transparency:** SHAP explains every prediction with mathematical rigor
+โ… **Actionability:** Counterfactuals provide specific intervention recommendations
+โ… **Clinical Trust:** Game Theory foundation ensures fairness and consistency
+โ… **Regulatory Compliance:** Meets FDA/EMA requirements for medical AI
+โ… **Multi-Stakeholder:** Serves physicians, staff, patients, and general public
+โ… **Research-Backed:** Built on peer-reviewed, widely used methodology
 
 **The combination of SHAP (WHY) and Counterfactuals (HOW) creates a complete explainability framework for clinical decision support that is both scientifically rigorous and practically useful.**
 
