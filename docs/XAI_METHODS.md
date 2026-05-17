@@ -243,7 +243,7 @@ Our implementation generates 8 comprehensive SHAP visualizations:
 - Shows feature impact density
 
 **Clinical Use:**
-- Publication-ready figure
+- Manuscript-support figure
 - Comprehensive overview
 - Population health insights
 
