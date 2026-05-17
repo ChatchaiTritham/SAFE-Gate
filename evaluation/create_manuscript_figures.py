@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
-Create Publication-Ready Figures for SAFE-Gate Manuscript
+Create Manuscript-Preparation Figures for SAFE-Gate Manuscript
 Generates realistic performance visualizations based on expected system behavior
 """
 
@@ -22,7 +22,7 @@ output_dir = Path(__file__).parent / 'manuscript_figures'
 output_dir.mkdir(exist_ok=True)
 
 print("=" * 80)
-print("Creating Publication-Ready Figures for SAFE-Gate Manuscript")
+print("Creating Manuscript-Preparation Figures for SAFE-Gate Manuscript")
 print("=" * 80)
 
 # ==============================================================================
@@ -236,10 +236,10 @@ ax2.set_title(
 # Subplot 3: False Positive/Negative Analysis
 fp_fn_data = {
     'Categories': [
-        'True Positive\n(Critical→R1/R2)',
-        'False Positive\n(Safe→R1/R2)',
-        'True Negative\n(Safe→R4/R5)',
-        'False Negative\n(Critical→R4/R5)',
+        'True Positive\n(Criticalโ’R1/R2)',
+        'False Positive\n(Safeโ’R1/R2)',
+        'True Negative\n(Safeโ’R4/R5)',
+        'False Negative\n(Criticalโ’R4/R5)',
     ],
     'Count': [129, 24, 844, 3],
 }
@@ -614,5 +614,5 @@ print(f"  Macro F1-Score: {macro_avg['F1-Score']:.3f}")
 print(f"  Critical Sensitivity: 97.9%")
 print(f"  False Negatives (R1/R2): 3/140 (2.1%)")
 
-print("\nAll figures are publication-ready (300 DPI, PDF + PNG)")
+print("\nAll figures are manuscript-preparation (300 DPI, PDF + PNG)")
 print("=" * 80)
