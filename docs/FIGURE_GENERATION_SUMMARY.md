@@ -1,4 +1,4 @@
-# SAFE-Gate Figure Generation Summary
+﻿# SAFE-Gate Figure Generation Summary
 
 **Date:** 2026-01-25
 **Repository:** D:\PhD\Manuscript\GitHub\SAFE-Gate
@@ -8,7 +8,7 @@
 
 ## Overview
 
-Created Python scripts to generate performance metrics and visualizations that support the in-progress SAFE-Gate manuscript. This document does not imply journal submission, acceptance, or publication.
+Created Python scripts to generate performance metrics and visualizations that support the in-progress SAFE-Gate manuscript. This document does not imply manuscript review, acceptance, or publication.
 
 ---
 
@@ -21,13 +21,13 @@ Created Python scripts to generate performance metrics and visualizations that s
 **Purpose:** Generate real performance metrics from SAFE-Gate predictions
 
 **Features:**
-- ✅ Synthetic dataset generation (1000 samples with ground truth)
-- ✅ SAFE-Gate prediction pipeline
-- ✅ Confusion matrix calculation
-- ✅ Per-class metrics (Precision, Recall, F1)
-- ✅ Safety performance analysis
-- ✅ Baseline comparison
-- ✅ Distribution visualizations
+- โ… Synthetic dataset generation (1000 samples with ground truth)
+- โ… SAFE-Gate prediction pipeline
+- โ… Confusion matrix calculation
+- โ… Per-class metrics (Precision, Recall, F1)
+- โ… Safety performance analysis
+- โ… Baseline comparison
+- โ… Distribution visualizations
 
 **Output Directory:** `evaluation/figures/`
 
@@ -45,11 +45,11 @@ python evaluation/generate_performance_metrics.py
 **Purpose:** Create curated manuscript-support figures
 
 **Features:**
-- ✅ Manuscript-support formatting (300 DPI)
-- ✅ Professional typography (Times New Roman)
-- ✅ Realistic performance metrics
-- ✅ PDF + PNG export
-- ✅ LaTeX-ready figures
+- โ… Manuscript-support formatting (300 DPI)
+- โ… Professional typography (Times New Roman)
+- โ… Realistic performance metrics
+- โ… PDF + PNG export
+- โ… LaTeX-ready figures
 
 **Output Directory:** `evaluation/manuscript_figures/`
 
@@ -68,7 +68,7 @@ All figures are available in both PNG (300 DPI) and PDF (vector) formats in `man
 **Filename:** `confusion_matrix.png/pdf`
 
 **Description:**
-- 5×5 confusion matrix showing SAFE-Gate classification performance
+- 5ร—5 confusion matrix showing SAFE-Gate classification performance
 - Rows: True risk tiers (R1-R5)
 - Columns: Predicted risk tiers (R1-R5)
 - Color-coded heatmap with count annotations
@@ -118,7 +118,7 @@ All figures are available in both PNG (300 DPI) and PDF (vector) formats in `man
 **Filename:** `safety_performance.png/pdf`
 
 **Description:**
-Comprehensive safety analysis in 2×2 subplot layout:
+Comprehensive safety analysis in 2ร—2 subplot layout:
 
 **Subplot (a): Critical Case Detection**
 - Pie chart showing sensitivity for R1 & R2 cases
@@ -136,10 +136,10 @@ Comprehensive safety analysis in 2×2 subplot layout:
 
 **Subplot (c): Error Analysis**
 - Bar chart breaking down classification errors for critical cases
-- True Positive (R1/R2 → R1/R2): 129 cases
-- False Positive (R3/R4/R5 → R1/R2): 24 cases
-- True Negative (R3/R4/R5 → R3/R4/R5): 844 cases
-- False Negative (R1/R2 → R3/R4/R5): 3 cases
+- True Positive (R1/R2 โ’ R1/R2): 129 cases
+- False Positive (R3/R4/R5 โ’ R1/R2): 24 cases
+- True Negative (R3/R4/R5 โ’ R3/R4/R5): 844 cases
+- False Negative (R1/R2 โ’ R3/R4/R5): 3 cases
 
 **Subplot (d): Sensitivity & Specificity per Tier**
 - Grouped bar chart for each risk tier
@@ -258,23 +258,23 @@ Comprehensive safety analysis in 2×2 subplot layout:
 ### Source Scripts
 ```
 D:\PhD\Manuscript\GitHub\SAFE-Gate\
-├── evaluation/
-│   ├── generate_performance_metrics.py      # Real predictions pipeline
-│   ├── create_manuscript_figures.py         # Manuscript-support figures
-│   └── README.md                            # Detailed documentation
+โ”โ”€โ”€ evaluation/
+โ”   โ”โ”€โ”€ generate_performance_metrics.py      # Real predictions pipeline
+โ”   โ”โ”€โ”€ create_manuscript_figures.py         # Manuscript-support figures
+โ”   โ””โ”€โ”€ README.md                            # Detailed documentation
 ```
 
 ### Output Directories
 ```
-├── evaluation/figures/                      # From generate_performance_metrics.py
-├── evaluation/manuscript_figures/           # From create_manuscript_figures.py
-└── manuscript/figures/                      # Final figures for LaTeX
-    ├── confusion_matrix.png/pdf
-    ├── per_class_metrics.png/pdf
-    ├── safety_performance.png/pdf
-    ├── baseline_comparison.png/pdf
-    ├── risk_distribution.png/pdf
-    └── support_distribution.png/pdf
+โ”โ”€โ”€ evaluation/figures/                      # From generate_performance_metrics.py
+โ”โ”€โ”€ evaluation/manuscript_figures/           # From create_manuscript_figures.py
+โ””โ”€โ”€ manuscript/figures/                      # Final figures for LaTeX
+    โ”โ”€โ”€ confusion_matrix.png/pdf
+    โ”โ”€โ”€ per_class_metrics.png/pdf
+    โ”โ”€โ”€ safety_performance.png/pdf
+    โ”โ”€โ”€ baseline_comparison.png/pdf
+    โ”โ”€โ”€ risk_distribution.png/pdf
+    โ””โ”€โ”€ support_distribution.png/pdf
 ```
 
 ---
@@ -355,48 +355,48 @@ pip install numpy pandas matplotlib seaborn scikit-learn
 ## Next Steps
 
 ### For Manuscript
-1. ✅ All figures generated for review
-2. ✅ Figures copied to `manuscript/figures/`
-3. ⏳ Update `main.tex` to include figure references
-4. ⏳ Add figure captions (provided in this document)
-5. ⏳ Compile manuscript with updated figures
+1. โ… All figures generated for review
+2. โ… Figures copied to `manuscript/figures/`
+3. โณ Update `main.tex` to include figure references
+4. โณ Add figure captions (provided in this document)
+5. โณ Compile manuscript with updated figures
 
-### Before Journal Submission
-1. ✅ High-resolution figures (300 DPI)
-2. ✅ PDF vector graphics for scalability
-3. ✅ Professional formatting
-4. ⏳ Verify figure quality in compiled PDF
-5. ⏳ Submit to Expert Systems with Applications
+### Before Manuscript Review
+1. โ… High-resolution figures (300 DPI)
+2. โ… PDF vector graphics for scalability
+3. โ… Professional formatting
+4. โณ Verify figure quality in compiled PDF
+5. โณ Submit to Expert Systems with Applications
 
 ### For GitHub
-1. ✅ Scripts committed to repository
-2. ✅ README documentation complete
-3. ⏳ Push updates to GitHub
-4. ⏳ Tag release version (v1.0)
+1. โ… Scripts committed to repository
+2. โ… README documentation complete
+3. โณ Push updates to GitHub
+4. โณ Tag release version (v1.0)
 
 ---
 
 ## Summary
 
 **Created:**
-- ✅ 2 Python scripts for figure generation
-- ✅ 6 curated manuscript-support figures (PNG + PDF)
-- ✅ Complete documentation (README.md)
-- ✅ Figure captions for manuscript
-- ✅ LaTeX integration examples
+- โ… 2 Python scripts for figure generation
+- โ… 6 curated manuscript-support figures (PNG + PDF)
+- โ… Complete documentation (README.md)
+- โ… Figure captions for manuscript
+- โ… LaTeX integration examples
 
 **Quality Assurance:**
-- ✅ 300 DPI resolution
-- ✅ Professional typography
-- ✅ Colorblind-friendly colors
-- ✅ Consistent formatting
-- ✅ Realistic performance metrics
+- โ… 300 DPI resolution
+- โ… Professional typography
+- โ… Colorblind-friendly colors
+- โ… Consistent formatting
+- โ… Realistic performance metrics
 
-**Ready for:**
-- ✅ Manuscript compilation
-- ⏳ Journal submission after manuscript review
-- ✅ Peer review
-- ⏳ Publication only after peer review and acceptance
+**Prepared for:**
+- Manuscript compilation checks
+- Manuscript review before submission
+- Peer-review preparation
+- Publication only after peer review and acceptance
 
 ---
 
