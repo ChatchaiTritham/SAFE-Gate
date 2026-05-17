@@ -1,4 +1,4 @@
-# SAFE-Gate: Safety-Assured Fusion Engine with Gated Expert Triage
+﻿# SAFE-Gate: Safety-Assured Fusion Engine with Gated Expert Triage
 
 ![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
@@ -23,7 +23,7 @@ eliminates dangerous under-triage (false negatives) at the cost of controlled
 over-triage, a clinically acceptable trade-off in emergency medicine.
 
 The architecture is grounded in a formal risk lattice
-`R* ≤ R1 ≤ R2 ≤ R3 ≤ R4 ≤ R5`, where `R*` represents abstention (defer to
+`R* โค R1 โค R2 โค R3 โค R4 โค R5`, where `R*` represents abstention (defer to
 human clinician). Three safety properties -- Conservative Preservation, Abstention
 Correctness, and Critical Non-Dilution -- are verified at every inference step,
 providing mathematical guarantees that no critical patient is misclassified to a
@@ -47,9 +47,9 @@ lower-acuity tier.
                        [G2] Cardiovasc.  -->|                +----------+
                             Risk            |  Risk Lattice  |          |  Risk Tier
                                             |-->             |  ACWCM   |-> + Safety
-                       [G3] Data         -->|  R* ≤ R1 ≤    |  Fusion  |  Certificate
-                            Quality         |  R2 ≤ R3 ≤    +----------+  + Audit
-                                            |  R4 ≤ R5          ^          Trail
+                       [G3] Data         -->|  R* โค R1 โค    |  Fusion  |  Certificate
+                            Quality         |  R2 โค R3 โค    +----------+  + Audit
+                                            |  R4 โค R5          ^          Trail
                        [G4] TiTrATE      -->|                   |
                             Patterns        |              Confidence
                                             |              Weights
@@ -224,43 +224,42 @@ results = safegate.batch_classify(test_data)
 
 ```text
 SAFE-Gate/
-├── src/
-│   ├── safegate.py                  # Main SAFEGate orchestrator
-│   ├── gates/
-│   │   ├── gate1_critical_flags.py  # G1: Rule-based red flag detection (18 rules)
-│   │   ├── gate2_moderate_risk.py   # G2: Cardiovascular risk scoring (Eq. 3)
-│   │   ├── gate3_data_quality.py    # G3: Data completeness (22 fields, Eq. 4)
-│   │   ├── gate4_titrate_logic.py   # G4: TiTrATE syndrome matching (Hamming)
-│   │   ├── gate5_uncertainty.py     # G5: BNN MC dropout (52→128→64→5)
-│   │   └── gate6_temporal_risk.py   # G6: Temporal FSM (5 states)
-│   ├── merging/
-│   │   ├── conservative_merging.py  # ACWCM fusion + conflict resolution
-│   │   ├── risk_lattice.py          # Risk lattice (R*, R1--R5)
-│   │   └── safety_certificate.py   # Safety certificate generation
-│   ├── baselines/
-│   │   ├── esi_guidelines.py        # ESI rule-based baseline
-│   │   ├── single_xgboost.py        # XGBoost baseline
-│   │   ├── ensemble_average.py      # Ensemble averaging baseline
-│   │   ├── confidence_threshold.py  # Confidence thresholding baseline
-│   │   ├── dempster_shafer.py       # Dempster-Shafer combination
-│   │   └── bayesian_model_avg.py    # Bayesian Model Averaging
-│   ├── theorems/
-│   │   └── theorem_verification.py  # Runtime safety property checking
-│   └── utils/
-│       ├── audit_trail.py           # Clinical audit trail generator
-│       └── visualization.py         # Plotting utilities
-├── data/
-│   ├── generation/                  # Synthetic data generators
-│   └── synthetic/                   # Train (4,796) / Val (798) / Test (804)
-├── evaluation/                      # Evaluation pipeline and figures
-├── experiments/                     # XAI: SHAP, counterfactual, NMF
-├── tests/                           # Test suite
-├── docs/                            # Additional documentation
-├── notebooks/                       # Jupyter quickstart
-├── requirements.txt
-├── setup.py
-├── CITATION.cff
-└── LICENSE
+โ”โ”€โ”€ src/
+โ”   โ”โ”€โ”€ safegate.py                  # Main SAFEGate orchestrator
+โ”   โ”โ”€โ”€ gates/
+โ”   โ”   โ”โ”€โ”€ gate1_critical_flags.py  # G1: Rule-based red flag detection (18 rules)
+โ”   โ”   โ”โ”€โ”€ gate2_moderate_risk.py   # G2: Cardiovascular risk scoring (Eq. 3)
+โ”   โ”   โ”โ”€โ”€ gate3_data_quality.py    # G3: Data completeness (22 fields, Eq. 4)
+โ”   โ”   โ”โ”€โ”€ gate4_titrate_logic.py   # G4: TiTrATE syndrome matching (Hamming)
+โ”   โ”   โ”โ”€โ”€ gate5_uncertainty.py     # G5: BNN MC dropout (52โ’128โ’64โ’5)
+โ”   โ”   โ””โ”€โ”€ gate6_temporal_risk.py   # G6: Temporal FSM (5 states)
+โ”   โ”โ”€โ”€ merging/
+โ”   โ”   โ”โ”€โ”€ conservative_merging.py  # ACWCM fusion + conflict resolution
+โ”   โ”   โ”โ”€โ”€ risk_lattice.py          # Risk lattice (R*, R1--R5)
+โ”   โ”   โ””โ”€โ”€ safety_certificate.py   # Safety certificate generation
+โ”   โ”โ”€โ”€ baselines/
+โ”   โ”   โ”โ”€โ”€ esi_guidelines.py        # ESI rule-based baseline
+โ”   โ”   โ”โ”€โ”€ single_xgboost.py        # XGBoost baseline
+โ”   โ”   โ”โ”€โ”€ ensemble_average.py      # Ensemble averaging baseline
+โ”   โ”   โ”โ”€โ”€ confidence_threshold.py  # Confidence thresholding baseline
+โ”   โ”   โ”โ”€โ”€ dempster_shafer.py       # Dempster-Shafer combination
+โ”   โ”   โ””โ”€โ”€ bayesian_model_avg.py    # Bayesian Model Averaging
+โ”   โ”โ”€โ”€ theorems/
+โ”   โ”   โ””โ”€โ”€ theorem_verification.py  # Runtime safety property checking
+โ”   โ””โ”€โ”€ utils/
+โ”       โ”โ”€โ”€ audit_trail.py           # Clinical audit trail generator
+โ”       โ””โ”€โ”€ visualization.py         # Plotting utilities
+โ”โ”€โ”€ data/
+โ”   โ”โ”€โ”€ generation/                  # Synthetic data generators
+โ”   โ””โ”€โ”€ synthetic/                   # Train (4,796) / Val (798) / Test (804)
+โ”โ”€โ”€ evaluation/                      # Evaluation pipeline and figures
+โ”โ”€โ”€ experiments/                     # XAI: SHAP, counterfactual, NMF
+โ”โ”€โ”€ tests/                           # Test suite
+โ”โ”€โ”€ docs/                            # Additional documentation
+โ”โ”€โ”€ notebooks/                       # Jupyter quickstart
+โ”โ”€โ”€ requirements.txt
+โ”โ”€โ”€ setup.py
+โ””โ”€โ”€ LICENSE
 ```
 
 ---
@@ -284,7 +283,7 @@ collectively signal cardiovascular concern.
 ### G3: Data Quality Assessment
 
 Evaluates completeness ratio across 22 essential clinical fields. When data
-completeness falls below the safety threshold (ρ < 0.70), the gate outputs R*
+completeness falls below the safety threshold (ฯ < 0.70), the gate outputs R*
 (abstention), forcing the system to defer to a human clinician rather than risk
 an unreliable classification.
 
@@ -297,7 +296,7 @@ escalation.
 
 ### G5: Epistemic Uncertainty Quantification (Bayesian)
 
-Bayesian neural network (52→128→64→5) with Monte Carlo dropout (T=20 forward
+Bayesian neural network (52โ’128โ’64โ’5) with Monte Carlo dropout (T=20 forward
 passes). Computes a composite uncertainty index from predictive entropy and
 prediction variance. Triggers abstention or escalation when model uncertainty
 exceeds calibrated thresholds.
@@ -317,7 +316,7 @@ SAFE-Gate enforces three formally verified safety properties at every inference:
 
 **Conservative Preservation (CP).**
 The final merged tier is never more than one tier less conservative than the most
-cautious gate output: `rank(T_final) ≤ rank(min(T_i)) + 1`. Under basic minimum
+cautious gate output: `rank(T_final) โค rank(min(T_i)) + 1`. Under basic minimum
 selection `T_final = min(T_i)`; ACWCM permits bounded one-tier relaxation only
 when high-confidence gate consensus supports it.
 
@@ -398,26 +397,6 @@ for bug reports and feature requests. Include:
 - Python version and OS
 - Minimal reproducible example
 - Expected vs. actual behaviour
-
----
-
-## Citation
-
-If you use SAFE-Gate while the associated manuscript remains in preparation,
-cite the software repository:
-
-```bibtex
-@software{tritham2026safegate,
-  title     = {{SAFE-Gate}: An Adaptive Knowledge-Based Expert System for
-               Emergency Triage Safety with Confidence-Weighted Conservative
-               Merging and Formal Safety Guarantees},
-  author    = {Tritham, Chatchai and Snae Namahoot, Chakkrit},
-  year      = {2026},
-  url       = {https://github.com/ChatchaiTritham/SAFE-Gate},
-  license   = {MIT},
-  note      = {Research software; associated manuscript in preparation}
-}
-```
 
 ---
 

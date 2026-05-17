@@ -1,4 +1,4 @@
-# Contributing to SAFE-Gate
+﻿# Contributing to SAFE-Gate
 
 Thank you for considering a contribution. The following guidelines help
 maintain code quality and patient-safety guarantees.
@@ -56,7 +56,7 @@ tests in `tests/`.
 
 ### Clinical Thresholds
 
-All clinical thresholds (e.g. GCS < 14, SpO2 < 92%) must cite published
+All clinical thresholds (e.g. GCS < 14, SpO2 < 92%) must reference published
 guidelines (AHA/ASA, ACEP, or peer-reviewed literature). Do not change
 thresholds without a supporting reference.
 
