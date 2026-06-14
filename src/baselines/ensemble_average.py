@@ -2,7 +2,7 @@
 Ensemble Averaging Baseline
 
 Averages predictions from multiple classifiers without conservative merging.
-Achieves 92.8% sensitivity (vs SAFE-Gate's 95.3% with conservative merging).
+Serves as a comparison fusion method that does not enforce a safety floor.
 """
 
 import os
@@ -26,10 +26,9 @@ class EnsembleAverage:
     - SAFE-Gate: T_final = min{T1, ..., T6} (conservative)
     - This baseline: T_final = avg{T1, ..., T6} (loses safety)
 
-    Performance: 92.8% sensitivity (2.5% lower than SAFE-Gate's 95.3%)
-
-    This demonstrates that conservative merging provides measurable
-    improvement over ensemble averaging.
+    Averaging can dilute a lone critical signal, so this baseline does not
+    guarantee critical-tier sensitivity; its measured performance is reported
+    by the evaluation driver rather than asserted here.
     """
 
     def __init__(self):
