@@ -1,0 +1,8 @@
+configuration,critical_sensitivity_pct,missed_critical,discharge_specificity_R5_pct,over_triage_pct,macro_f1_pct,delta_f1
+Full ACWCM (6 gates),100.0,0,0.0,42.2,19.2,0.0
+-G1,100.0,0,0.0,26.5,44.2,25.0
+-G2,100.0,0,0.0,41.1,19.1,-0.1
+-G3,100.0,0,0.0,42.2,19.2,0.0
+-G4,100.0,0,90.7,27.7,20.6,1.4
+-G5,100.0,0,0.0,33.3,18.4,-0.8
+-G6,100.0,0,0.0,42.2,19.2,0.0

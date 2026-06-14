@@ -88,6 +88,71 @@
       "false_discharges": 0
     }
   ],
+  "ablation": [
+    {
+      "configuration": "Full ACWCM (6 gates)",
+      "critical_sensitivity_pct": 100.0,
+      "missed_critical": 0,
+      "discharge_specificity_R5_pct": 0.0,
+      "over_triage_pct": 42.2,
+      "macro_f1_pct": 19.2,
+      "delta_f1": 0.0
+    },
+    {
+      "configuration": "-G1",
+      "critical_sensitivity_pct": 100.0,
+      "missed_critical": 0,
+      "discharge_specificity_R5_pct": 0.0,
+      "over_triage_pct": 26.5,
+      "macro_f1_pct": 44.2,
+      "delta_f1": 25.0
+    },
+    {
+      "configuration": "-G2",
+      "critical_sensitivity_pct": 100.0,
+      "missed_critical": 0,
+      "discharge_specificity_R5_pct": 0.0,
+      "over_triage_pct": 41.1,
+      "macro_f1_pct": 19.1,
+      "delta_f1": -0.1
+    },
+    {
+      "configuration": "-G3",
+      "critical_sensitivity_pct": 100.0,
+      "missed_critical": 0,
+      "discharge_specificity_R5_pct": 0.0,
+      "over_triage_pct": 42.2,
+      "macro_f1_pct": 19.2,
+      "delta_f1": 0.0
+    },
+    {
+      "configuration": "-G4",
+      "critical_sensitivity_pct": 100.0,
+      "missed_critical": 0,
+      "discharge_specificity_R5_pct": 90.7,
+      "over_triage_pct": 27.7,
+      "macro_f1_pct": 20.6,
+      "delta_f1": 1.4
+    },
+    {
+      "configuration": "-G5",
+      "critical_sensitivity_pct": 100.0,
+      "missed_critical": 0,
+      "discharge_specificity_R5_pct": 0.0,
+      "over_triage_pct": 33.3,
+      "macro_f1_pct": 18.4,
+      "delta_f1": -0.8
+    },
+    {
+      "configuration": "-G6",
+      "critical_sensitivity_pct": 100.0,
+      "missed_critical": 0,
+      "discharge_specificity_R5_pct": 0.0,
+      "over_triage_pct": 42.2,
+      "macro_f1_pct": 19.2,
+      "delta_f1": 0.0
+    }
+  ],
   "safety_properties": {
     "n_cases": 805,
     "properties": {

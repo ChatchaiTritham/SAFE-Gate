@@ -231,6 +231,38 @@ def baseline_row(name, cases, preds):
 
 
 # --------------------------------------------------------------------------- #
+# Ablation: ACWCM with each gate disabled
+# --------------------------------------------------------------------------- #
+def ablation(cases):
+    """Re-run ACWCM with each gate removed in turn and record the metrics."""
+    def metrics_for(disabled):
+        sg = SAFEGate()
+        if disabled:
+            del sg.gates[disabled]
+        preds = [sg.classify(c, return_audit_trail=False, return_certificate=False)["final_tier"]
+                 for c in cases]
+        conf, _ = confusion(cases, preds)
+        kept, total = critical_sensitivity(cases, preds)
+        rows = tier_metrics(conf)
+        r5 = next(r for r in rows if r["tier"] == "R5")
+        return {
+            "critical_sensitivity_pct": round(100 * kept / total, 1) if total else 0.0,
+            "missed_critical": total - kept,
+            "discharge_specificity_R5_pct": round(100 * r5["recall"], 1),
+            "over_triage_pct": round(100 * over_triage_rate(conf), 1),
+            "macro_f1_pct": round(100 * float(np.mean([r["f1"] for r in rows])), 1),
+        }
+
+    full = metrics_for(None)
+    rows = [{"configuration": "Full ACWCM (6 gates)", **full, "delta_f1": 0.0}]
+    for g in ["G1", "G2", "G3", "G4", "G5", "G6"]:
+        m = metrics_for(g)
+        m["delta_f1"] = round(m["macro_f1_pct"] - full["macro_f1_pct"], 1)
+        rows.append({"configuration": f"-{g}", **m})
+    return rows
+
+
+# --------------------------------------------------------------------------- #
 # Formal safety property verification (as stated in the manuscript)
 # --------------------------------------------------------------------------- #
 def verify_properties(cases):
@@ -331,8 +363,9 @@ def main():
         baselines.append(baseline_row("Single XGBoost", test, xgb))
     baselines.append(baseline_row("SAFE-Gate (ACWCM)", test, acwcm))
 
-    print("[4/5] Verifying formal safety properties ...")
+    print("[4/5] Verifying formal safety properties + ablation ...")
     props = verify_properties(test)
+    abl = ablation(test)
 
     # ---- assemble summary ----
     n_test = sum(sum(conf_acwcm[t].values()) for t in TIERS) + abstain_acwcm
@@ -366,6 +399,7 @@ def main():
             "over_triage_rate_pct": round(100 * over_triage_rate(conf_basic), 2),
         },
         "baselines": baselines,
+        "ablation": abl,
         "safety_properties": props,
     }
 
@@ -392,6 +426,12 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(baselines[0]))
         w.writeheader()
         w.writerows(baselines)
+
+    # ablation
+    with (RESULTS / "ablation.csv").open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=list(abl[0]))
+        w.writeheader()
+        w.writerows(abl)
 
     # theorem / property verification
     (RESULTS / "theorem_verification.json").write_text(json.dumps(props, indent=2), encoding="utf-8")
