@@ -1,0 +1,6 @@
+method,critical_sensitivity,critical_caught,critical_total,missed_critical,discharge_specificity_R5,accuracy,false_discharges
+Arithmetic ensemble averaging,28.0,49,175,126,0.0,35.16,0
+Dempster-Shafer,100.0,175,175,0,100.0,34.78,0
+Bayesian model averaging,98.86,173,175,2,100.0,42.24,2
+Single XGBoost,100.0,175,175,0,100.0,100.0,0
+SAFE-Gate (ACWCM),100.0,175,175,0,0.0,29.94,0

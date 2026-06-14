@@ -17,6 +17,7 @@ Tier mapping:
 Confidence: c5 = 1 - mu(x)
 """
 
+import hashlib
 import os
 import sys
 from typing import Dict, List, Optional, Tuple
@@ -179,9 +180,17 @@ class Gate5Uncertainty:
         Simulate MC dropout predictions when trained model is unavailable.
 
         Generates realistic prediction distributions based on clinical features
-        to mimic BNN behaviour.
+        to mimic BNN behaviour. The stochastic draws are seeded deterministically
+        from the patient's clinical signature so that repeated evaluation of the
+        same case yields identical results (reproducible inference).
         """
         predictions = []
+
+        # Deterministic per-case RNG: identical input -> identical MC samples.
+        # hashlib is used because the built-in hash() is salted per process.
+        signature = repr(sorted((str(k), str(v)) for k, v in patient_data.items()))
+        digest = hashlib.sha256(signature.encode('utf-8')).hexdigest()
+        local_rng = np.random.RandomState(int(digest[:8], 16))
 
         # Extract key risk indicators
         age = patient_data.get('age', 50)
@@ -239,7 +248,7 @@ class Gate5Uncertainty:
 
         # Generate T=20 MC predictions with noise
         for _ in range(self.MC_PASSES):
-            noise = np.random.normal(0, noise_std)
+            noise = local_rng.normal(0, noise_std)
             pred_value = base_tier + noise
             pred_value = int(np.clip(np.round(pred_value), 0, 5))
             predictions.append(RiskTier(pred_value))

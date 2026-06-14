@@ -6,6 +6,35 @@ Safety-first gated triage ensemble with conservative risk merging and formal saf
 
 This repository is part of an eight-repository clinical decision-support research portfolio. Current status: manuscript or component package in preparation. The repository role is **manuscript and supplementary**.
 
+## Headline Results (deterministic, seed=42)
+
+Reproduced end to end by `run_all.py` on the held-out 805-case test split:
+
+| Result | Value |
+|---|---|
+| Critical-tier sensitivity (R1/R2) | 100.0% (175/175), 95% CI 97.9-100% |
+| False discharges (true critical to R5) | 0 |
+| False negative rate | 0.0% |
+| Formal safety-property violations | 0 / 805 |
+| Overall accuracy (ACWCM) | 29.9% |
+| Discharge specificity (R5 recall, ACWCM) | 0.0% |
+| Over-triage rate (ACWCM) | 42.2% |
+
+The reproducible, defensible contribution is the formally guaranteed safety floor:
+every truly critical case is kept at a critical tier with zero false discharges and
+zero invariant violations. Conservative merging achieves this at the cost of high
+over-triage (R2/R3/R5 are seldom assigned), so aggregate accuracy and discharge
+specificity are low and are reported as such. Cohort: 6,400 cases (4,797 / 798 / 805
+train / val / test), 52 clinical features. Full numbers and baseline comparison are
+in `REPRODUCIBILITY.md` and `results/`.
+
+### Reproduce the results
+
+```bash
+pip install -e .
+python run_all.py        # regenerates data, runs SAFE-Gate + baselines, writes results/
+```
+
 ## Standard Repository Layout
 
 | Path | Purpose |

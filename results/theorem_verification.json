@@ -1,0 +1,27 @@
+{
+  "n_cases": 805,
+  "properties": {
+    "conservative_preservation": {
+      "violations": 0,
+      "holds": true,
+      "examples": []
+    },
+    "abstention_correctness": {
+      "violations": 0,
+      "holds": true,
+      "examples": []
+    },
+    "critical_non_dilution": {
+      "violations": 0,
+      "holds": true,
+      "examples": []
+    },
+    "no_false_discharge": {
+      "violations": 0,
+      "holds": true,
+      "examples": []
+    }
+  },
+  "total_violations": 0,
+  "all_pass": true
+}

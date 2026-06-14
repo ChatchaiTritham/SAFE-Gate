@@ -298,13 +298,10 @@ class TheoremVerifier:
 def main():
     """Run theorem verification on test set."""
     # Load test data
-    test_file = (
-        Path(__file__).parent.parent.parent
-        / 'data'
-        / 'synthetic'
-        / 'test'
-        / 'synthetic_test_804.json'
+    test_dir = (
+        Path(__file__).parent.parent.parent / 'data' / 'synthetic' / 'test'
     )
+    test_file = sorted(test_dir.glob('synthetic_test_*.json'))[0]
 
     with open(test_file) as f:
         test_cases = json.load(f)
