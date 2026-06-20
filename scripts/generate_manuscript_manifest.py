@@ -21,48 +21,43 @@ DEFAULT_FIGURE_DIR = ROOT / "evaluation" / "manuscript_figures"
 DEFAULT_MANIFEST = ROOT / "FIGURE_MANIFEST.csv"
 DPI = 300
 
+# Curated set MUST match what evaluation/generate_figures_from_results.py actually
+# produces (the pie-chart "safety_performance" was retired; the headline is now the
+# "safety_and_ablation" bar+CI panel). No supplementary stems are emitted by the
+# active generator, so none are listed here.
+SOURCE_SCRIPT = "evaluation/generate_figures_from_results.py"
 FIGURES = [
     {
         "figure_id": "SAFE-F1",
-        "stem": "safety_performance",
+        "stem": "safety_and_ablation",
         "role": "manuscript",
-        "caption": "Safety performance summary for critical-case detection, abstention behavior, risk distribution, and sensitivity by tier.",
+        "source_data": "results/summary.json",
+        "caption": "Safety performance and gate ablation. Critical-case sensitivity is shown as a bar with a Wilson 95% binomial confidence interval [97.9%, 100.0%] for the zero-event estimate (175/175 caught, 0 false discharges); R5 discharge specificity, over-triage rate, and macro-F1 are reported alongside. Right: over-triage and macro-F1 under single-gate ablation.",
         "article_section": "Safety performance",
     },
     {
         "figure_id": "SAFE-F2",
         "stem": "baseline_comparison",
         "role": "manuscript",
-        "caption": "Baseline comparison showing SAFE-Gate against conventional triage and ensemble baselines.",
+        "source_data": "results/baseline_comparison.csv",
+        "caption": "Cleveland dot plot of the safety-vs-accuracy trade-off across methods (critical sensitivity vs overall accuracy, test fold, seed 42). SAFE-Gate attains maximal critical sensitivity at the lowest overall accuracy.",
         "article_section": "Baseline comparison",
     },
     {
         "figure_id": "SAFE-F3",
         "stem": "confusion_matrix",
         "role": "manuscript",
-        "caption": "Risk-tier confusion matrix used to assess classification behavior across R1-R5 tiers.",
+        "source_data": "results/confusion_matrix.csv",
+        "caption": "Risk-tier confusion matrix (R1-R5, test fold, seed 42). No critical case is routed to discharge. The reproduced ACWCM concentrates predictions on R1 and R4; R2, R3 and R5 receive zero recall (R3 is never predicted), so the system is not a functioning five-tier classifier - annotated on the figure.",
         "article_section": "Classification performance",
     },
     {
         "figure_id": "SAFE-F4",
         "stem": "per_class_metrics",
         "role": "manuscript",
-        "caption": "Per-class precision, recall, and F1-score by risk tier.",
+        "source_data": "results/tier_metrics.csv",
+        "caption": "Per-tier precision, recall, and F1 with Wilson 95% confidence intervals on recall (test fold, seed 42). R2, R3 and R5 collapse to recall = 0 (flagged on the figure); only R1 and R4 are recovered.",
         "article_section": "Classification performance",
-    },
-    {
-        "figure_id": "SAFE-F5",
-        "stem": "risk_distribution",
-        "role": "supplementary",
-        "caption": "Observed risk-tier distribution used to contextualize evaluation results.",
-        "article_section": "Supplementary cohort profile",
-    },
-    {
-        "figure_id": "SAFE-F6",
-        "stem": "support_distribution",
-        "role": "supplementary",
-        "caption": "Support distribution across risk tiers for manuscript evaluation figures.",
-        "article_section": "Supplementary cohort profile",
     },
 ]
 
@@ -95,8 +90,8 @@ def write_manifest(figure_dir: Path, manifest_path: Path) -> None:
                     "role": item["role"],
                     "png": str(png_path.relative_to(ROOT)),
                     "pdf": str(pdf_path.relative_to(ROOT)),
-                    "source_script": "evaluation/create_manuscript_figures.py",
-                    "source_data": "evaluation/create_manuscript_figures.py",
+                    "source_script": SOURCE_SCRIPT,
+                    "source_data": item["source_data"],
                     "caption": item["caption"],
                     "article_section": item["article_section"],
                     "generated_at": generated_at,
