@@ -1,109 +1,94 @@
-﻿# SAFE-Gate
+# Safety-First Gated Triage with Conservative Risk Merging (SAFE-Gate)
+
+> Re-run a single script and confirm, case by case, that a six-gate triage ensemble keeps every critical patient at a critical tier with zero false discharges and zero broken safety invariants.
+
+![License](https://img.shields.io/badge/license-MIT-blue) ![Python](https://img.shields.io/badge/python-3.10%2B-blue) ![Reproducible](https://img.shields.io/badge/reproducible-seed--42-success)
 
 ## Overview
 
-Safety-first gated triage ensemble with conservative risk merging and formal safety checks.
+When several classifiers vote on how urgently a patient should be seen, a plain average can quietly bury a single alarm raised by one module. In triage that arithmetic is dangerous: one model shouting "critical" should not be talked down by four models that happen to favour a calmer label. SAFE-Gate is built around that asymmetry. Six independent gates look at the same case from different angles -- vital-sign red flags, weighted cardiovascular scoring, data completeness, syndrome matching, Monte Carlo dropout uncertainty, and a finite-state temporal check -- and their verdicts are combined by a lattice rule that always keeps the most cautious tier rather than the most popular one.
 
-This repository is part of an eight-repository clinical decision-support research portfolio. Current status: manuscript or component package in preparation. The repository role is **manuscript and supplementary**.
+The merge step, which we call Adaptive Confidence-Weighted Conservative Merging (ACWCM), starts from that conservative floor and is allowed to step down by at most one tier, and only when the other gates agree with high confidence. Three invariants are stated as theorems, checked on every case, and accompanied by a per-case certificate that counts how many feature changes it would take to move the assigned tier upward. This code exists so a reviewer does not have to take any of that on faith. One command regenerates the cohort, runs SAFE-Gate next to four fusion and tree baselines, and writes out the safety audit.
 
-## Headline Results (deterministic, seed=42)
+The honest counterpart to the safety story is the cost of paying for it. Because the merge concentrates decisions on the critical and low-risk ends of the scale, the high-risk, moderate, and minimal tiers are rarely assigned, so headline accuracy and discharge specificity are low. We report those numbers as the price of the guarantee, not as competitive triage performance, and the script reproduces them exactly so the trade-off is visible rather than hidden.
 
-Reproduced end to end by `run_all.py` on the held-out 805-case test split:
+## Key results
 
-| Result | Value |
-|---|---|
-| Critical-tier sensitivity (R1/R2) | 100.0% (175/175), 95% CI 97.9-100% |
-| False discharges (true critical to R5) | 0 |
-| False negative rate | 0.0% |
-| Formal safety-property violations | 0 / 805 |
-| Overall accuracy (ACWCM) | 29.9% |
-| Discharge specificity (R5 recall, ACWCM) | 0.0% |
-| Over-triage rate (ACWCM) | 42.2% |
+All figures below come from `run_all.py` on the held-out 805-case test split (seed 42); the safety audit runs over the full 6,400-case cohort.
 
-The reproducible, defensible contribution is the formally guaranteed safety floor:
-every truly critical case is kept at a critical tier with zero false discharges and
-zero invariant violations. Conservative merging achieves this at the cost of high
-over-triage (R2/R3/R5 are seldom assigned), so aggregate accuracy and discharge
-specificity are low and are reported as such. Cohort: 6,400 cases (4,797 / 798 / 805
-train / val / test), 52 clinical features. Full numbers and baseline comparison are
-in `REPRODUCIBILITY.md` and `results/`.
+- Critical-tier sensitivity (R1/R2) is 100.0% -- 175 of 175 critical cases retained, exact 95% CI 97.9-100.0% -- with zero false discharges and a false-negative rate of 0.0%.
+- All four safety properties (conservative preservation, abstention correctness, critical non-dilution, no false discharge) hold with 0 violations across 805 test cases and across all 6,400 generated cases.
+- The guarantee is bought with conservative over-triage: ACWCM overall accuracy is 29.9% and R5 discharge specificity is 0.0%; over-triage falls from 66.2% under plain minimum selection to 42.2% under ACWCM.
+- Against alternatives on the same split, arithmetic averaging misses 126 of 175 critical cases (28.0% sensitivity), while Dempster-Shafer keeps all critical cases (100.0% sensitivity, 34.8% accuracy) and a single gradient-boosted tree separates the deliberately sharp synthetic tiers almost perfectly (100.0% accuracy). The lattice contribution is the proven zero-violation floor, not aggregate accuracy.
+- Gate ablation leaves critical sensitivity at 100.0% under every single-gate removal; only removing the syndrome gate (G4) lets the merge reach the discharge tier (R5 specificity 90.7%), identifying G4 as the binding constraint on de-escalation.
 
-### Reproduce the results
+Caveat: the cohort is synthetic and the tier boundaries are by design separable, which is why a plain tree scores so high on accuracy. The defensible claim here is the safety floor, not the leaderboard number.
+
+## Repository structure
+
+```text
+src/            ACWCM merge, six gates, risk lattice, safety certificates, baselines, theorem checks
+data/           Synthetic generator + train/val/test JSON splits (4797 / 798 / 805)
+results/        Metrics regenerated by run_all.py (summary.json, safety_check.json, CSVs)
+evaluation/     Figure scripts + exported manuscript/supplementary figures (PNG/PDF)
+scripts/        Evaluation driver and manifest generation
+tests/          Full-system behaviour checks
+run_all.py      One-command reproduction entry point
+```
+
+## Installation
 
 ```bash
-pip install -e .
-python run_all.py        # regenerates data, runs SAFE-Gate + baselines, writes results/
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-## Standard Repository Layout
+## Reproducing the results
 
-| Path | Purpose |
-|---|---|
-| `src/` | Package source code: `safe_gate` |
-| `tests/` | Unit, smoke, and behavior checks |
-| `scripts/` | Reproducibility and export scripts |
-| `examples/` | Runnable examples and demonstrations |
-| `figures/`, `visualizations/`, `outputs/`, `results/` | Generated visual and result artifacts |
-| `data/`, `models/`, `evaluation/` | Dataset, model, and evaluation assets when used by this repo |
-| `FIGURE_MANIFEST.csv` | Curated figure inventory for manuscript or component evidence |
-| `pyproject.toml`, `setup.py`, `requirements.txt`, `pytest.ini` | Python package and test configuration |
-
-## Architecture Flow
-
-```mermaid
-flowchart LR
-    A[Input data or scenario] --> B[Core package logic]
-    B --> C[Safety and quality checks]
-    C --> D[Metrics and audit outputs]
-    D --> E[Curated figures and result artifacts]
+```bash
+python run_all.py        # fixed seed 42; a few minutes on a standard workstation
 ```
 
-## Core Logic
+The driver regenerates the synthetic cohort, runs SAFE-Gate plus the baselines, evaluates the safety properties, and writes `results/summary.json`, `results/safety_check.json`, `results/theorem_verification.json`, and the per-tier, baseline, ablation, and confusion-matrix CSVs. Every metric is computed from a fixed seed, so a second run reproduces the same values; the determinism of the pipeline has been confirmed by repeated execution.
 
-- Evaluate six safety gates.
-- Merge gate outputs conservatively.
-- Generate risk tier and abstention decision.
-- Export safety, baseline, and per-class figures.
+## Results and figures
 
-## Key Formulas And Rules
+The curated figure set is listed in `FIGURE_MANIFEST.csv` (four manuscript figures, two supplementary). Each is exported as both PNG and PDF at 300 DPI under `evaluation/manuscript_figures/`.
 
-- Merged risk: R = max(G1, G2, G3, G4, G5, G6)
-- Abstention rule: abstain if uncertainty >= theta_u or data_quality < theta_q
-- Safety certificate: valid if all gate invariants pass
+- `evaluation/manuscript_figures/safety_performance.png` (SAFE-F1) -- the safety dashboard: critical-case capture, abstention behaviour, risk distribution, and sensitivity by tier. Read it as the headline evidence that the critical tier is caught in full.
+- `evaluation/manuscript_figures/baseline_comparison.png` (SAFE-F2) -- SAFE-Gate set against the fusion and tree baselines. The point to notice is the gap in critical sensitivity, where arithmetic averaging collapses to 28.0% while the conservative methods stay at the top.
+- `evaluation/manuscript_figures/confusion_matrix.png` (SAFE-F3) -- the R1-R5 confusion matrix for ACWCM. Look along the R1/R2 rows: nothing lands in the R4 or R5 columns, the visual confirmation that no critical case is discharged, and note the empty R3 and R5 prediction columns that explain the low accuracy.
+- `evaluation/manuscript_figures/per_class_metrics.png` (SAFE-F4) -- precision, recall, and F1 per tier. It makes the trade-off concrete: full recall at R1 and strong recall at R4, with R2, R3, and R5 at zero recall under the released calibration.
+- `evaluation/manuscript_figures/risk_distribution.png` (SAFE-F5, supplementary) -- the observed risk-tier distribution, useful for placing the evaluation in context.
+- `evaluation/manuscript_figures/support_distribution.png` (SAFE-F6, supplementary) -- per-tier support counts for the test cohort.
 
-## Data, Results, Charts, And Graphs
+If only the numbers are needed, `results/baseline_comparison.csv` carries the same comparison as SAFE-F2, and `results/confusion_matrix.csv` and `results/tier_metrics.csv` back SAFE-F3 and SAFE-F4 directly.
 
-The curated visual set is controlled by FIGURE_MANIFEST.csv and currently lists **6** figure entries. The manifest links figure IDs, roles, source scripts, source data, captions, sections, timestamps, and export DPI.
+## Data
 
-| ID | Role | PNG | PDF |
-|---|---|---|---|
-| SAFE-F1 | manuscript | `evaluation\manuscript_figures\safety_performance.png` | `evaluation\manuscript_figures\safety_performance.pdf` |
-| SAFE-F2 | manuscript | `evaluation\manuscript_figures\baseline_comparison.png` | `evaluation\manuscript_figures\baseline_comparison.pdf` |
-| SAFE-F3 | manuscript | `evaluation\manuscript_figures\confusion_matrix.png` | `evaluation\manuscript_figures\confusion_matrix.pdf` |
-| SAFE-F4 | manuscript | `evaluation\manuscript_figures\per_class_metrics.png` | `evaluation\manuscript_figures\per_class_metrics.pdf` |
+No human subjects are involved and no ethics approval is required. The cohort is fully synthetic: 6,400 vertigo-triage cases with 52 clinical features, generated under seed 42 and split into 4,797 training, 798 validation, and 805 test cases (`data/synthetic/`). The generator lives in `data/generation/`, so the data can be rebuilt rather than trusted as a static dump.
 
-## Reproduce
+## Citation
 
-```powershell
-cd D:\PhD-NU\Manuscript\GitHub\SAFE-Gate
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -e .
-python -m pytest -q
+```bibtex
+@unpublished{tritham_safegate,
+  author = {Tritham, Chatchai and Snae Namahoot, Chakkrit},
+  title  = {Safety-First Gated Triage with Conservative Risk Merging},
+  note   = {Manuscript under review},
+  year   = {2026}
+}
 ```
 
-If figure-generation scripts are present, run the matching script listed in `FIGURE_MANIFEST.csv` from the repository root.
+## License
 
-## Verification Criteria
+Released under the MIT License (see `LICENSE`).
 
-- Root metadata and package files are present.
-- Source paths follow `src/<package>/...` where the package shape allows it.
-- Tests pass with `python -m pytest -q`.
-- Curated figures are listed in `FIGURE_MANIFEST.csv` rather than inferred from every raw image file.
-- Manuscript status wording stays conservative: in preparation, implementation, supplementary, or reproducibility/component evidence as appropriate.
-- No local manuscript path, external assistant wording, or software metadata block is kept in the repository text.
+## Contact
 
-## Portfolio Relationship
+**Chatchai Tritham** — Department of Computer Science and Information Technology, Faculty of Science, Naresuan University, Phitsanulok 65000, Thailand. Email: chatchait66@nu.ac.th · ORCID: 0000-0001-7899-228X
+**Chakkrit Snae Namahoot** — same affiliation. Email: chakkrits@nu.ac.th · ORCID: 0000-0003-4660-4590
+
+## Portfolio relationship
 
 | Repository | Role |
 |---|---|
@@ -118,15 +103,3 @@ If figure-generation scripts are present, run the matching script listed in `FIG
 | Selective-CDSS | Risk-controlled selective-prediction (abstention) component |
 | Causal-CDSS | Causal-inference evaluation component |
 | Beyond-Accuracy | Simulation-based safety/calibration evaluation framework |
-
-## Contact
-
-**Chatchai Tritham**  
-Department of Computer Science and Information Technology, Faculty of Science, Naresuan University, Phitsanulok 65000, Thailand  
-Email: chatchait66@nu.ac.th  
-ORCID: 0000-0001-7899-228X
-
-**Chakkrit Snae Namahoot**  
-Department of Computer Science and Information Technology, Faculty of Science, Naresuan University, Phitsanulok 65000, Thailand  
-Email: chakkrits@nu.ac.th  
-ORCID: 0000-0003-4660-4590
