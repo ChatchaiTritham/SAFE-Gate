@@ -39,6 +39,8 @@ run_all.py      One-command reproduction entry point
 ## Installation
 
 ```bash
+git clone https://github.com/ChatchaiTritham/SAFE-Gate.git
+cd SAFE-Gate
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
