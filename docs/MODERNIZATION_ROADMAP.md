@@ -678,7 +678,7 @@ docker-compose up -d
 docker logs -f safegate
 
 # Execute commands inside container
-docker exec -it safegate python evaluation/create_manuscript_figures.py
+docker exec -it safegate python evaluation/generate_figures_from_results.py
 
 # Stop and remove
 docker-compose down
@@ -1070,11 +1070,11 @@ stages:
           cache: false
 
   evaluate:
-    cmd: python evaluation/generate_performance_metrics.py
+    cmd: python evaluation/generate_figures_from_results.py
     deps:
       - models/gate2_xgboost.pkl
       - data/processed/test.csv
-      - evaluation/generate_performance_metrics.py
+      - evaluation/generate_figures_from_results.py
     metrics:
       - metrics/evaluation.json:
           cache: false
