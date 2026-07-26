@@ -9,9 +9,9 @@
   },
   "predicted_distribution": {
     "R1": 175,
-    "R2": 116,
+    "R2": 117,
     "R3": 0,
-    "R4": 511,
+    "R4": 510,
     "R5": 3
   },
   "tiers_never_predicted": [
@@ -28,7 +28,7 @@
     "total": 108,
     "pct": 0.0
   },
-  "over_triage_rate_pct": 41.99,
+  "over_triage_rate_pct": 42.24,
   "tier_metrics": [
     {
       "tier": "R1",
@@ -41,10 +41,10 @@
     {
       "tier": "R2",
       "support": 127,
-      "predicted": 116,
+      "predicted": 117,
       "precision": 0.0,
       "recall": 0.0,
-      "specificity": 0.8289
+      "specificity": 0.8274
     },
     {
       "tier": "R3",
@@ -57,10 +57,10 @@
     {
       "tier": "R4",
       "support": 222,
-      "predicted": 511,
-      "precision": 0.3855,
-      "recall": 0.8874,
-      "specificity": 0.4614
+      "predicted": 510,
+      "precision": 0.3784,
+      "recall": 0.8694,
+      "specificity": 0.4563
     },
     {
       "tier": "R5",
@@ -88,23 +88,23 @@
     },
     "R3": {
       "R1": 0,
-      "R2": 81,
+      "R2": 79,
       "R3": 0,
-      "R4": 219,
+      "R4": 221,
       "R5": 0
     },
     "R4": {
       "R1": 0,
-      "R2": 22,
+      "R2": 26,
       "R3": 0,
-      "R4": 197,
+      "R4": 193,
       "R5": 3
     },
     "R5": {
       "R1": 0,
-      "R2": 13,
+      "R2": 12,
       "R3": 0,
-      "R4": 95,
+      "R4": 96,
       "R5": 0
     }
   }
