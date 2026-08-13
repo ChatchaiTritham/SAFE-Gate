@@ -1,0 +1,77 @@
+{
+  "n_configurations": 980,
+  "grid": {
+    "critical_tiers": [
+      "R1",
+      "R2"
+    ],
+    "benign_tiers": [
+      "R4",
+      "R5"
+    ],
+    "n_dissenting": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "c_critical": [
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9,
+      0.95,
+      0.99
+    ],
+    "c_benign": [
+      0.3,
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9
+    ]
+  },
+  "dilution_counts": {
+    "dempster_shafer": 336,
+    "bayesian_model_avg": 344,
+    "arithmetic_average": 615,
+    "safegate_acwcm": 0
+  },
+  "dilution_rate_pct": {
+    "dempster_shafer": 34.29,
+    "bayesian_model_avg": 35.1,
+    "arithmetic_average": 62.76,
+    "safegate_acwcm": 0.0
+  },
+  "first_failure": {
+    "dempster_shafer": {
+      "n_dissenting": 2,
+      "c_critical": 0.6,
+      "c_benign": 0.9,
+      "critical_tier": "R1",
+      "benign_tier": "R4",
+      "output": "R4"
+    },
+    "bayesian_model_avg": {
+      "n_dissenting": 2,
+      "c_critical": 0.5,
+      "c_benign": 0.8,
+      "critical_tier": "R1",
+      "benign_tier": "R4",
+      "output": "R4"
+    },
+    "arithmetic_average": {
+      "n_dissenting": 1,
+      "c_critical": 0.8,
+      "c_benign": 0.9,
+      "critical_tier": "R2",
+      "benign_tier": "R5",
+      "output": "R3"
+    },
+    "safegate_acwcm": null
+  }
+}
