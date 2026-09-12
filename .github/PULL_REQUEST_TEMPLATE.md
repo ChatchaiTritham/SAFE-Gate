@@ -1,17 +1,31 @@
-﻿## Summary
+## Summary
 
-<!-- What does this PR do? -->
+Brief description of changes.
 
-## Changes
+## Type of Change
 
--
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Refactoring
+- [ ] Documentation
+- [ ] Test improvement
 
-## Safety Check
+## Safety Constraint Checklist
 
-- [ ] All 10 tests pass (`python tests/test_full_system.py`)
-- [ ] No safety property violations (CP, AC, CND)
-- [ ] Clinical thresholds reference published guidelines (if changed)
+- [ ] C1 (Monotonic escalation) preserved
+- [ ] C2 (Timeout enforcement) preserved
+- [ ] C3 (Audit completeness) preserved
+- [ ] C4 (Human approval gate) preserved
+- [ ] C5 (Controlled de-escalation) preserved
 
 ## Testing
 
-<!-- How did you verify this works? -->
+- [ ] All existing tests pass (`pytest tests/ -v`)
+- [ ] New tests added for new functionality
+- [ ] Edge cases tested
+
+## Checklist
+
+- [ ] Code follows PEP 8 style
+- [ ] Docstrings updated where applicable
+- [ ] CHANGELOG.md updated
