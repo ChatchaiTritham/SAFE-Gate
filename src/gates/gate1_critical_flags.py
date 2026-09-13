@@ -1,10 +1,10 @@
 """
 Gate 1: Critical Red Flag Detection (Rule-Based)
 
-Deterministic screening via 18 atomic Boolean rules derived from established
+Deterministic screening via 20 Boolean conditions derived from established
 emergency medicine guidelines (AHA/ASA 2019). Rules are grouped into 5
 clinical categories. Any single positive rule immediately produces R1 at
-maximal confidence; all 18 rules negative yields R5 with c1=1.0.
+maximal confidence; all 20 conditions negative yields R5 with c1=1.0.
 """
 
 import os
@@ -19,7 +19,7 @@ class Gate1CriticalFlags:
     """
     Gate 1: Critical Red Flag Detection
 
-    18 atomic Boolean rules in 5 categories (Table 1 in paper):
+    20 Boolean conditions in 5 categories (Table 1 in paper):
       1. Hemodynamic instability: SBP < 90 or SBP > 180
       2. Altered mental status:   GCS < 14
       3. Acute focal deficits:    diplopia, dysarthria, ataxia, etc.
@@ -69,7 +69,7 @@ class Gate1CriticalFlags:
         Returns:
             (RiskTier, confidence, reasoning_dict)
             - R1, 1.0 if any red flag detected
-            - R5, 1.0 if all 18 rules negative
+            - R5, 1.0 if all 20 conditions negative
         """
         reasoning = {
             'gate': 'G1_Critical_Red_Flags',
@@ -150,7 +150,7 @@ class Gate1CriticalFlags:
             tier = RiskTier.R5
             confidence = 1.0
             reasoning['decision'] = (
-                'No critical red flags detected across all 18 rules. '
+                'No critical red flags detected across all 20 conditions. '
                 'R5 assigned with full confidence.'
             )
 
@@ -160,4 +160,4 @@ class Gate1CriticalFlags:
         return "G1"
 
     def get_description(self) -> str:
-        return "Critical Red Flag Detection (Rule-based, 18 rules, 5 categories)"
+        return "Critical Red Flag Detection (Rule-based, 20 conditions, 5 categories)"
