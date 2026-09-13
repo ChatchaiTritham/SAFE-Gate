@@ -45,7 +45,8 @@
       "missed_critical": 126,
       "discharge_specificity_R5": 0.0,
       "accuracy": 35.16,
-      "false_discharges": 0
+      "false_discharges": 0,
+      "over_triage": 13.66
     },
     {
       "method": "Dempster-Shafer",
@@ -55,7 +56,8 @@
       "missed_critical": 0,
       "discharge_specificity_R5": 100.0,
       "accuracy": 34.78,
-      "false_discharges": 0
+      "false_discharges": 0,
+      "over_triage": 27.95
     },
     {
       "method": "Bayesian model averaging",
@@ -65,7 +67,8 @@
       "missed_critical": 2,
       "discharge_specificity_R5": 100.0,
       "accuracy": 42.24,
-      "false_discharges": 2
+      "false_discharges": 2,
+      "over_triage": 0.0
     },
     {
       "method": "Single XGBoost",
@@ -75,7 +78,30 @@
       "missed_critical": 0,
       "discharge_specificity_R5": 100.0,
       "accuracy": 100.0,
-      "false_discharges": 0
+      "false_discharges": 0,
+      "over_triage": 0.0
+    },
+    {
+      "method": "Always-critical rule (R1)",
+      "critical_sensitivity": 100.0,
+      "critical_caught": 175,
+      "critical_total": 175,
+      "missed_critical": 0,
+      "discharge_specificity_R5": 0.0,
+      "accuracy": 5.96,
+      "false_discharges": 0,
+      "over_triage": 94.04
+    },
+    {
+      "method": "SAFE-Gate (MIN)",
+      "critical_sensitivity": 100.0,
+      "critical_caught": 175,
+      "critical_total": 175,
+      "missed_critical": 0,
+      "discharge_specificity_R5": 0.0,
+      "accuracy": 33.79,
+      "false_discharges": 0,
+      "over_triage": 66.21
     },
     {
       "method": "SAFE-Gate (ACWCM)",
@@ -85,7 +111,8 @@
       "missed_critical": 0,
       "discharge_specificity_R5": 0.0,
       "accuracy": 29.94,
-      "false_discharges": 0
+      "false_discharges": 0,
+      "over_triage": 42.24
     }
   ],
   "ablation": [

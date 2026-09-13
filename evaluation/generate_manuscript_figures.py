@@ -30,7 +30,7 @@ if str(ROOT) not in sys.path:
 RESULTS = ROOT / "results"
 OUTDIR = ROOT / "evaluation" / "manuscript_figures"
 
-TEXT_PT = 390.0
+TEXT_PT = 372.0
 W_IN = TEXT_PT / 72.0
 BODY_PT = 8.0
 
@@ -103,8 +103,9 @@ def fig1_architecture():
     # stage 1
     block(18, 62, 64, 11, "Patient presentation", ["52 clinical features"], BLUE, "#DCE9F5")
     # stage 2 -- the six knowledge modules
-    gates = [("G1", "Red flags"), ("G2", "Cardiac"), ("G3", "Neuro"),
-             ("G4", "Syndrome"), ("G5", "Temporal"), ("G6", "Uncertainty")]
+    # Order and names follow src/gates/gate{1..6}_*.py
+    gates = [("G1", "Red flags"), ("G2", "Cardio risk"), ("G3", "Data quality"),
+             ("G4", "Syndrome"), ("G5", "Uncertainty"), ("G6", "Temporal")]
     gw, ggap = 12.0, 2.4
     x0 = (100 - (6 * gw + 5 * ggap)) / 2
     for i, (tag, name) in enumerate(gates):
@@ -175,72 +176,111 @@ def fig2_risk_lattice():
 
 
 # --------------------------------------------------------------------------
-def fig3_baseline_sensitivity():
-    data = rows("baseline_comparison.csv")
-    labels = [r["method"].replace("Arithmetic ensemble averaging", "Arithmetic\naveraging")
-              .replace("Dempster-Shafer", "Dempster–\nShafer")
-              .replace("Bayesian model averaging", "Bayesian model\naveraging")
-              .replace("Single XGBoost", "Single\nXGBoost")
-              .replace("SAFE-Gate (ACWCM)", "SAFE-Gate\n(ACWCM)") for r in data]
-    vals = [float(r["critical_sensitivity"]) for r in data]
-    colours = [BLUE if "SAFE-Gate" in r["method"] else "#9AA5AD" for r in data]
-
-    fig, ax = plt.subplots(figsize=(W_IN, W_IN * 0.50))
-    bars = ax.bar(range(len(vals)), vals, color=colours, edgecolor=INK, linewidth=0.6, width=0.62)
-    ax.axhline(100, color=ORANGE, linestyle="--", linewidth=1.0,
-               label="100% deployment threshold")
-    for b, v in zip(bars, vals):
-        ax.text(b.get_x() + b.get_width() / 2, v + 1.8, f"{v:.1f}", ha="center",
-                va="bottom", fontsize=BODY_PT)
-    ax.set_xticks(range(len(labels)))
-    ax.set_xticklabels(labels, fontsize=BODY_PT)
-    ax.set_ylabel("Critical-tier sensitivity, R1–R2 (%)")
-    ax.set_ylim(0, 116)
-    ax.set_yticks([0, 20, 40, 60, 80, 100])
-    ax.legend(loc="lower left", frameon=False)
+def _clean_axes(ax, grid_axis="both"):
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
-    ax.grid(axis="y", linewidth=0.4, alpha=0.35)
+    ax.grid(axis=grid_axis, linewidth=0.4, alpha=0.35)
     ax.set_axisbelow(True)
-    fig.tight_layout(pad=0.3)
-    save(fig, "fig3_sensitivity")
+
+
+def fig3_safety_tradeoff():
+    """Two-panel dot plot: every rule but averaging keeps the floor; the price is over-triage."""
+    data = {r["method"]: r for r in rows("baseline_comparison.csv")}
+    spec = [("Arithmetic ensemble averaging", "Arithmetic averaging", GREY),
+            ("Bayesian model averaging", "Bayesian model avg.", GREY),
+            ("Dempster-Shafer", "Dempster–Shafer", GREY),
+            ("Single XGBoost", "Single XGBoost", GREY),
+            ("Always-critical rule (R1)", "Always-critical (R1)", ORANGE),
+            ("SAFE-Gate (MIN)", "SAFE-Gate (MIN)", SKY),
+            ("SAFE-Gate (ACWCM)", "SAFE-Gate (ACWCM)", BLUE)]
+    y = np.arange(len(spec))[::-1]
+    fig, axes = plt.subplots(1, 2, figsize=(W_IN, W_IN * 0.40), sharey=True)
+    for ax, col, title in zip(axes, ("critical_sensitivity", "over_triage"),
+                              ("Critical-tier sensitivity (%)", "Over-triage (%)")):
+        vals = np.array([float(data[k][col]) for k, _, _ in spec])
+        cols = [c for _, _, c in spec]
+        ax.hlines(y, 0, vals, color=cols, alpha=0.35, linewidth=1.2)
+        ax.scatter(vals, y, color=cols, edgecolor=INK, linewidth=0.4, s=24, zorder=3)
+        for yy, v in zip(y, vals):
+            right = v < 85
+            ax.text(v + 3 if right else v - 3, yy, f"{v:.1f}", fontsize=BODY_PT - 1, color=GREY,
+                    ha="left" if right else "right", va="center",
+                    bbox=dict(boxstyle="square,pad=0.1", facecolor="white", edgecolor="none"), zorder=4)
+        ax.set_ylim(-0.6, len(spec) - 0.4)
+        ax.set_xlim(0, 100)
+        ax.set_xticks([0, 25, 50, 75, 100])
+        ax.set_title(title, fontsize=BODY_PT, pad=3)
+        _clean_axes(ax, "x")
+    axes[0].axvline(100, color=GREEN, linestyle=":", linewidth=0.9)
+    axes[0].set_yticks(y)
+    axes[0].set_yticklabels([lab for _, lab, _ in spec])
+    for t, (_, _, c) in zip(axes[0].get_yticklabels(), spec):
+        t.set_color(INK if c == GREY else c)
+    fig.tight_layout(pad=0.3, w_pad=0.8)
+    save(fig, "fig3_safety_tradeoff")
 
 
 # --------------------------------------------------------------------------
 def fig4_ablation():
+    """Cleveland dot plot: what each gate contributes beyond the constant safety floor."""
     data = rows("ablation.csv")
-    cfg = [r["configuration"].replace("Full ACWCM (6 gates)", "Full\n(6 gates)") for r in data]
-    sens = [float(r["critical_sensitivity_pct"]) for r in data]
-    spec = [float(r["discharge_specificity_R5_pct"]) for r in data]
-    f1 = [float(r["macro_f1_pct"]) for r in data]
-
-    x = np.arange(len(cfg))
-    w = 0.26
-    fig, ax = plt.subplots(figsize=(W_IN, W_IN * 0.52))
-    ax.bar(x - w, sens, w, label="Critical sensitivity", color=BLUE, edgecolor=INK, linewidth=0.5)
-    ax.bar(x, spec, w, label="Discharge specificity (R5)", color=YELLOW, edgecolor=INK, linewidth=0.5)
-    ax.bar(x + w, f1, w, label="Macro F1", color=GREEN, edgecolor=INK, linewidth=0.5)
-    ax.set_xticks(x)
-    ax.set_xticklabels(cfg, fontsize=BODY_PT)
-    ax.set_ylabel("Percent")
-    ax.set_ylim(0, 118)
-    ax.set_yticks([0, 25, 50, 75, 100])
-    ax.legend(loc="upper center", ncol=3, frameon=False, bbox_to_anchor=(0.5, 1.02))
-    for s in ("top", "right"):
-        ax.spines[s].set_visible(False)
-    ax.grid(axis="y", linewidth=0.4, alpha=0.35)
-    ax.set_axisbelow(True)
-    fig.tight_layout(pad=0.3)
+    labels = {"Full ACWCM (6 gates)": "Full (6 gates)", "-G1": "− G1 red flags", "-G2": "− G2 cardio risk",
+              "-G3": "− G3 data quality", "-G4": "− G4 syndrome", "-G5": "− G5 uncertainty",
+              "-G6": "− G6 temporal"}
+    cfg = [labels[r["configuration"]] for r in data]
+    panels = [("over_triage_pct", "Over-triage (%)", ORANGE),
+              ("discharge_specificity_R5_pct", "Discharge specificity, R5 (%)", GREEN),
+              ("macro_f1_pct", "Macro F1 (%)", BLUE)]
+    y = np.arange(len(cfg))[::-1]
+    fig, axes = plt.subplots(1, 3, figsize=(W_IN, W_IN * 0.42), sharey=True)
+    for ax, (col, title, colour) in zip(axes, panels):
+        vals = np.array([float(r[col]) for r in data])
+        ax.hlines(y, 0, vals, color=colour, alpha=0.35, linewidth=1.2)
+        ax.scatter(vals, y, color=colour, edgecolor=INK, linewidth=0.4, s=22, zorder=3)
+        ax.axvline(vals[0], color=GREY, linestyle=":", linewidth=0.8)
+        ax.set_xlim(0, 100)
+        ax.set_xticks([0, 50, 100])
+        ax.set_title(title, fontsize=BODY_PT, pad=3)
+        _clean_axes(ax, "x")
+    axes[0].set_yticks(y)
+    axes[0].set_yticklabels(cfg)
+    fig.tight_layout(pad=0.3, w_pad=0.6)
     save(fig, "fig4_ablation")
 
+
+# --------------------------------------------------------------------------
+def fig5_dilution():
+    """Dilution rate by number of dissenting gates across the 980 enumerated configurations."""
+    data = rows("conflicting_evidence.csv")
+    rules = [("arithmetic_average", "Arithmetic averaging", GREY, "o"),
+             ("bayesian_model_avg", "Bayesian model avg.", YELLOW, "^"),
+             ("dempster_shafer", "Dempster–Shafer", ORANGE, "s"),
+             ("safegate_acwcm", "SAFE-Gate (ACWCM)", BLUE, "*")]
+    ns = sorted({int(r["n_dissenting"]) for r in data})
+    fig, ax = plt.subplots(figsize=(W_IN, W_IN * 0.46))
+    for key, label, col, mk in rules:
+        rate = [100 * np.mean([r[key + "_dilutes"] == "True" for r in data if int(r["n_dissenting"]) == n])
+                for n in ns]
+        ax.plot(ns, rate, marker=mk, color=col, markeredgecolor=INK, markeredgewidth=0.4,
+                markersize=8 if mk == "*" else 5, linewidth=1.3, label=label, zorder=3)
+    n_per = len(data) // len(ns)
+    ax.set_xticks(ns)
+    ax.set_xlabel(f"Gates dissenting toward a benign tier (n = {n_per} configurations each)")
+    ax.set_ylabel("Critical signal diluted (%)")
+    ax.set_ylim(-4, 104)
+    ax.legend(loc="upper left", frameon=False, ncol=2)
+    _clean_axes(ax)
+    fig.tight_layout(pad=0.3)
+    save(fig, "fig5_dilution")
 
 def main():
     style()
     fig1_architecture()
     fig2_risk_lattice()
-    fig3_baseline_sensitivity()
+    fig3_safety_tradeoff()
     fig4_ablation()
-    print("four manuscript figures at %.0f pt, 8 pt floor" % TEXT_PT)
+    fig5_dilution()
+    print("five manuscript figures at %.0f pt, 8 pt floor" % TEXT_PT)
 
 
 if __name__ == "__main__":
