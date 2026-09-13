@@ -1,9 +1,11 @@
 """
 Gate 5: Epistemic Uncertainty Quantification (Bayesian)
 
-Bayesian neural network trained with Monte Carlo dropout (Gal & Ghahramani 2016).
-Architecture: 52 -> 128 -> 64 -> 5 with dropout rate 0.3, evaluated through
-T=20 stochastic forward passes at inference time.
+Designed for a Monte Carlo dropout network (Gal & Ghahramani 2016) with
+architecture 52 -> 128 -> 64 -> 5, dropout rate 0.3 and T=20 stochastic forward
+passes. No trained weights are shipped: the released gate uses a deterministic
+surrogate sampler (clinical predicates + seeded Gaussian dispersion, seeded from
+a SHA-256 digest of the case), and every reported G5 number comes from it.
 
 Composite uncertainty index (Equation 5 in paper):
   mu(x) = 0.5 * H(x)/log(5) + 0.5 * sigma(x)/sigma_max

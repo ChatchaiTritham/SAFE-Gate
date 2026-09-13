@@ -227,6 +227,7 @@ def baseline_row(name, cases, preds):
             if sum(conf[DISCHARGE].values()) else 0.0,
         "accuracy": round(100 * accuracy(conf), 2),
         "false_discharges": false_discharges(cases, preds),
+        "over_triage": round(100 * over_triage_rate(conf), 2),
     }
 
 
@@ -361,6 +362,11 @@ def main():
     ]
     if xgb is not None:
         baselines.append(baseline_row("Single XGBoost", test, xgb))
+    # Trivial reference: escalate every case to the most critical tier. It attains
+    # perfect critical sensitivity by construction, so any safety claim must beat
+    # it on over-triage, not on sensitivity.
+    baselines.append(baseline_row("Always-critical rule (R1)", test, ["R1"] * len(test)))
+    baselines.append(baseline_row("SAFE-Gate (MIN)", test, basic))
     baselines.append(baseline_row("SAFE-Gate (ACWCM)", test, acwcm))
 
     print("[4/5] Verifying formal safety properties + ablation ...")
