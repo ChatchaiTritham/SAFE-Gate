@@ -24,7 +24,7 @@ from merging.safety_certificate import SafetyCertificateGenerator
 
 
 def test_gate1_critical_flags():
-    """Test G1: 18 rules, 5 categories."""
+    """Test G1: 20 conditions, 5 categories."""
     g1 = Gate1CriticalFlags()
 
     # Test 1: SBP < 90 -> R1
@@ -71,7 +71,7 @@ def test_gate1_critical_flags():
         len(reason['triggers']) >= 4
     ), f"Should have >=4 triggers, got {len(reason['triggers'])}"
 
-    print("  [PASS] Gate 1: 18 rules, GCS<14, O2<92% all correct")
+    print("  [PASS] Gate 1: 20 conditions, GCS<14, O2<92% all correct")
 
 
 def test_gate2_cardiovascular():
