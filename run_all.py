@@ -118,6 +118,16 @@ def over_triage_rate(conf):
     return over / n if n else 0.0
 
 
+def under_triage(conf):
+    """Count cases assigned a less urgent tier than their true tier, and the
+    deepest such step (in tiers). Under-triage is the error the safety floor
+    must keep out of the critical band; outside it, ACWCM bounds its depth."""
+    under = sum(conf[t][p] for t in TIERS for p in TIERS if TIER_IDX[p] > TIER_IDX[t])
+    two_plus = sum(conf[t][p] for t in TIERS for p in TIERS if TIER_IDX[p] - TIER_IDX[t] >= 2)
+    depth = max([TIER_IDX[p] - TIER_IDX[t] for t in TIERS for p in TIERS if conf[t][p]] + [0])
+    return under, two_plus, depth
+
+
 def clopper_pearson_upper(x, n, alpha=0.05):
     """Upper bound of the Clopper-Pearson exact CI (for the zero-event case)."""
     from scipy.stats import beta
@@ -228,6 +238,9 @@ def baseline_row(name, cases, preds):
         "accuracy": round(100 * accuracy(conf), 2),
         "false_discharges": false_discharges(cases, preds),
         "over_triage": round(100 * over_triage_rate(conf), 2),
+        "under_triage": round(100 * under_triage(conf)[0] / len(cases), 2),
+        "under_triage_2plus_tiers": under_triage(conf)[1],
+        "max_under_triage_depth": under_triage(conf)[2],
     }
 
 
@@ -396,6 +409,9 @@ def main():
             "discharge_specificity_R5_pct": next(r["recall"] for r in rows_acwcm if r["tier"] == "R5") * 100,
             "macro_f1_pct": round(100 * macro_f1, 2),
             "over_triage_rate_pct": round(100 * over_triage_rate(conf_acwcm), 2),
+            "under_triage_count": under_triage(conf_acwcm)[0],
+            "under_triage_rate_pct": round(100 * under_triage(conf_acwcm)[0] / len(test), 2),
+            "max_under_triage_depth": under_triage(conf_acwcm)[2],
             "abstention_count": abstain_acwcm,
             "abstention_rate_pct": round(100 * abstain_acwcm / n_test, 2),
         },
@@ -403,6 +419,7 @@ def main():
             "accuracy_pct": round(100 * accuracy(conf_basic), 2),
             "discharge_specificity_R5_pct": next(r["recall"] for r in rows_basic if r["tier"] == "R5") * 100,
             "over_triage_rate_pct": round(100 * over_triage_rate(conf_basic), 2),
+            "under_triage_rate_pct": round(100 * under_triage(conf_basic)[0] / len(test), 2),
         },
         "baselines": baselines,
         "ablation": abl,

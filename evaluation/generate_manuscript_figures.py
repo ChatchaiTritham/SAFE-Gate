@@ -1,11 +1,13 @@
-"""Draw the four manuscript figures at the journal text-block width.
+"""Draw the five manuscript figures at the journal text-block width.
 
 The figures that shipped with the manuscript were 800-1000 pt wide and were
 squeezed into a 390 pt column, which left their smallest labels at 2.4-4.9 pt.
 Worse, they had no generator in this repository at all, so nothing tied them to
 the computed results. Both problems are fixed here: every figure is authored at
-390 pt (the measured \\the\\textwidth of the elsarticle review layout) with an
-8 pt floor, and the two data figures read results/*.csv rather than literals.
+372 pt (the measured \\the\\textwidth of the sn-jnl layout) with an 8 pt floor,
+and the data figures read results/* rather than literals. Proportions estimated
+on the 805-case split carry exact 95% Clopper-Pearson intervals; the conflicting-
+evidence figure is an exhaustive enumeration and therefore carries none.
 
     python evaluation/generate_manuscript_figures.py
 """
@@ -22,6 +24,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch  # noqa: E402
+from scipy.stats import beta  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -33,6 +36,7 @@ OUTDIR = ROOT / "evaluation" / "manuscript_figures"
 TEXT_PT = 372.0
 W_IN = TEXT_PT / 72.0
 BODY_PT = 8.0
+N_TEST = 805
 
 # Okabe-Ito
 BLUE = "#0072B2"
@@ -42,6 +46,7 @@ YELLOW = "#E69F00"
 SKY = "#56B4E9"
 PINK = "#CC79A7"
 GREY = "#4D4D4D"
+LIGHT = "#9A9A9A"
 INK = "#1A1A1A"
 
 
@@ -49,13 +54,20 @@ def style():
     plt.rcParams.update({
         "font.family": "serif",
         "font.serif": ["Times New Roman", "DejaVu Serif"],
+        "mathtext.fontset": "stix",
         "font.size": BODY_PT,
-        "axes.labelsize": BODY_PT + 1,
+        "axes.labelsize": BODY_PT,
+        "axes.titlesize": BODY_PT,
         "xtick.labelsize": BODY_PT,
         "ytick.labelsize": BODY_PT,
         "legend.fontsize": BODY_PT,
-        "axes.linewidth": 0.7,
+        "axes.linewidth": 0.6,
+        "xtick.major.width": 0.6,
+        "ytick.major.width": 0.6,
+        "xtick.major.size": 2.5,
+        "ytick.major.size": 2.5,
         "text.color": INK,
+        "axes.labelcolor": INK,
         "pdf.fonttype": 42,
         "savefig.facecolor": "white",
     })
@@ -69,70 +81,108 @@ def rows(name):
 def save(fig, stem):
     OUTDIR.mkdir(parents=True, exist_ok=True)
     for ext in ("pdf", "png"):
-        fig.savefig(OUTDIR / f"{stem}.{ext}", dpi=300, facecolor="white")
+        fig.savefig(OUTDIR / f"{stem}.{ext}", dpi=600 if ext == "png" else 300, facecolor="white")
     plt.close(fig)
     print("  wrote", (OUTDIR / f"{stem}.pdf").relative_to(ROOT))
 
 
+def cp_interval(x, n, alpha=0.05):
+    """Exact Clopper-Pearson interval, in percent."""
+    lo = 0.0 if x == 0 else beta.ppf(alpha / 2, x, n - x + 1)
+    hi = 1.0 if x == n else beta.ppf(1 - alpha / 2, x + 1, n - x)
+    return 100 * lo, 100 * hi
+
+
+def panel_label(ax, tag, x=-0.02, y=1.0):
+    ax.text(x, y, f"({tag})", transform=ax.transAxes, ha="right", va="bottom",
+            fontsize=BODY_PT + 1, fontweight="bold", color=INK)
+
+
+def _clean_axes(ax, grid_axis="both"):
+    for s in ("top", "right"):
+        ax.spines[s].set_visible(False)
+    ax.grid(axis=grid_axis, linewidth=0.4, alpha=0.35)
+    ax.set_axisbelow(True)
+
+
 # --------------------------------------------------------------------------
 def fig1_architecture():
-    """Four-stage pipeline: features -> six gates -> ACWCM -> outputs."""
-    fig, ax = plt.subplots(figsize=(W_IN, W_IN * 0.72))
+    """Four-stage pipeline: features -> six gates -> ACWCM (three phases) -> outputs."""
+    fig, ax = plt.subplots(figsize=(W_IN, W_IN * 0.78))
     ax.set_xlim(0, 100)
-    ax.set_ylim(0, 74)
+    ax.set_ylim(0, 80)
     ax.axis("off")
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
-    def block(x, y, w, h, title, sub, colour, tint):
+    def box(x, y, w, h, colour, tint, lw=0.9):
         ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0,rounding_size=1.2",
-                                    facecolor=tint, edgecolor=colour, linewidth=0.9, zorder=3))
-        ax.text(x + w / 2, y + h - 3.6, title, ha="center", va="center",
-                fontsize=BODY_PT, fontweight="bold", color=colour, zorder=4)
-        for i, s in enumerate(sub):
-            ax.text(x + w / 2, y + h - 8.4 - i * 4.0, s, ha="center", va="center",
-                    fontsize=BODY_PT, color=INK, zorder=4)
+                                    facecolor=tint, edgecolor=colour, linewidth=lw, zorder=3))
 
-    def down(x, y0, y1, colour=GREY, label=None):
-        ax.add_patch(FancyArrowPatch((x, y0), (x, y1), arrowstyle="-|>", mutation_scale=8,
-                                     linewidth=1.0, color=colour, zorder=2))
-        if label:
-            ax.text(x + 1.6, (y0 + y1) / 2, label, ha="left", va="center",
-                    fontsize=BODY_PT, style="italic", color=GREY, zorder=5,
-                    bbox=dict(boxstyle="round,pad=0.15", facecolor="white", edgecolor="none"))
+    def arrow(p0, p1, colour, ms=8, lw=0.9):
+        ax.add_patch(FancyArrowPatch(p0, p1, arrowstyle="-|>", mutation_scale=ms,
+                                     linewidth=lw, color=colour, zorder=2, shrinkA=0, shrinkB=0))
 
-    # stage 1
-    block(18, 62, 64, 11, "Patient presentation", ["52 clinical features"], BLUE, "#DCE9F5")
-    # stage 2 -- the six knowledge modules
-    # Order and names follow src/gates/gate{1..6}_*.py
-    gates = [("G1", "Red flags"), ("G2", "Cardio risk"), ("G3", "Data quality"),
-             ("G4", "Syndrome"), ("G5", "Uncertainty"), ("G6", "Temporal")]
-    gw, ggap = 12.0, 2.4
+    def note(x, y, s, ha="left"):
+        ax.text(x, y, s, ha=ha, va="center", fontsize=BODY_PT, style="italic", color=GREY, zorder=5)
+
+    # stage 1: input
+    box(22, 70, 56, 9, BLUE, "#DCE9F5")
+    ax.text(50, 76.4, "Patient presentation", ha="center", va="center",
+            fontsize=BODY_PT, fontweight="bold", color=BLUE, zorder=4)
+    ax.text(50, 72.6, "52 clinical features", ha="center", va="center", fontsize=BODY_PT, zorder=4)
+
+    # stage 2: six knowledge modules (order and names follow src/gates/gate{1..6}_*.py)
+    gates = [("G1", "Red flags", "rules"), ("G2", "Cardio risk", "statistical"),
+             ("G3", "Data quality", "abstention"), ("G4", "Syndrome", "rules"),
+             ("G5", "Uncertainty", "Bayesian"), ("G6", "Temporal", "state machine")]
+    gw, ggap = 13.4, 1.9
     x0 = (100 - (6 * gw + 5 * ggap)) / 2
-    for i, (tag, name) in enumerate(gates):
+    bus_top, bus_bot = 64.5, 41.5
+    ax.plot([x0 + gw / 2, 100 - x0 - gw / 2], [bus_top, bus_top], color=BLUE, lw=0.9, zorder=2)
+    ax.plot([50, 50], [70, bus_top], color=BLUE, lw=0.9, zorder=2)
+    ax.plot([x0 + gw / 2, 100 - x0 - gw / 2], [bus_bot, bus_bot], color=GREEN, lw=0.9, zorder=2)
+    for i, (tag, name, kind) in enumerate(gates):
         x = x0 + i * (gw + ggap)
-        down(x + gw / 2, 62, 52.4, BLUE)
-        ax.add_patch(FancyBboxPatch((x, 40), gw, 12.0, boxstyle="round,pad=0,rounding_size=1.0",
-                                    facecolor="#EAF3EF", edgecolor=GREEN, linewidth=0.9, zorder=3))
-        ax.text(x + gw / 2, 48.6, tag, ha="center", va="center",
-                fontsize=BODY_PT, fontweight="bold", color=GREEN, zorder=4)
-        ax.text(x + gw / 2, 43.4, name, ha="center", va="center",
-                fontsize=BODY_PT, color=INK, zorder=4)
-        ax.add_patch(FancyArrowPatch((x + gw / 2, 40), (50, 31.4), arrowstyle="-|>",
-                                     mutation_scale=8, linewidth=0.9, color=GREEN, zorder=2))
-    ax.text(50, 57.2, "six knowledge modules evaluated in parallel", ha="center", va="center",
-            fontsize=BODY_PT, style="italic", color=GREY,
-            bbox=dict(boxstyle="round,pad=0.15", facecolor="white", edgecolor="none"))
-    ax.text(50, 35.0, "each emits a tier $r_i$ and a confidence $c_i$", ha="center", va="center",
-            fontsize=BODY_PT, style="italic", color=GREY,
-            bbox=dict(boxstyle="round,pad=0.15", facecolor="white", edgecolor="none"))
+        cx = x + gw / 2
+        arrow((cx, bus_top), (cx, 59.0), BLUE)
+        box(x, 46, gw, 13, GREEN, "#EAF3EF")
+        ax.text(cx, 55.6, tag, ha="center", va="center", fontsize=BODY_PT,
+                fontweight="bold", color=GREEN, zorder=4)
+        ax.text(cx, 51.9, name, ha="center", va="center", fontsize=BODY_PT, zorder=4)
+        ax.text(cx, 48.6, kind, ha="center", va="center", fontsize=BODY_PT - 1,
+                style="italic", color=GREY, zorder=4)
+        ax.plot([cx, cx], [46, bus_bot], color=GREEN, lw=0.9, zorder=2)
+    note(51.5, 67.2, "evaluated in parallel")
+    arrow((50, bus_bot), (50, 35.0), GREEN)
+    note(51.5, 38.4, r"each gate emits $(r_i, c_i)$: a tier on $\mathcal{R}$ and a confidence")
 
-    # stage 3
-    block(18, 18, 64, 13.0, "ACWCM", ["confidence-weighted conservative merging",
-                                      "relaxes by at most one tier"], ORANGE, "#F7E2D5")
-    down(50, 18, 13.0, ORANGE)
-    # stage 4
-    block(10, 1.5, 80, 11.0, "Outputs", ["final risk tier  ·  safety certificate  ·  audit trail"],
-          PINK, "#F6E3EE")
+    # stage 3: ACWCM with its three phases
+    box(8, 14, 84, 21, ORANGE, "#F7E2D5")
+    ax.text(50, 32.0, "ACWCM: adaptive confidence-weighted conservative merging",
+            ha="center", va="center", fontsize=BODY_PT, fontweight="bold", color=ORANGE, zorder=4)
+    phases = [("Phase 1", "any $r_i = R1$", "return R1"),
+              ("Phase 2", r"$r_{\min}$ = most cautious $r_i$", "MIN selection"),
+              ("Phase 3", "confident consensus", r"relax by at most 1 tier")]
+    pw, pgap = 24.5, 2.5
+    px0 = (100 - (3 * pw + 2 * pgap)) / 2
+    for j, (head, l1, l2) in enumerate(phases):
+        x = px0 + j * (pw + pgap)
+        box(x, 16, pw, 12.5, ORANGE, "white", lw=0.6)
+        ax.text(x + pw / 2, 25.6, head, ha="center", va="center", fontsize=BODY_PT,
+                fontweight="bold", color=INK, zorder=4)
+        ax.text(x + pw / 2, 21.9, l1, ha="center", va="center", fontsize=BODY_PT, zorder=4)
+        ax.text(x + pw / 2, 18.6, l2, ha="center", va="center", fontsize=BODY_PT,
+                color=GREY, zorder=4)
+        if j:
+            arrow((x - pgap + 0.2, 22.25), (x - 0.2, 22.25), ORANGE, ms=6, lw=0.7)
+    arrow((50, 14), (50, 10.0), ORANGE)
+
+    # stage 4: outputs
+    box(14, 1.0, 72, 9, PINK, "#F6E3EE")
+    ax.text(50, 7.3, "Outputs", ha="center", va="center", fontsize=BODY_PT,
+            fontweight="bold", color=PINK, zorder=4)
+    ax.text(50, 3.6, r"final tier $\hat r$  ·  counterfactual safety certificate  ·  audit trail",
+            ha="center", va="center", fontsize=BODY_PT, zorder=4)
     save(fig, "fig1_architecture")
 
 
@@ -145,46 +195,47 @@ def fig2_risk_lattice():
     ax.axis("off")
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
-    tiers = [("R*", "Bottom (abstain)", "no decision", GREY, "#ECECEC"),
+    tiers = [(r"$R^{*}$", "Abstain (defer to clinician)", "no decision", GREY, "#ECECEC"),
              ("R1", "Critical emergency", "5 min", ORANGE, "#F7DAD5"),
              ("R2", "High risk, urgent", "15 min", ORANGE, "#F9E6DA"),
              ("R3", "Moderate risk", "30–120 min", YELLOW, "#FBF0DA"),
              ("R4", "Low risk, monitor", "1–4 h", SKY, "#DFF0FB"),
              ("R5", "Minimal risk, discharge", "outpatient", GREEN, "#D9EFE8")]
     h, gap = 7.4, 2.1
+    ys = []
     for i, (tag, name, sla, col, tint) in enumerate(tiers):
         y = 62 - (i + 1) * h - i * gap
-        ax.add_patch(FancyBboxPatch((16, y), 60, h, boxstyle="round,pad=0,rounding_size=1.0",
+        ys.append(y)
+        ax.add_patch(FancyBboxPatch((16, y), 58, h, boxstyle="round,pad=0,rounding_size=1.0",
                                     facecolor=tint, edgecolor=col, linewidth=0.9, zorder=3))
         ax.text(20, y + h / 2, tag, ha="left", va="center",
                 fontsize=BODY_PT, fontweight="bold", color=col, zorder=4)
-        ax.text(30, y + h / 2, name, ha="left", va="center", fontsize=BODY_PT, color=INK, zorder=4)
-        ax.text(74, y + h / 2, sla, ha="right", va="center", fontsize=BODY_PT, color=GREY, zorder=4)
+        ax.text(29, y + h / 2, name, ha="left", va="center", fontsize=BODY_PT, color=INK, zorder=4)
+        ax.text(72, y + h / 2, sla, ha="right", va="center", fontsize=BODY_PT, color=GREY, zorder=4)
         if i:
             ax.text(14, y + h + gap / 2, r"$\sqsubseteq$", ha="center", va="center",
-                    fontsize=BODY_PT, color=INK, zorder=4)
+                    fontsize=BODY_PT + 1, color=INK, zorder=4)
 
-    ax.add_patch(FancyArrowPatch((11, 62 - h), (11, 1.0), arrowstyle="-|>", mutation_scale=9,
-                                 linewidth=1.0, color=INK, zorder=2))
-    ax.text(8.2, 46, "more conservative", rotation=90, ha="center", va="center",
+    ax.add_patch(FancyArrowPatch((10.5, 62 - h), (10.5, 1.0), arrowstyle="-|>", mutation_scale=9,
+                                 linewidth=0.9, color=INK, zorder=2))
+    ax.text(7.6, 44, "more conservative", rotation=90, ha="center", va="center",
             fontsize=BODY_PT, color=GREY)
-    ax.text(8.2, 14, "less cautious", rotation=90, ha="center", va="center",
+    ax.text(7.6, 12, "less cautious", rotation=90, ha="center", va="center",
             fontsize=BODY_PT, color=GREY)
-    ax.text(79.0, 31, "merging selects the\nmost cautious tier;\nACWCM may relax it\nby one step",
+    # critical band C = {R1, R2}
+    yc0, yc1 = ys[2], ys[1] + h
+    ax.plot([76.5, 77.5, 77.5, 76.5], [yc1, yc1, yc0, yc0], color=ORANGE, lw=0.9)
+    ax.text(79.0, (yc0 + yc1) / 2, "critical band $\\mathcal{C}$:\nnever relaxed\nbelow R2",
+            ha="left", va="center", fontsize=BODY_PT, color=ORANGE)
+    ax.text(79.0, ys[4] + h / 2 + 2, "MIN selects the\nmost cautious tier;\nACWCM may relax\nit by one step",
             ha="left", va="center", fontsize=BODY_PT, color=GREY)
     save(fig, "fig2_risk_lattice")
 
 
 # --------------------------------------------------------------------------
-def _clean_axes(ax, grid_axis="both"):
-    for s in ("top", "right"):
-        ax.spines[s].set_visible(False)
-    ax.grid(axis=grid_axis, linewidth=0.4, alpha=0.35)
-    ax.set_axisbelow(True)
-
-
 def fig3_safety_tradeoff():
-    """Two-panel dot plot: every rule but averaging keeps the floor; the price is over-triage."""
+    """Three-panel dot plot with 95% CIs: the safety floor, its over-triage price and
+    the under-triage each rule incurs (hatched share = errors of two or more tiers)."""
     data = {r["method"]: r for r in rows("baseline_comparison.csv")}
     spec = [("Arithmetic ensemble averaging", "Arithmetic averaging", GREY),
             ("Bayesian model averaging", "Bayesian model avg.", GREY),
@@ -194,29 +245,43 @@ def fig3_safety_tradeoff():
             ("SAFE-Gate (MIN)", "SAFE-Gate (MIN)", SKY),
             ("SAFE-Gate (ACWCM)", "SAFE-Gate (ACWCM)", BLUE)]
     y = np.arange(len(spec))[::-1]
-    fig, axes = plt.subplots(1, 2, figsize=(W_IN, W_IN * 0.40), sharey=True)
-    for ax, col, title in zip(axes, ("critical_sensitivity", "over_triage"),
-                              ("Critical-tier sensitivity (%)", "Over-triage (%)")):
-        vals = np.array([float(data[k][col]) for k, _, _ in spec])
-        cols = [c for _, _, c in spec]
-        ax.hlines(y, 0, vals, color=cols, alpha=0.35, linewidth=1.2)
-        ax.scatter(vals, y, color=cols, edgecolor=INK, linewidth=0.4, s=24, zorder=3)
-        for yy, v in zip(y, vals):
-            right = v < 85
-            ax.text(v + 3 if right else v - 3, yy, f"{v:.1f}", fontsize=BODY_PT - 1, color=GREY,
-                    ha="left" if right else "right", va="center",
-                    bbox=dict(boxstyle="square,pad=0.1", facecolor="white", edgecolor="none"), zorder=4)
+    fig, axes = plt.subplots(1, 3, figsize=(W_IN, W_IN * 0.44), sharey=True)
+    titles = ("Critical-tier sensitivity (%)", "Over-triage (%)", "Under-triage (%)")
+    for p, (ax, title) in enumerate(zip(axes, titles)):
+        for (key, _, colour), yy in zip(spec, y):
+            r = data[key]
+            if p == 0:
+                x, n = int(r["critical_caught"]), int(r["critical_total"])
+            elif p == 1:
+                x, n = round(float(r["over_triage"]) * N_TEST / 100), N_TEST
+            else:
+                x, n = round(float(r["under_triage"]) * N_TEST / 100), N_TEST
+            v = 100 * x / n
+            shown = float(r[("critical_sensitivity", "over_triage", "under_triage")[p]])
+            lo, hi = cp_interval(x, n)
+            ax.hlines(yy, 0, v, color=colour, alpha=0.30, linewidth=1.1)
+            if p == 2 and int(r["under_triage_2plus_tiers"]):
+                v2 = 100 * int(r["under_triage_2plus_tiers"]) / n
+                ax.barh(yy, v2, height=0.42, color="white", edgecolor=ORANGE,
+                        hatch="/////", linewidth=0.5, zorder=2)
+            ax.errorbar(v, yy, xerr=[[v - lo], [hi - v]], fmt="none", ecolor=INK,
+                        elinewidth=0.6, capsize=1.6, zorder=3)
+            ax.scatter(v, yy, color=colour, edgecolor=INK, linewidth=0.4, s=20, zorder=4)
+            right = v < 72
+            ax.text(hi + 3 if right else lo - 3, yy, f"{round(shown, 1):.1f}", fontsize=BODY_PT - 1, color=GREY,
+                    ha="left" if right else "right", va="center", zorder=5,
+                    bbox=dict(boxstyle="square,pad=0.08", facecolor="white", edgecolor="none"))
         ax.set_ylim(-0.6, len(spec) - 0.4)
-        ax.set_xlim(0, 100)
-        ax.set_xticks([0, 25, 50, 75, 100])
-        ax.set_title(title, fontsize=BODY_PT, pad=3)
+        ax.set_xlim(0, 104)
+        ax.set_xticks([0, 50, 100])
+        ax.set_title(f"({'abc'[p]}) {title}", pad=3)
         _clean_axes(ax, "x")
-    axes[0].axvline(100, color=GREEN, linestyle=":", linewidth=0.9)
+    axes[0].axvline(100, color=GREEN, linestyle=":", linewidth=0.8)
     axes[0].set_yticks(y)
     axes[0].set_yticklabels([lab for _, lab, _ in spec])
     for t, (_, _, c) in zip(axes[0].get_yticklabels(), spec):
         t.set_color(INK if c == GREY else c)
-    fig.tight_layout(pad=0.3, w_pad=0.8)
+    fig.tight_layout(pad=0.3, w_pad=1.4)
     save(fig, "fig3_safety_tradeoff")
 
 
@@ -229,49 +294,66 @@ def fig4_ablation():
               "-G6": "− G6 temporal"}
     cfg = [labels[r["configuration"]] for r in data]
     panels = [("over_triage_pct", "Over-triage (%)", ORANGE),
-              ("discharge_specificity_R5_pct", "Discharge specificity, R5 (%)", GREEN),
+              ("discharge_specificity_R5_pct", "Discharge recall, R5 (%)", GREEN),
               ("macro_f1_pct", "Macro F1 (%)", BLUE)]
     y = np.arange(len(cfg))[::-1]
     fig, axes = plt.subplots(1, 3, figsize=(W_IN, W_IN * 0.42), sharey=True)
-    for ax, (col, title, colour) in zip(axes, panels):
+    for p, (ax, (col, title, colour)) in enumerate(zip(axes, panels)):
         vals = np.array([float(r[col]) for r in data])
-        ax.hlines(y, 0, vals, color=colour, alpha=0.35, linewidth=1.2)
-        ax.scatter(vals, y, color=colour, edgecolor=INK, linewidth=0.4, s=22, zorder=3)
+        ax.axhspan(y[0] - 0.45, y[0] + 0.45, color="#EFEFEF", zorder=0)
+        ax.hlines(y, 0, vals, color=colour, alpha=0.35, linewidth=1.1)
+        ax.scatter(vals, y, color=colour, edgecolor=INK, linewidth=0.4, s=20, zorder=3)
         ax.axvline(vals[0], color=GREY, linestyle=":", linewidth=0.8)
-        ax.set_xlim(0, 100)
+        for yy, v, base in zip(y[1:], vals[1:], [vals[0]] * (len(vals) - 1)):
+            if abs(v - base) >= 5:
+                left = v < base or v >= 80
+                ax.text(v - 5 if left else v + 5, yy, f"{v:.1f}", fontsize=BODY_PT - 1,
+                        color=GREY, ha="right" if left else "left", va="center")
+        ax.set_xlim(0, 104)
         ax.set_xticks([0, 50, 100])
-        ax.set_title(title, fontsize=BODY_PT, pad=3)
+        ax.set_title(f"({'abc'[p]}) {title}", pad=3)
         _clean_axes(ax, "x")
     axes[0].set_yticks(y)
     axes[0].set_yticklabels(cfg)
-    fig.tight_layout(pad=0.3, w_pad=0.6)
+    fig.tight_layout(pad=0.3, w_pad=1.2)
     save(fig, "fig4_ablation")
 
 
 # --------------------------------------------------------------------------
 def fig5_dilution():
-    """Dilution rate by number of dissenting gates across the 980 enumerated configurations."""
+    """(a) dilution rate and (b) R1-to-discharge configurations, by dissenting gates."""
     data = rows("conflicting_evidence.csv")
     rules = [("arithmetic_average", "Arithmetic averaging", GREY, "o"),
              ("bayesian_model_avg", "Bayesian model avg.", YELLOW, "^"),
              ("dempster_shafer", "Dempster–Shafer", ORANGE, "s"),
              ("safegate_acwcm", "SAFE-Gate (ACWCM)", BLUE, "*")]
     ns = sorted({int(r["n_dissenting"]) for r in data})
-    fig, ax = plt.subplots(figsize=(W_IN, W_IN * 0.46))
+    n_r1 = sum(1 for r in data if r["critical_tier"] == "R1" and int(r["n_dissenting"]) == ns[0])
+    fig, axes = plt.subplots(1, 2, figsize=(W_IN, W_IN * 0.44))
     for key, label, col, mk in rules:
-        rate = [100 * np.mean([r[key + "_dilutes"] == "True" for r in data if int(r["n_dissenting"]) == n])
-                for n in ns]
-        ax.plot(ns, rate, marker=mk, color=col, markeredgecolor=INK, markeredgewidth=0.4,
-                markersize=8 if mk == "*" else 5, linewidth=1.3, label=label, zorder=3)
-    n_per = len(data) // len(ns)
-    ax.set_xticks(ns)
-    ax.set_xlabel(f"Gates dissenting toward a benign tier (n = {n_per} configurations each)")
-    ax.set_ylabel("Critical signal diluted (%)")
-    ax.set_ylim(-4, 104)
-    ax.legend(loc="upper left", frameon=False, ncol=2)
-    _clean_axes(ax)
-    fig.tight_layout(pad=0.3)
+        rate = [100 * np.mean([r[key + "_dilutes"] == "True" for r in data
+                               if int(r["n_dissenting"]) == n]) for n in ns]
+        r1_dis = [sum(1 for r in data if int(r["n_dissenting"]) == n and r["critical_tier"] == "R1"
+                      and r[key] == "R5") for n in ns]
+        kw = dict(marker=mk, color=col, markeredgecolor=INK, markeredgewidth=0.4,
+                  markersize=8 if mk == "*" else 4.5, linewidth=1.2, label=label, zorder=3)
+        axes[0].plot(ns, rate, **kw)
+        axes[1].plot(ns, r1_dis, **kw)
+    axes[0].set_ylabel("Configurations diluted (%)")
+    axes[0].set_ylim(-4, 104)
+    axes[1].set_ylabel(f"R1 signal sent to R5 (of {n_r1})")
+    axes[1].set_ylim(-2, max(n_r1 * 0.5, 10))
+    for p, ax in enumerate(axes):
+        ax.set_xticks(ns)
+        ax.set_xlabel("Gates dissenting toward a benign tier")
+        _clean_axes(ax)
+        ax.set_title(("(a) Share of configurations diluted", "(b) Life-threatening signal discharged")[p], pad=3)
+    handles, labs = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labs, loc="upper center", ncol=4, frameon=False,
+               bbox_to_anchor=(0.5, 1.0), handletextpad=0.4, columnspacing=1.0)
+    fig.tight_layout(pad=0.3, w_pad=1.6, rect=(0, 0, 1, 0.88))
     save(fig, "fig5_dilution")
+
 
 def main():
     style()

@@ -1,8 +1,8 @@
-method,critical_sensitivity,critical_caught,critical_total,missed_critical,discharge_specificity_R5,accuracy,false_discharges,over_triage
-Arithmetic ensemble averaging,28.0,49,175,126,0.0,35.16,0,13.66
-Dempster-Shafer,100.0,175,175,0,100.0,34.78,0,27.95
-Bayesian model averaging,98.86,173,175,2,100.0,42.24,2,0.0
-Single XGBoost,100.0,175,175,0,100.0,100.0,0,0.0
-Always-critical rule (R1),100.0,175,175,0,0.0,5.96,0,94.04
-SAFE-Gate (MIN),100.0,175,175,0,0.0,33.79,0,66.21
-SAFE-Gate (ACWCM),100.0,175,175,0,0.0,29.94,0,42.24
+method,critical_sensitivity,critical_caught,critical_total,missed_critical,discharge_specificity_R5,accuracy,false_discharges,over_triage,under_triage,under_triage_2plus_tiers,max_under_triage_depth
+Arithmetic ensemble averaging,28.0,49,175,126,0.0,35.16,0,13.66,51.18,0,1
+Dempster-Shafer,100.0,175,175,0,100.0,34.78,0,27.95,37.27,300,2
+Bayesian model averaging,98.86,173,175,2,100.0,42.24,2,0.0,57.76,243,3
+Single XGBoost,100.0,175,175,0,100.0,100.0,0,0.0,0.0,0,0
+Always-critical rule (R1),100.0,175,175,0,0.0,5.96,0,94.04,0.0,0,0
+SAFE-Gate (MIN),100.0,175,175,0,0.0,33.79,0,66.21,0.0,0,0
+SAFE-Gate (ACWCM),100.0,175,175,0,0.0,29.94,0,42.24,27.83,0,1
