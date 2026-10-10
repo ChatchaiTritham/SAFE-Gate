@@ -509,6 +509,7 @@ def main():
         },
         "basic_min": {
             "accuracy_pct": round(100 * accuracy(conf_basic), 2),
+            "macro_f1_pct": round(100 * float(np.mean([r["f1"] for r in rows_basic])), 2),
             "discharge_specificity_R5_pct": next(r["recall"] for r in rows_basic if r["tier"] == "R5") * 100,
             "over_triage_rate_pct": round(100 * over_triage_rate(conf_basic), 2),
             "under_triage_rate_pct": round(100 * under_triage(conf_basic)[0] / len(test), 2),

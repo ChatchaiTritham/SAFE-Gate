@@ -36,6 +36,7 @@
   },
   "basic_min": {
     "accuracy_pct": 33.79,
+    "macro_f1_pct": 20.06,
     "discharge_specificity_R5_pct": 0.0,
     "over_triage_rate_pct": 66.21,
     "under_triage_rate_pct": 0.0
