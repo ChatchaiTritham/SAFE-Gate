@@ -20,13 +20,31 @@ class ConservativeMerging:
       2. ACWCM: Adaptive Confidence-Weighted Conservative Merging
     """
 
-    def __init__(self, mode: str = "acwcm"):
+    # Consensus thresholds for the relaxation trigger, fixed a priori (not tuned
+    # on any split): the confidence-weighted mean rank must sit at least half a
+    # tier above the floor, and gates strictly less conservative than the floor
+    # must carry at least half of the total confidence (a weighted majority).
+    THETA = 0.5
+    MIN_MASS = 0.5
+
+    def __init__(self, mode: str = "acwcm", trigger: str = "consensus",
+                 theta: float = THETA, min_mass: float = MIN_MASS):
         """
         Args:
             mode: "min" for basic minimum selection, "acwcm" for adaptive merging
+            trigger: "consensus" (default) relaxes only under a confidence-weighted
+                majority; "any_dissent" is the earlier rule, which relaxes whenever
+                tau_w exceeds the floor rank (kept as a sensitivity variant)
+            theta: margin of tau_w above rank(r_min) required by "consensus"
+            min_mass: share of total confidence that must lie strictly above r_min
         """
+        if trigger not in ("consensus", "any_dissent"):
+            raise ValueError(f"unknown trigger: {trigger}")
         self.lattice = RiskLattice()
         self.mode = mode
+        self.trigger = trigger
+        self.theta = theta
+        self.min_mass = min_mass
 
     @staticmethod
     def _rank(tier: RiskTier) -> int:
@@ -154,21 +172,25 @@ class ConservativeMerging:
         denominator = sum(confs) if sum(confs) > 0 else 1.0
         tau_w = numerator / denominator
 
-        # Line 10: Ceiling for conservative bias
-        r_adapt = self._tier_from_rank(math.ceil(tau_w))
+        # Line 10: confidence mass of gates strictly less conservative than r_min
+        total = sum(confs)
+        above = sum(c for c, t in zip(confs, tiers) if self._rank(t) > self._rank(r_min))
+        mass_share = above / total if total > 0 else 0.0
 
-        # Line 11: Bounded 1-tier relaxation
-        relaxed = self._relax(r_min, 1)
-        # r_final = min(r_adapt, relax(r_min, 1))
-        if self._rank(r_adapt) <= self._rank(relaxed):
-            r_final = r_adapt
+        # Line 11: relaxation trigger
+        if self.trigger == "any_dissent":
+            # Earlier rule: min(ceil(tau_w), relax(r_min,1)) relaxes iff tau_w > rank(r_min)
+            relax_ok = tau_w > self._rank(r_min)
         else:
-            r_final = relaxed
+            relax_ok = (tau_w >= self._rank(r_min) + self.theta
+                        and mass_share >= self.min_mass)
 
-        # CND enforcement: if r_min in {R1, R2}, cap final at R2
-        if r_min in (RiskTier.R1, RiskTier.R2):
-            if self._rank(r_final) > self._rank(RiskTier.R2):
-                r_final = RiskTier.R2
+        # Line 12: R2 hold (critical non-dilution) and the R5 ceiling
+        if r_min == RiskTier.R2 or r_min == RiskTier.R5:
+            relax_ok = False
+
+        r_final = self._relax(r_min, 1) if relax_ok else r_min
+        r_adapt = r_final
 
         # Find enforcing gate (most conservative)
         enforcing_gates = [g for g, t in gate_outputs.items() if t == r_min]
@@ -178,11 +200,12 @@ class ConservativeMerging:
 
         audit["merging_logic"].append(
             f"Phase 2: r_min={r_min}, tau_w={tau_w:.2f}, "
-            f"r_adapt={r_adapt}, relaxed={relaxed}, r_final={r_final}"
+            f"mass_share={mass_share:.2f}, trigger={self.trigger}, r_final={r_final}"
         )
         audit["tau_w"] = tau_w
         audit["r_min"] = str(r_min)
         audit["r_adapt"] = str(r_adapt)
+        audit["mass_share"] = mass_share
         audit["final_tier"] = str(r_final)
         audit["enforcing_gate"] = enforcing
 

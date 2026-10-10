@@ -146,8 +146,8 @@ def clopper_pearson_lower(x, n, alpha=0.05):
 # --------------------------------------------------------------------------- #
 # SAFE-Gate classification
 # --------------------------------------------------------------------------- #
-def classify_safegate(cases, mode):
-    sg = SAFEGate(mode=mode)
+def classify_safegate(cases, mode, trigger="consensus"):
+    sg = SAFEGate(mode=mode, trigger=trigger)
     return [sg.classify(c, return_audit_trail=False, return_certificate=False)["final_tier"]
             for c in cases]
 
@@ -251,8 +251,8 @@ def ablation(cases):
     """Re-run ACWCM with each gate removed in turn and record the metrics."""
     def metrics_for(disabled):
         sg = SAFEGate()
-        if disabled:
-            del sg.gates[disabled]
+        for g in disabled:
+            del sg.gates[g]
         preds = [sg.classify(c, return_audit_trail=False, return_certificate=False)["final_tier"]
                  for c in cases]
         conf, _ = confusion(cases, preds)
@@ -265,14 +265,91 @@ def ablation(cases):
             "discharge_specificity_R5_pct": round(100 * r5["recall"], 1),
             "over_triage_pct": round(100 * over_triage_rate(conf), 1),
             "macro_f1_pct": round(100 * float(np.mean([r["f1"] for r in rows])), 1),
+            "accuracy_pct": round(100 * accuracy(conf), 1),
+            "under_triage_pct": round(100 * under_triage(conf)[0] / len(cases), 1),
+            "under_triage_2plus_tiers": under_triage(conf)[1],
         }
 
-    full = metrics_for(None)
+    full = metrics_for(())
     rows = [{"configuration": "Full ACWCM (6 gates)", **full, "delta_f1": 0.0}]
-    for g in ["G1", "G2", "G3", "G4", "G5", "G6"]:
-        m = metrics_for(g)
+    configs = [(g,) for g in ["G1", "G2", "G3", "G4", "G5", "G6"]] + [("G1", "G4")]
+    for gs in configs:
+        m = metrics_for(gs)
         m["delta_f1"] = round(m["macro_f1_pct"] - full["macro_f1_pct"], 1)
-        rows.append({"configuration": f"-{g}", **m})
+        rows.append({"configuration": "".join(f"-{g}" for g in gs), **m})
+    return rows
+
+
+# --------------------------------------------------------------------------- #
+# Paired comparisons on the same 805 cases (exact McNemar)
+# --------------------------------------------------------------------------- #
+def _indicators(cases, preds):
+    out = {"correct": [], "over_triage": [], "under_triage": []}
+    for c, p in zip(cases, preds):
+        t = TIER_IDX[c["ground_truth_tier"]]
+        q = TIER_IDX.get(p, -1)  # R* (never observed) would count as over-triage
+        out["correct"].append(q == t)
+        out["over_triage"].append(q < t)
+        out["under_triage"].append(q > t)
+    return out
+
+
+def mcnemar_exact(a, b):
+    """Exact two-sided McNemar test on paired binary outcomes a, b."""
+    from scipy.stats import binomtest
+    n10 = sum(1 for x, y in zip(a, b) if x and not y)
+    n01 = sum(1 for x, y in zip(a, b) if y and not x)
+    n = n10 + n01
+    p = binomtest(n10, n, 0.5).pvalue if n else 1.0
+    return n10, n01, float(p)
+
+
+def paired_tests(cases, reference, others):
+    rows = []
+    ia = _indicators(cases, reference)
+    for name, preds in others:
+        ib = _indicators(cases, preds)
+        for k in ("correct", "over_triage", "under_triage"):
+            n10, n01, p = mcnemar_exact(ia[k], ib[k])
+            rows.append({
+                "comparison": f"ACWCM vs {name}",
+                "outcome": k,
+                "acwcm_rate_pct": round(100 * sum(ia[k]) / len(cases), 2),
+                "other_rate_pct": round(100 * sum(ib[k]) / len(cases), 2),
+                "acwcm_only": n10,
+                "other_only": n01,
+                "mcnemar_exact_p": float(f"{p:.3g}"),
+            })
+    return rows
+
+
+# --------------------------------------------------------------------------- #
+# Under-triage by subgroup (age, sex) and by true tier
+# --------------------------------------------------------------------------- #
+def subgroup_under_triage(cases, preds):
+    def ut(c, p):
+        return TIER_IDX.get(p, -1) > TIER_IDX[c["ground_truth_tier"]]
+    groups = [
+        ("age > 60", lambda c: c["age"] > 60),
+        ("age <= 60", lambda c: c["age"] <= 60),
+        ("female", lambda c: c["gender"] == "female"),
+        ("male", lambda c: c["gender"] == "male"),
+    ] + [(f"true {t}", (lambda t: lambda c: c["ground_truth_tier"] == t)(t)) for t in TIERS]
+    total_ut = sum(ut(c, p) for c, p in zip(cases, preds))
+    rows = []
+    for name, f in groups:
+        idx = [i for i, c in enumerate(cases) if f(c)]
+        k = sum(ut(cases[i], preds[i]) for i in idx)
+        n = len(idx)
+        rows.append({
+            "subgroup": name,
+            "n": n,
+            "under_triaged": k,
+            "under_triage_pct": round(100 * k / n, 2) if n else 0.0,
+            "ci95_low_pct": round(100 * clopper_pearson_lower(k, n), 2) if n else 0.0,
+            "ci95_high_pct": round(100 * clopper_pearson_upper(k, n), 2) if n else 0.0,
+            "share_of_all_under_triage_pct": round(100 * k / total_ut, 2) if total_ut else 0.0,
+        })
     return rows
 
 
@@ -350,7 +427,12 @@ def main():
 
     print("[2/5] Classifying test split with SAFE-Gate (ACWCM + MIN) ...")
     acwcm = classify_safegate(test, "acwcm")
+    acwcm_any = classify_safegate(test, "acwcm", trigger="any_dissent")
     basic = classify_safegate(test, "min")
+    # Validation-split check of the a-priori trigger thresholds (reported, not tuned).
+    val_rows = [baseline_row("SAFE-Gate (ACWCM)", val, classify_safegate(val, "acwcm")),
+                baseline_row("SAFE-Gate (ACWCM, any-dissent trigger)", val,
+                             classify_safegate(val, "acwcm", trigger="any_dissent"))]
 
     conf_acwcm, abstain_acwcm = confusion(test, acwcm)
     conf_basic, abstain_basic = confusion(test, basic)
@@ -380,11 +462,15 @@ def main():
     # it on over-triage, not on sensitivity.
     baselines.append(baseline_row("Always-critical rule (R1)", test, ["R1"] * len(test)))
     baselines.append(baseline_row("SAFE-Gate (MIN)", test, basic))
+    baselines.append(baseline_row("SAFE-Gate (ACWCM, any-dissent trigger)", test, acwcm_any))
     baselines.append(baseline_row("SAFE-Gate (ACWCM)", test, acwcm))
 
     print("[4/5] Verifying formal safety properties + ablation ...")
     props = verify_properties(test)
     abl = ablation(test)
+    paired = paired_tests(test, acwcm, [("MIN", basic), ("Dempster-Shafer", ds),
+                                         ("any-dissent trigger", acwcm_any)])
+    subgroups = subgroup_under_triage(test, acwcm)
 
     # ---- assemble summary ----
     n_test = sum(sum(conf_acwcm[t].values()) for t in TIERS) + abstain_acwcm
@@ -423,6 +509,11 @@ def main():
         },
         "baselines": baselines,
         "ablation": abl,
+        "paired_tests": paired,
+        "subgroup_under_triage": subgroups,
+        "validation_check": val_rows,
+        "acwcm_trigger": {"rule": "consensus", "theta": 0.5, "min_mass": 0.5,
+                          "provenance": "fixed a priori; validation split reported as a check, not tuned"},
         "safety_properties": props,
     }
 
@@ -455,6 +546,12 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(abl[0]))
         w.writeheader()
         w.writerows(abl)
+
+    for name, rows_ in (("paired_tests.csv", paired), ("subgroup_under_triage.csv", subgroups)):
+        with (RESULTS / name).open("w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=list(rows_[0]))
+            w.writeheader()
+            w.writerows(rows_)
 
     # theorem / property verification
     (RESULTS / "theorem_verification.json").write_text(json.dumps(props, indent=2), encoding="utf-8")

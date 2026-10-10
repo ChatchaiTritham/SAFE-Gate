@@ -49,7 +49,7 @@ class SAFEGate:
       - Critical Non-Dilution (CND)
     """
 
-    def __init__(self, mode: str = DEFAULT_CLASSIFICATION_MODE):
+    def __init__(self, mode: str = DEFAULT_CLASSIFICATION_MODE, trigger: str = "consensus"):
         """
         Initialize SAFE-Gate system.
 
@@ -66,7 +66,7 @@ class SAFEGate:
             'G6': Gate6TemporalRisk(),
         }
 
-        self.merger = ConservativeMerging(mode=mode)
+        self.merger = ConservativeMerging(mode=mode, trigger=trigger)
         self.cert_generator = SafetyCertificateGenerator()
         self.audit_generator = AuditTrailGenerator()
         self.mode = mode

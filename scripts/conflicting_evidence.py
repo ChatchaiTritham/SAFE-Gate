@@ -6,10 +6,16 @@ signal be outvoted, and that lattice-based conservative merging cannot. On the m
 safety metric there, because the synthetic tiers are cleanly separated and the gates
 rarely disagree.
 
-This script builds the disagreement case explicitly. One gate reports a critical tier
-with confidence c_crit; the remaining gates report a benign tier with confidence
-c_benign. Every combination is enumerated over a fixed grid -- no sampling, no seed, and
-nothing to tune -- and each fusion rule is asked what it outputs.
+This script builds the disagreement case explicitly. For n = 1..5 dissenting gates,
+n gates report a benign tier with confidence c_benign and the remaining 6 - n gates
+report the same critical tier with confidence c_crit (so n = 5 is one critical gate
+against five benign ones). Every combination of a fixed grid is enumerated -- no
+sampling, no seed, nothing tuned -- and each fusion rule is asked what it outputs.
+
+Exact belief ties (e.g. three critical gates at 0.99 against three benign gates at
+0.99) are resolved by the baselines' argmax toward the first, i.e. more critical,
+tier. Because that choice can matter, the counts are also reported with ties broken
+toward the LESS critical tier (tolerance 1e-9), as a tie-break sensitivity.
 
 A configuration is a DILUTION when a rule returns a tier outside the critical band
 {R1, R2} while at least one gate reported inside it. That is exactly the failure the
@@ -61,6 +67,13 @@ def arithmetic_average(outputs: dict[str, str], confs: dict[str, float]) -> str:
     return f"R{max(1, min(5, round(num / den)))}"
 
 
+def tie_benign(scores: dict[str, float], tol: float = 1e-9) -> str:
+    """Argmax over tiers with exact ties (within tol) broken toward the LESS
+    critical tier -- the tie-break sensitivity counterpart of the default."""
+    best = max(scores.values())
+    return [t for t in ["R1", "R2", "R3", "R4", "R5"] if scores[t] >= best - tol][-1]
+
+
 def acwcm(outputs: dict[str, str], confs: dict[str, float]) -> str:
     tiers = {g: RiskTier[t] for g, t in outputs.items()}
     final, _enforcing, _audit = ConservativeMerging(mode="acwcm").merge(tiers, confs)
@@ -75,10 +88,10 @@ def main() -> int:
     for crit_tier, benign_tier, n_dis, c_crit, c_ben in product(
         CRIT_TIERS, BENIGN_TIERS, N_DISSENT, C_CRIT, C_BENIGN
     ):
-        # G1 carries the critical signal; n_dis gates dissent toward benign.
-        # Any remaining gates abstain from the disagreement by reporting the
-        # same benign tier at the same confidence, so the only varying factor
-        # is how many voices oppose the critical one.
+        # G1 carries the critical signal; n_dis gates (G2..G{n_dis+1}) dissent
+        # toward the benign tier at c_benign. The non-dissenting gates report the
+        # SAME critical tier at c_crit, so there are 6 - n_dis critical votes
+        # against n_dis benign ones.
         outputs = {"G1": crit_tier}
         confs = {"G1": c_crit}
         for i, g in enumerate(GATES[1:], start=1):
@@ -86,18 +99,23 @@ def main() -> int:
                 outputs[g], confs[g] = benign_tier, c_ben
             else:
                 outputs[g], confs[g] = crit_tier, c_crit
+        ds_res = ds.classify(outputs, confs)
+        bma_res = bma.classify(outputs, confs)
         result = {
             "critical_tier": crit_tier,
             "benign_tier": benign_tier,
             "n_dissenting": n_dis,
             "c_critical": c_crit,
             "c_benign": c_ben,
-            "dempster_shafer": ds.classify(outputs, confs)["final_tier"],
-            "bayesian_model_avg": bma.classify(outputs, confs)["final_tier"],
+            "dempster_shafer": ds_res["final_tier"],
+            "bayesian_model_avg": bma_res["final_tier"],
+            "dempster_shafer_tie_benign": tie_benign(ds_res["beliefs"]),
+            "bayesian_model_avg_tie_benign": tie_benign(bma_res["probabilities"]),
             "arithmetic_average": arithmetic_average(outputs, confs),
             "safegate_acwcm": acwcm(outputs, confs),
         }
         for method in ("dempster_shafer", "bayesian_model_avg",
+                       "dempster_shafer_tie_benign", "bayesian_model_avg_tie_benign",
                        "arithmetic_average", "safegate_acwcm"):
             result[f"{method}_dilutes"] = result[method] not in CRITICAL
         rows.append(result)
@@ -110,6 +128,7 @@ def main() -> int:
         w.writerows(rows)
 
     methods = ["dempster_shafer", "bayesian_model_avg",
+               "dempster_shafer_tie_benign", "bayesian_model_avg_tie_benign",
                "arithmetic_average", "safegate_acwcm"]
     summary = {
         "n_configurations": len(rows),
@@ -118,6 +137,14 @@ def main() -> int:
             "n_dissenting": N_DISSENT, "c_critical": C_CRIT, "c_benign": C_BENIGN,
         },
         "dilution_counts": {m: sum(r[f"{m}_dilutes"] for r in rows) for m in methods},
+        "r1_to_r5_counts": {
+            m: sum(1 for r in rows if r["critical_tier"] == "R1" and r[m] == "R5")
+            for m in methods
+        },
+        "exact_ties": {
+            "dempster_shafer": sum(r["dempster_shafer"] != r["dempster_shafer_tie_benign"] for r in rows),
+            "bayesian_model_avg": sum(r["bayesian_model_avg"] != r["bayesian_model_avg_tie_benign"] for r in rows),
+        },
         "dilution_rate_pct": {
             m: round(100.0 * sum(r[f"{m}_dilutes"] for r in rows) / len(rows), 2)
             for m in methods

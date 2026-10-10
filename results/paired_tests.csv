@@ -1,0 +1,10 @@
+comparison,outcome,acwcm_rate_pct,other_rate_pct,acwcm_only,other_only,mcnemar_exact_p
+ACWCM vs MIN,correct,36.77,33.79,193,169,0.227
+ACWCM vs MIN,over_triage,42.24,66.21,0,193,1.59e-58
+ACWCM vs MIN,under_triage,20.99,0.0,169,0,2.67e-51
+ACWCM vs Dempster-Shafer,correct,36.77,34.78,248,232,0.494
+ACWCM vs Dempster-Shafer,over_triage,42.24,27.95,311,196,3.7e-07
+ACWCM vs Dempster-Shafer,under_triage,20.99,37.27,3,134,4.92e-36
+ACWCM vs any-dissent trigger,correct,36.77,29.94,55,0,5.55e-17
+ACWCM vs any-dissent trigger,over_triage,42.24,42.24,0,0,1.0
+ACWCM vs any-dissent trigger,under_triage,20.99,27.83,0,55,5.55e-17

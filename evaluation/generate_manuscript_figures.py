@@ -164,9 +164,9 @@ def fig1_architecture():
     box(8, 14, 84, 21, ORANGE, "#F7E2D5")
     ax.text(50, 32.0, "ACWCM: adaptive confidence-weighted conservative merging",
             ha="center", va="center", fontsize=BODY_PT, fontweight="bold", color=ORANGE, zorder=4)
-    phases = [("Phase 1", "any $r_i = R1$", "return R1"),
-              ("Phase 2", r"$r_{\min}$ = most cautious $r_i$", "MIN selection"),
-              ("Phase 3", "confident consensus", r"relax by at most 1 tier")]
+    phases = [("Phase 1", r"any $r_i \in \{R^*, R1\}$", r"return it ($R^*$ first)"),
+              ("Phase 2", r"$r_{\min}$ = most cautious $r_i$", "safety floor (MIN)"),
+              ("Phase 3", "weighted-majority consensus", r"relax $\leq$1 tier; R2 held")]
     pw, pgap = 24.5, 2.5
     px0 = (100 - (3 * pw + 2 * pgap)) / 2
     for j, (head, l1, l2) in enumerate(phases):
@@ -242,9 +242,10 @@ def fig3_safety_tradeoff():
             ("Single XGBoost", "Single XGBoost", GREY),
             ("Always-critical rule (R1)", "Always-critical (R1)", ORANGE),
             ("SAFE-Gate (MIN)", "SAFE-Gate (MIN)", SKY),
+            ("SAFE-Gate (ACWCM, any-dissent trigger)", "ACWCM, any-dissent", SKY),
             ("SAFE-Gate (ACWCM)", "SAFE-Gate (ACWCM)", BLUE)]
     y = np.arange(len(spec))[::-1]
-    fig, axes = plt.subplots(1, 3, figsize=(W_IN, W_IN * 0.38), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(W_IN, W_IN * 0.42), sharey=True)
     titles = ("Critical-tier sensitivity (%)", "Over-triage (%)", "Under-triage (%)")
     for p, (ax, title) in enumerate(zip(axes, titles)):
         for (key, _, colour), yy in zip(spec, y):
@@ -290,13 +291,14 @@ def fig4_ablation():
     data = rows("ablation.csv")
     labels = {"Full ACWCM (6 gates)": "Full (6 gates)", "-G1": "− G1 red flags", "-G2": "− G2 cardio risk",
               "-G3": "− G3 data quality", "-G4": "− G4 syndrome", "-G5": "− G5 uncertainty",
-              "-G6": "− G6 temporal"}
+              "-G6": "− G6 temporal", "-G1-G4": "− G1, − G4"}
     cfg = [labels[r["configuration"]] for r in data]
     panels = [("over_triage_pct", "Over-triage (%)", ORANGE),
               ("discharge_specificity_R5_pct", "Discharge recall, R5 (%)", GREEN),
+              ("under_triage_pct", "Under-triage (%)", PINK),
               ("macro_f1_pct", "Macro F1 (%)", BLUE)]
     y = np.arange(len(cfg))[::-1]
-    fig, axes = plt.subplots(1, 3, figsize=(W_IN, W_IN * 0.36), sharey=True)
+    fig, axes = plt.subplots(1, 4, figsize=(W_IN, W_IN * 0.40), sharey=True)
     for p, (ax, (col, title, colour)) in enumerate(zip(axes, panels)):
         vals = np.array([float(r[col]) for r in data])
         ax.axhspan(y[0] - 0.45, y[0] + 0.45, color="#EFEFEF", zorder=0)
@@ -305,12 +307,12 @@ def fig4_ablation():
         ax.axvline(vals[0], color=GREY, linestyle=":", linewidth=0.8)
         for yy, v, base in zip(y[1:], vals[1:], [vals[0]] * (len(vals) - 1)):
             if abs(v - base) >= 5:
-                left = v < base or v >= 80
+                left = (v < base and v >= 20) or v >= 80
                 ax.text(v - 5 if left else v + 5, yy, f"{v:.1f}", fontsize=BODY_PT - 1,
                         color=GREY, ha="right" if left else "left", va="center")
         ax.set_xlim(0, 104)
         ax.set_xticks([0, 50, 100])
-        ax.set_title(f"({'abc'[p]}) {title}", pad=3)
+        ax.set_title(f"({'abcd'[p]}) {title}", pad=3)
         _clean_axes(ax, "x")
     axes[0].set_yticks(y)
     axes[0].set_yticklabels(cfg)

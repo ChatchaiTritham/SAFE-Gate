@@ -77,7 +77,8 @@ class BayesianModelAveraging:
 
     def _tier_to_distribution(self, tier: str, confidence: float, n: int) -> np.ndarray:
         """Convert tier + confidence to softmax probability distribution."""
-        idx = self.TIER_IDX.get(tier, 2)
+        # Abstention (R*) maps to the most conservative tier (R1), as in DS.
+        idx = self.TIER_IDX.get(tier, 0)
         logits = np.zeros(n)
         logits[idx] = confidence * 5.0  # scale confidence to logit
 

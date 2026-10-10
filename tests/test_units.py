@@ -167,3 +167,28 @@ def test_relax_is_bounded_at_r5():
     assert ConservativeMerging._relax(RiskTier.R2, 1) == RiskTier.R3
     assert ConservativeMerging._relax(RiskTier.R5, 3) == RiskTier.R5
     assert ConservativeMerging._relax(RiskTier.R4, 5) == RiskTier.R5
+
+
+def test_acwcm_consensus_trigger_requires_weighted_majority():
+    """One confident dissenter above the floor relaxes under the old any-dissent
+    rule but not under the confidence-weighted consensus trigger."""
+    from merging.conservative_merging import ConservativeMerging
+    from merging.risk_lattice import RiskTier
+    outs = {f"G{i}": RiskTier.R3 for i in range(1, 6)}
+    outs["G6"] = RiskTier.R4
+    confs = {g: 0.8 for g in outs}
+    new, _, _ = ConservativeMerging(mode="acwcm").merge(outs, confs)
+    old, _, _ = ConservativeMerging(mode="acwcm", trigger="any_dissent").merge(outs, confs)
+    assert new == RiskTier.R3
+    assert old == RiskTier.R4
+
+
+def test_acwcm_consensus_relaxes_one_tier_and_holds_r2():
+    from merging.conservative_merging import ConservativeMerging
+    from merging.risk_lattice import RiskTier
+    m = ConservativeMerging(mode="acwcm")
+    outs = {"G1": RiskTier.R3, **{f"G{i}": RiskTier.R5 for i in range(2, 7)}}
+    confs = {g: 0.9 for g in outs}
+    assert m.merge(outs, confs)[0] == RiskTier.R4  # at most one tier
+    outs["G1"] = RiskTier.R2
+    assert m.merge(outs, confs)[0] == RiskTier.R2  # R2 never relaxed

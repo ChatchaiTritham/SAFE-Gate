@@ -61,7 +61,9 @@ class DempsterShaferCombination:
     def _gate_to_mass(self, tier: str, confidence: float) -> Dict[str, float]:
         """Convert gate output + confidence to mass function."""
         m = {}
-        t = tier if tier in self.TIERS else 'R3'
+        # An abstention (R*) carries no rank; map it to the most conservative
+        # tier (R1), matching the clean step in run_all.py and the manuscript.
+        t = tier if tier in self.TIERS else 'R1'
         m[t] = confidence
         m['Theta'] = 1.0 - confidence  # residual to full frame
         return m
