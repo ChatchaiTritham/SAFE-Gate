@@ -174,7 +174,8 @@ class SafetyCertificateGenerator:
 
                 combos = list(itertools.combinations(feature_names, k))
                 if len(combos) > 100:
-                    combos = random.sample(combos, 100)
+                    # Seeded so the certificate is reproducible case by case.
+                    combos = random.Random(k).sample(combos, 100)
                 for subset in combos:
                     perturbed = self._adversarial_perturb(patient_data, list(subset))
                     try:
@@ -185,7 +186,9 @@ class SafetyCertificateGenerator:
                     except Exception:
                         continue
             else:
-                # For larger subsets, return k as lower bound
+                # Censored value: no escalation was found among all single
+                # features and the sampled pairs/triples. This is NOT a lower
+                # bound on the true minimum (pairs/triples are sampled).
                 return k
 
         return len(feature_names)

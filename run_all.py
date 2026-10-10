@@ -368,6 +368,7 @@ def verify_properties(cases):
     """
     sg = SAFEGate()
     counts = {"CP": 0, "AC": 0, "CND": 0, "ND": 0}
+    n_abstain_inputs = 0
     examples = {"CP": [], "AC": [], "CND": [], "ND": []}
     rank = {"R*": 0, "R1": 1, "R2": 2, "R3": 3, "R4": 4, "R5": 5}
 
@@ -379,6 +380,7 @@ def verify_properties(cases):
         r_min = min(ranks)
         fr = rank[final]
         abstain_present = any(t == "R*" for t in gate_tiers)
+        n_abstain_inputs += abstain_present
 
         # AC
         if abstain_present and final != "R*":
@@ -404,6 +406,9 @@ def verify_properties(cases):
     total = sum(counts.values())
     return {
         "n_cases": len(cases),
+        "cases_with_an_abstaining_gate": n_abstain_inputs,
+        "note": "implementation conformance test of invariants that hold by construction; "
+                "AC is exercised only if some gate abstains",
         "properties": {
             "conservative_preservation": {"violations": counts["CP"], "holds": counts["CP"] == 0, "examples": examples["CP"]},
             "abstention_correctness": {"violations": counts["AC"], "holds": counts["AC"] == 0, "examples": examples["AC"]},
@@ -467,6 +472,7 @@ def main():
 
     print("[4/5] Verifying formal safety properties + ablation ...")
     props = verify_properties(test)
+    props_all = verify_properties(all_cases)
     abl = ablation(test)
     paired = paired_tests(test, acwcm, [("MIN", basic), ("Dempster-Shafer", ds),
                                          ("any-dissent trigger", acwcm_any)])
@@ -515,6 +521,7 @@ def main():
         "acwcm_trigger": {"rule": "consensus", "theta": 0.5, "min_mass": 0.5,
                           "provenance": "fixed a priori; validation split reported as a check, not tuned"},
         "safety_properties": props,
+        "safety_properties_all_cases": props_all,
     }
 
     print("[5/5] Writing committed artifacts to results/ ...")
@@ -554,7 +561,8 @@ def main():
             w.writerows(rows_)
 
     # theorem / property verification
-    (RESULTS / "theorem_verification.json").write_text(json.dumps(props, indent=2), encoding="utf-8")
+    (RESULTS / "theorem_verification.json").write_text(
+        json.dumps({"test_split": props, "all_cases": props_all}, indent=2), encoding="utf-8")
 
     # master summary
     (RESULTS / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")

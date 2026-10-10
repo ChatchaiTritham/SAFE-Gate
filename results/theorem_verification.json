@@ -1,27 +1,60 @@
 {
-  "n_cases": 805,
-  "properties": {
-    "conservative_preservation": {
-      "violations": 0,
-      "holds": true,
-      "examples": []
+  "test_split": {
+    "n_cases": 805,
+    "cases_with_an_abstaining_gate": 0,
+    "note": "implementation conformance test of invariants that hold by construction; AC is exercised only if some gate abstains",
+    "properties": {
+      "conservative_preservation": {
+        "violations": 0,
+        "holds": true,
+        "examples": []
+      },
+      "abstention_correctness": {
+        "violations": 0,
+        "holds": true,
+        "examples": []
+      },
+      "critical_non_dilution": {
+        "violations": 0,
+        "holds": true,
+        "examples": []
+      },
+      "no_false_discharge": {
+        "violations": 0,
+        "holds": true,
+        "examples": []
+      }
     },
-    "abstention_correctness": {
-      "violations": 0,
-      "holds": true,
-      "examples": []
-    },
-    "critical_non_dilution": {
-      "violations": 0,
-      "holds": true,
-      "examples": []
-    },
-    "no_false_discharge": {
-      "violations": 0,
-      "holds": true,
-      "examples": []
-    }
+    "total_violations": 0,
+    "all_pass": true
   },
-  "total_violations": 0,
-  "all_pass": true
+  "all_cases": {
+    "n_cases": 6400,
+    "cases_with_an_abstaining_gate": 0,
+    "note": "implementation conformance test of invariants that hold by construction; AC is exercised only if some gate abstains",
+    "properties": {
+      "conservative_preservation": {
+        "violations": 0,
+        "holds": true,
+        "examples": []
+      },
+      "abstention_correctness": {
+        "violations": 0,
+        "holds": true,
+        "examples": []
+      },
+      "critical_non_dilution": {
+        "violations": 0,
+        "holds": true,
+        "examples": []
+      },
+      "no_false_discharge": {
+        "violations": 0,
+        "holds": true,
+        "examples": []
+      }
+    },
+    "total_violations": 0,
+    "all_pass": true
+  }
 }
