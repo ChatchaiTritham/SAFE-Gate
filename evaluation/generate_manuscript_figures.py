@@ -4,7 +4,9 @@ The figures that shipped with the manuscript were 800-1000 pt wide and were
 squeezed into a 390 pt column, which left their smallest labels at 2.4-4.9 pt.
 Worse, they had no generator in this repository at all, so nothing tied them to
 the computed results. Both problems are fixed here: every figure is authored at
-372 pt (the measured \\the\\textwidth of the sn-jnl layout) with an 8 pt floor,
+the measured widths of the sn-jnl [iicol] layout recommended by the journal
+(455 pt text block for two-column figures, 216 pt column for Fig. 2) with an
+8 pt floor,
 and the data figures read results/* rather than literals. Proportions estimated
 on the 805-case split carry exact 95% Clopper-Pearson intervals; the conflicting-
 evidence figure is an exhaustive enumeration and therefore carries none.
@@ -33,8 +35,10 @@ if str(ROOT) not in sys.path:
 RESULTS = ROOT / "results"
 OUTDIR = ROOT / "evaluation" / "manuscript_figures"
 
-TEXT_PT = 372.0
+TEXT_PT = 455.24   # \the\textwidth, sn-jnl [iicol]
+COL_PT = 216.24    # \the\columnwidth
 W_IN = TEXT_PT / 72.0
+C_IN = COL_PT / 72.0
 BODY_PT = 8.0
 N_TEST = 805
 
@@ -108,7 +112,7 @@ def _clean_axes(ax, grid_axis="both"):
 # --------------------------------------------------------------------------
 def fig1_architecture():
     """Four-stage pipeline: features -> six gates -> ACWCM (three phases) -> outputs."""
-    fig, ax = plt.subplots(figsize=(W_IN, W_IN * 0.78))
+    fig, ax = plt.subplots(figsize=(W_IN, W_IN * 0.62))
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 80)
     ax.axis("off")
@@ -188,47 +192,42 @@ def fig1_architecture():
 
 # --------------------------------------------------------------------------
 def fig2_risk_lattice():
-    """The totally ordered lattice, drawn vertically so six tiers fit at 8 pt."""
-    fig, ax = plt.subplots(figsize=(W_IN, W_IN * 0.62))
+    """The totally ordered lattice at single-column width; annotations live in the caption."""
+    fig, ax = plt.subplots(figsize=(C_IN, C_IN * 0.92))
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 62)
     ax.axis("off")
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
-    tiers = [(r"$R^{*}$", "Abstain (defer to clinician)", "no decision", GREY, "#ECECEC"),
-             ("R1", "Critical emergency", "5 min", ORANGE, "#F7DAD5"),
-             ("R2", "High risk, urgent", "15 min", ORANGE, "#F9E6DA"),
-             ("R3", "Moderate risk", "30–120 min", YELLOW, "#FBF0DA"),
-             ("R4", "Low risk, monitor", "1–4 h", SKY, "#DFF0FB"),
-             ("R5", "Minimal risk, discharge", "outpatient", GREEN, "#D9EFE8")]
-    h, gap = 7.4, 2.1
+    tiers = [(r"$R^{*}$", "Abstain (defer)", "", GREY, "#ECECEC"),
+             ("R1", "Critical", "5 min", ORANGE, "#F7DAD5"),
+             ("R2", "High risk", "15 min", ORANGE, "#F9E6DA"),
+             ("R3", "Moderate", "30–120 min", YELLOW, "#FBF0DA"),
+             ("R4", "Low risk", "1–4 h", SKY, "#DFF0FB"),
+             ("R5", "Discharge", "outpatient", GREEN, "#D9EFE8")]
+    h, gap = 7.6, 2.3
     ys = []
     for i, (tag, name, sla, col, tint) in enumerate(tiers):
         y = 62 - (i + 1) * h - i * gap
         ys.append(y)
-        ax.add_patch(FancyBboxPatch((16, y), 58, h, boxstyle="round,pad=0,rounding_size=1.0",
-                                    facecolor=tint, edgecolor=col, linewidth=0.9, zorder=3))
-        ax.text(20, y + h / 2, tag, ha="left", va="center",
+        ax.add_patch(FancyBboxPatch((15, y), 72, h, boxstyle="round,pad=0,rounding_size=1.4",
+                                    facecolor=tint, edgecolor=col, linewidth=0.8, zorder=3))
+        ax.text(18, y + h / 2, tag, ha="left", va="center",
                 fontsize=BODY_PT, fontweight="bold", color=col, zorder=4)
-        ax.text(29, y + h / 2, name, ha="left", va="center", fontsize=BODY_PT, color=INK, zorder=4)
-        ax.text(72, y + h / 2, sla, ha="right", va="center", fontsize=BODY_PT, color=GREY, zorder=4)
+        ax.text(30, y + h / 2, name, ha="left", va="center", fontsize=BODY_PT, color=INK, zorder=4)
+        ax.text(85, y + h / 2, sla, ha="right", va="center", fontsize=BODY_PT, color=GREY, zorder=4)
         if i:
-            ax.text(14, y + h + gap / 2, r"$\sqsubseteq$", ha="center", va="center",
-                    fontsize=BODY_PT + 1, color=INK, zorder=4)
+            ax.text(12.2, y + h + gap / 2, r"$\sqsubseteq$", ha="center", va="center",
+                    fontsize=BODY_PT, color=INK, zorder=4)
 
-    ax.add_patch(FancyArrowPatch((10.5, 62 - h), (10.5, 1.0), arrowstyle="-|>", mutation_scale=9,
-                                 linewidth=0.9, color=INK, zorder=2))
-    ax.text(7.6, 44, "more conservative", rotation=90, ha="center", va="center",
-            fontsize=BODY_PT, color=GREY)
-    ax.text(7.6, 12, "less cautious", rotation=90, ha="center", va="center",
-            fontsize=BODY_PT, color=GREY)
-    # critical band C = {R1, R2}
+    ax.add_patch(FancyArrowPatch((7.5, 62 - h), (7.5, 1.0), arrowstyle="-|>", mutation_scale=8,
+                                 linewidth=0.8, color=INK, zorder=2))
+    ax.text(3.2, 31, "more conservative  →  less cautious", rotation=-90, ha="center", va="center",
+            fontsize=BODY_PT - 1, color=GREY)
     yc0, yc1 = ys[2], ys[1] + h
-    ax.plot([76.5, 77.5, 77.5, 76.5], [yc1, yc1, yc0, yc0], color=ORANGE, lw=0.9)
-    ax.text(79.0, (yc0 + yc1) / 2, "critical band $\\mathcal{C}$:\nnever relaxed\nbelow R2",
-            ha="left", va="center", fontsize=BODY_PT, color=ORANGE)
-    ax.text(79.0, ys[4] + h / 2 + 2, "MIN selects the\nmost cautious tier;\nACWCM may relax\nit by one step",
-            ha="left", va="center", fontsize=BODY_PT, color=GREY)
+    ax.plot([89, 91, 91, 89], [yc1, yc1, yc0, yc0], color=ORANGE, lw=0.9)
+    ax.text(95.5, (yc0 + yc1) / 2, r"$\mathcal{C}$", ha="center", va="center",
+            fontsize=BODY_PT + 1, color=ORANGE)
     save(fig, "fig2_risk_lattice")
 
 
@@ -245,7 +244,7 @@ def fig3_safety_tradeoff():
             ("SAFE-Gate (MIN)", "SAFE-Gate (MIN)", SKY),
             ("SAFE-Gate (ACWCM)", "SAFE-Gate (ACWCM)", BLUE)]
     y = np.arange(len(spec))[::-1]
-    fig, axes = plt.subplots(1, 3, figsize=(W_IN, W_IN * 0.44), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(W_IN, W_IN * 0.38), sharey=True)
     titles = ("Critical-tier sensitivity (%)", "Over-triage (%)", "Under-triage (%)")
     for p, (ax, title) in enumerate(zip(axes, titles)):
         for (key, _, colour), yy in zip(spec, y):
@@ -297,7 +296,7 @@ def fig4_ablation():
               ("discharge_specificity_R5_pct", "Discharge recall, R5 (%)", GREEN),
               ("macro_f1_pct", "Macro F1 (%)", BLUE)]
     y = np.arange(len(cfg))[::-1]
-    fig, axes = plt.subplots(1, 3, figsize=(W_IN, W_IN * 0.42), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(W_IN, W_IN * 0.36), sharey=True)
     for p, (ax, (col, title, colour)) in enumerate(zip(axes, panels)):
         vals = np.array([float(r[col]) for r in data])
         ax.axhspan(y[0] - 0.45, y[0] + 0.45, color="#EFEFEF", zorder=0)
@@ -329,7 +328,7 @@ def fig5_dilution():
              ("safegate_acwcm", "SAFE-Gate (ACWCM)", BLUE, "*")]
     ns = sorted({int(r["n_dissenting"]) for r in data})
     n_r1 = sum(1 for r in data if r["critical_tier"] == "R1" and int(r["n_dissenting"]) == ns[0])
-    fig, axes = plt.subplots(1, 2, figsize=(W_IN, W_IN * 0.44))
+    fig, axes = plt.subplots(1, 2, figsize=(W_IN, W_IN * 0.40))
     for key, label, col, mk in rules:
         rate = [100 * np.mean([r[key + "_dilutes"] == "True" for r in data
                                if int(r["n_dissenting"]) == n]) for n in ns]
