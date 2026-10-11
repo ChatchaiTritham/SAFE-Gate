@@ -1,0 +1,85 @@
+{
+  "purpose": "round-4 frozen evaluation protocol: cohorts generated and hashed before any method is scored on them",
+  "primary_endpoints": [
+    "critical (R1/R2) sensitivity with exact 95% CI",
+    "false discharges (critical -> R5)",
+    "R3-conditional under-triage",
+    "accuracy",
+    "over- and under-triage",
+    ">=2-tier under-triage"
+  ],
+  "methods_fitted_on": "development training split (generator seed 42)",
+  "calibration": {
+    "g1_graded": true,
+    "g4_central_only": true,
+    "g5_age": false,
+    "g5_cap": 3,
+    "vacuous_negatives": true,
+    "theta": 0.5,
+    "min_mass": 0.6666666666666666
+  },
+  "cohorts": {
+    "fresh_main_generator": {
+      "generator": "main",
+      "seed": 20261012,
+      "n": 6400,
+      "sha256": "1ce781f984964ccb994aa6b71537e6629d50801e286c89111dbd84bba0a6a663",
+      "file": "data/fresh/fresh_main_generator.json",
+      "role": "evaluation"
+    },
+    "fresh_independent_generator": {
+      "generator": "variant",
+      "seed": 20261013,
+      "n": 3000,
+      "sha256": "8d50f15cc6d2e0dc24698f0ccb462f20b14797494ced57c401b1feec1742ce7b",
+      "file": "data/fresh/fresh_independent_generator.json",
+      "role": "evaluation"
+    },
+    "fresh_diagnosis_generator": {
+      "generator": "diagnosis",
+      "seed": 20261014,
+      "n": 5000,
+      "sha256": "53dc955c8f1bf9c2bee67cfb4f19171f50d10185873f1c982b9faaf159bacef4",
+      "file": "data/fresh/fresh_diagnosis_generator.json",
+      "role": "evaluation"
+    },
+    "val_independent": {
+      "generator": "variant",
+      "seed": 101,
+      "n": 2000,
+      "sha256": "8ed5ba5d964844649056d06745e8ee3671bc68885c3c4264b3c9803cca038ff3",
+      "file": "data/fresh/val_independent.json",
+      "role": "selection"
+    },
+    "val_diagnosis": {
+      "generator": "diagnosis",
+      "seed": 102,
+      "n": 2000,
+      "sha256": "1fe3f2725de6d107a987a99180a0ac40c9c0e8391d94addf35b530aa26f5bd8a",
+      "file": "data/fresh/val_diagnosis.json",
+      "role": "selection"
+    }
+  },
+  "multiseed_seeds": [
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007,
+    1008,
+    1009,
+    1010,
+    1011,
+    1012,
+    1013,
+    1014,
+    1015,
+    1016,
+    1017,
+    1018,
+    1019,
+    1020
+  ]
+}
