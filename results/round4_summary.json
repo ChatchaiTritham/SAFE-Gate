@@ -1,0 +1,1528 @@
+{
+  "protocol_sha256": "4944d15377839f263a754b2518ddfc8538f7716d73f886cdad5edaabb3f08009",
+  "fitted": {
+    "kth_k": 2,
+    "symmetric_phi": [
+      0,
+      5,
+      5,
+      5,
+      5
+    ],
+    "reliability": {
+      "G1": 0.9337,
+      "G2": 0.4299,
+      "G3": 1.0,
+      "G4": 0.4103,
+      "G5": 0.4003,
+      "G6": 1.0
+    },
+    "xgb_critical_threshold": 0.998962,
+    "ordinal_logistic": "fitted"
+  },
+  "gate_recall_union": {
+    "fresh_main_generator": {
+      "n_critical": 1388,
+      "some_gate_fires_pct": 100.0,
+      "per_gate_fire_pct": {
+        "G1": 100.0,
+        "G2": 80.62,
+        "G3": 0.0,
+        "G4": 100.0,
+        "G5": 16.93,
+        "G6": 100.0
+      },
+      "number_of_gates_firing_histogram": {
+        "3": 226,
+        "4": 970,
+        "5": 192
+      }
+    },
+    "fresh_independent_generator": {
+      "n_critical": 750,
+      "some_gate_fires_pct": 94.93,
+      "per_gate_fire_pct": {
+        "G1": 70.8,
+        "G2": 44.4,
+        "G3": 0.0,
+        "G4": 74.4,
+        "G5": 7.6,
+        "G6": 58.93
+      },
+      "number_of_gates_firing_histogram": {
+        "0": 38,
+        "1": 114,
+        "2": 178,
+        "3": 245,
+        "4": 159,
+        "5": 16
+      }
+    },
+    "fresh_diagnosis_generator": {
+      "n_critical": 731,
+      "some_gate_fires_pct": 89.74,
+      "per_gate_fire_pct": {
+        "G1": 69.77,
+        "G2": 33.93,
+        "G3": 0.0,
+        "G4": 61.42,
+        "G5": 11.35,
+        "G6": 47.2
+      },
+      "number_of_gates_firing_histogram": {
+        "0": 75,
+        "1": 113,
+        "2": 217,
+        "3": 223,
+        "4": 96,
+        "5": 7
+      }
+    },
+    "development_test": {
+      "n_critical": 175,
+      "some_gate_fires_pct": 100.0,
+      "per_gate_fire_pct": {
+        "G1": 100.0,
+        "G2": 80.0,
+        "G3": 0.0,
+        "G4": 100.0,
+        "G5": 14.86,
+        "G6": 100.0
+      },
+      "number_of_gates_firing_histogram": {
+        "3": 28,
+        "4": 128,
+        "5": 19
+      }
+    }
+  },
+  "r1_only_via_g6": {
+    "fresh_main_generator": {
+      "predicted_R1": 377,
+      "R1_only_via_G6": 77
+    },
+    "fresh_independent_generator": {
+      "predicted_R1": 234,
+      "R1_only_via_G6": 22
+    },
+    "fresh_diagnosis_generator": {
+      "predicted_R1": 319,
+      "R1_only_via_G6": 33
+    },
+    "development_test": {
+      "predicted_R1": 48,
+      "R1_only_via_G6": 13
+    }
+  },
+  "ablation_independent": [
+    {
+      "configuration": "full",
+      "critical_sensitivity_pct": 94.93,
+      "false_discharges": 0,
+      "accuracy_pct": 54.3,
+      "under_triage_pct": 16.1,
+      "over_triage_pct": 29.6
+    },
+    {
+      "configuration": "-G1",
+      "critical_sensitivity_pct": 94.0,
+      "false_discharges": 0,
+      "accuracy_pct": 54.1,
+      "under_triage_pct": 18.53,
+      "over_triage_pct": 27.37
+    },
+    {
+      "configuration": "-G2",
+      "critical_sensitivity_pct": 89.07,
+      "false_discharges": 1,
+      "accuracy_pct": 54.43,
+      "under_triage_pct": 23.53,
+      "over_triage_pct": 22.03
+    },
+    {
+      "configuration": "-G3",
+      "critical_sensitivity_pct": 94.93,
+      "false_discharges": 0,
+      "accuracy_pct": 54.3,
+      "under_triage_pct": 16.1,
+      "over_triage_pct": 29.6
+    },
+    {
+      "configuration": "-G4",
+      "critical_sensitivity_pct": 92.13,
+      "false_discharges": 0,
+      "accuracy_pct": 58.57,
+      "under_triage_pct": 14.83,
+      "over_triage_pct": 26.6
+    },
+    {
+      "configuration": "-G5",
+      "critical_sensitivity_pct": 94.8,
+      "false_discharges": 0,
+      "accuracy_pct": 48.97,
+      "under_triage_pct": 16.67,
+      "over_triage_pct": 34.37
+    },
+    {
+      "configuration": "-G6",
+      "critical_sensitivity_pct": 89.47,
+      "false_discharges": 0,
+      "accuracy_pct": 51.07,
+      "under_triage_pct": 17.03,
+      "over_triage_pct": 31.9
+    }
+  ],
+  "paired_stats_diagnosis": [
+    {
+      "comparison": "ACWCM vs Dempster-Shafer",
+      "outcome": "correct",
+      "acwcm_only": 329,
+      "other_only": 1122,
+      "p_exact": 2.425e-101,
+      "diff_pct": -15.86,
+      "diff_ci95_newcombe": [
+        -17.28,
+        -14.43
+      ],
+      "p_holm": 3.88e-100
+    },
+    {
+      "comparison": "ACWCM vs Dempster-Shafer",
+      "outcome": "over",
+      "acwcm_only": 1169,
+      "other_only": 127,
+      "p_exact": 1.841e-211,
+      "diff_pct": 20.84,
+      "diff_ci95_newcombe": [
+        19.54,
+        22.12
+      ],
+      "p_holm": 3.682e-210
+    },
+    {
+      "comparison": "ACWCM vs Dempster-Shafer",
+      "outcome": "under",
+      "acwcm_only": 32,
+      "other_only": 281,
+      "p_exact": 7.168e-51,
+      "diff_pct": -4.98,
+      "diff_ci95_newcombe": [
+        -5.67,
+        -4.31
+      ],
+      "p_holm": 1.004e-49
+    },
+    {
+      "comparison": "ACWCM vs Dempster-Shafer",
+      "outcome": "under2",
+      "acwcm_only": 3,
+      "other_only": 119,
+      "p_exact": 1.139e-31,
+      "diff_pct": -2.32,
+      "diff_ci95_newcombe": [
+        -2.78,
+        -1.91
+      ],
+      "p_holm": 1.025e-30
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate MIN",
+      "outcome": "correct",
+      "acwcm_only": 581,
+      "other_only": 217,
+      "p_exact": 3.823e-39,
+      "diff_pct": 7.28,
+      "diff_ci95_newcombe": [
+        6.19,
+        8.37
+      ],
+      "p_holm": 4.205e-38
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate MIN",
+      "outcome": "over",
+      "acwcm_only": 0,
+      "other_only": 581,
+      "p_exact": 2.527e-175,
+      "diff_pct": -11.62,
+      "diff_ci95_newcombe": [
+        -12.51,
+        -10.73
+      ],
+      "p_holm": 4.801e-174
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate MIN",
+      "outcome": "under",
+      "acwcm_only": 217,
+      "other_only": 0,
+      "p_exact": 9.496e-66,
+      "diff_pct": 4.34,
+      "diff_ci95_newcombe": [
+        3.79,
+        4.93
+      ],
+      "p_holm": 1.424e-64
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate MIN",
+      "outcome": "under2",
+      "acwcm_only": 16,
+      "other_only": 0,
+      "p_exact": 3.052e-05,
+      "diff_pct": 0.32,
+      "diff_ci95_newcombe": [
+        0.17,
+        0.52
+      ],
+      "p_holm": 6.104e-05
+    },
+    {
+      "comparison": "ACWCM vs Sugeno (quantised additive capacity)",
+      "outcome": "correct",
+      "acwcm_only": 631,
+      "other_only": 368,
+      "p_exact": 7.598e-17,
+      "diff_pct": 5.26,
+      "diff_ci95_newcombe": [
+        4.03,
+        6.49
+      ],
+      "p_holm": 4.559e-16
+    },
+    {
+      "comparison": "ACWCM vs Sugeno (quantised additive capacity)",
+      "outcome": "over",
+      "acwcm_only": 398,
+      "other_only": 172,
+      "p_exact": 1.265e-21,
+      "diff_pct": 4.52,
+      "diff_ci95_newcombe": [
+        3.59,
+        5.45
+      ],
+      "p_holm": 8.855e-21
+    },
+    {
+      "comparison": "ACWCM vs Sugeno (quantised additive capacity)",
+      "outcome": "under",
+      "acwcm_only": 2,
+      "other_only": 491,
+      "p_exact": 9.523e-144,
+      "diff_pct": -9.78,
+      "diff_ci95_newcombe": [
+        -10.62,
+        -8.96
+      ],
+      "p_holm": 1.714e-142
+    },
+    {
+      "comparison": "ACWCM vs Sugeno (quantised additive capacity)",
+      "outcome": "under2",
+      "acwcm_only": 3,
+      "other_only": 144,
+      "p_exact": 5.936e-39,
+      "diff_pct": -2.82,
+      "diff_ci95_newcombe": [
+        -3.32,
+        -2.38
+      ],
+      "p_holm": 5.936e-38
+    },
+    {
+      "comparison": "ACWCM vs Band-clamped Sugeno integral",
+      "outcome": "correct",
+      "acwcm_only": 631,
+      "other_only": 287,
+      "p_exact": 2.133e-30,
+      "diff_pct": 6.88,
+      "diff_ci95_newcombe": [
+        5.71,
+        8.05
+      ],
+      "p_holm": 1.706e-29
+    },
+    {
+      "comparison": "ACWCM vs Band-clamped Sugeno integral",
+      "outcome": "over",
+      "acwcm_only": 285,
+      "other_only": 172,
+      "p_exact": 1.402e-07,
+      "diff_pct": 2.26,
+      "diff_ci95_newcombe": [
+        1.42,
+        3.1
+      ],
+      "p_holm": 4.206e-07
+    },
+    {
+      "comparison": "ACWCM vs Band-clamped Sugeno integral",
+      "outcome": "under",
+      "acwcm_only": 2,
+      "other_only": 459,
+      "p_exact": 3.577e-134,
+      "diff_pct": -9.14,
+      "diff_ci95_newcombe": [
+        -9.96,
+        -8.35
+      ],
+      "p_holm": 6.081e-133
+    },
+    {
+      "comparison": "ACWCM vs Band-clamped Sugeno integral",
+      "outcome": "under2",
+      "acwcm_only": 3,
+      "other_only": 60,
+      "p_exact": 9.048e-15,
+      "diff_pct": -1.14,
+      "diff_ci95_newcombe": [
+        -1.49,
+        -0.85
+      ],
+      "p_holm": 4.524e-14
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate ACWCM (v1)",
+      "outcome": "correct",
+      "acwcm_only": 780,
+      "other_only": 318,
+      "p_exact": 2.488e-45,
+      "diff_pct": 9.24,
+      "diff_ci95_newcombe": [
+        7.97,
+        10.51
+      ],
+      "p_holm": 2.986e-44
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate ACWCM (v1)",
+      "outcome": "over",
+      "acwcm_only": 235,
+      "other_only": 654,
+      "p_exact": 2.21e-46,
+      "diff_pct": -8.38,
+      "diff_ci95_newcombe": [
+        -9.52,
+        -7.23
+      ],
+      "p_holm": 2.873e-45
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate ACWCM (v1)",
+      "outcome": "under",
+      "acwcm_only": 144,
+      "other_only": 187,
+      "p_exact": 0.02083,
+      "diff_pct": -0.86,
+      "diff_ci95_newcombe": [
+        -1.58,
+        -0.15
+      ],
+      "p_holm": 0.02083
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate ACWCM (v1)",
+      "outcome": "under2",
+      "acwcm_only": 10,
+      "other_only": 71,
+      "p_exact": 1.799e-12,
+      "diff_pct": -1.22,
+      "diff_ci95_newcombe": [
+        -1.6,
+        -0.88
+      ],
+      "p_holm": 7.196e-12
+    }
+  ],
+  "noninferiority_vs_DS_diagnosis": {
+    "critical_sensitivity_diff_vs_DS_pct": 9.17,
+    "ci95": [
+      6.9,
+      11.56
+    ]
+  },
+  "ablation_diagnosis": [
+    {
+      "configuration": "full",
+      "critical_sensitivity_pct": 89.74,
+      "false_discharges": 0,
+      "accuracy_pct": 30.02,
+      "under_triage_pct": 9.06,
+      "over_triage_pct": 60.92
+    },
+    {
+      "configuration": "-G1",
+      "critical_sensitivity_pct": 87.69,
+      "false_discharges": 0,
+      "accuracy_pct": 30.94,
+      "under_triage_pct": 10.54,
+      "over_triage_pct": 58.52
+    },
+    {
+      "configuration": "-G2",
+      "critical_sensitivity_pct": 84.4,
+      "false_discharges": 0,
+      "accuracy_pct": 36.84,
+      "under_triage_pct": 11.24,
+      "over_triage_pct": 51.92
+    },
+    {
+      "configuration": "-G3",
+      "critical_sensitivity_pct": 89.74,
+      "false_discharges": 0,
+      "accuracy_pct": 30.02,
+      "under_triage_pct": 9.06,
+      "over_triage_pct": 60.92
+    },
+    {
+      "configuration": "-G4",
+      "critical_sensitivity_pct": 87.82,
+      "false_discharges": 0,
+      "accuracy_pct": 37.84,
+      "under_triage_pct": 6.78,
+      "over_triage_pct": 55.38
+    },
+    {
+      "configuration": "-G5",
+      "critical_sensitivity_pct": 89.6,
+      "false_discharges": 0,
+      "accuracy_pct": 27.96,
+      "under_triage_pct": 10.0,
+      "over_triage_pct": 62.04
+    },
+    {
+      "configuration": "-G6",
+      "critical_sensitivity_pct": 83.72,
+      "false_discharges": 1,
+      "accuracy_pct": 25.42,
+      "under_triage_pct": 7.64,
+      "over_triage_pct": 66.94
+    }
+  ],
+  "diagnosis_composition": {
+    "case_mix": {
+      "R5|bppv": 1505,
+      "R3|vestibular_neuritis": 611,
+      "R5|persistent_postural": 600,
+      "R4|vestibular_migraine": 555,
+      "R4|orthostatic_dizziness": 444,
+      "R4|menieres_attack": 388,
+      "R2|posterior_stroke": 222,
+      "R3|labyrinthitis": 166,
+      "R2|tia_vertebrobasilar": 166,
+      "R1|posterior_stroke_unstable": 111,
+      "R1|cardiac_arrhythmia": 111,
+      "R1|subarachnoid_haemorrhage": 44,
+      "R2|aica_stroke": 44,
+      "R2|vertebral_dissection": 33
+    },
+    "acwcm_under_triaged_R3_by_diagnosis": {
+      "vestibular_neuritis": 233,
+      "labyrinthitis": 52
+    },
+    "acwcm_missed_critical_by_diagnosis": {
+      "tia_vertebrobasilar": 27,
+      "posterior_stroke": 31,
+      "cardiac_arrhythmia": 4,
+      "vertebral_dissection": 6,
+      "aica_stroke": 6,
+      "posterior_stroke_unstable": 1
+    },
+    "dangerous_diagnoses": [
+      "aica_stroke",
+      "cardiac_arrhythmia",
+      "posterior_stroke",
+      "posterior_stroke_unstable",
+      "subarachnoid_haemorrhage",
+      "tia_vertebrobasilar",
+      "vertebral_dissection"
+    ]
+  },
+  "paired_stats_dev": [
+    {
+      "comparison": "ACWCM vs Dempster-Shafer",
+      "outcome": "correct",
+      "acwcm_only": 52,
+      "other_only": 58,
+      "p_exact": 0.6338,
+      "diff_pct": -0.75,
+      "diff_ci95_newcombe": [
+        -3.33,
+        1.83
+      ],
+      "p_holm": 1.0
+    },
+    {
+      "comparison": "ACWCM vs Dempster-Shafer",
+      "outcome": "over",
+      "acwcm_only": 48,
+      "other_only": 44,
+      "p_exact": 0.7547,
+      "diff_pct": 0.5,
+      "diff_ci95_newcombe": [
+        -1.87,
+        2.87
+      ],
+      "p_holm": 1.0
+    },
+    {
+      "comparison": "ACWCM vs Dempster-Shafer",
+      "outcome": "under",
+      "acwcm_only": 12,
+      "other_only": 10,
+      "p_exact": 0.8318,
+      "diff_pct": 0.25,
+      "diff_ci95_newcombe": [
+        -0.97,
+        1.48
+      ],
+      "p_holm": 1.0
+    },
+    {
+      "comparison": "ACWCM vs Dempster-Shafer",
+      "outcome": "under2",
+      "acwcm_only": 0,
+      "other_only": 83,
+      "p_exact": 2.068e-25,
+      "diff_pct": -10.31,
+      "diff_ci95_newcombe": [
+        -12.6,
+        -8.34
+      ],
+      "p_holm": 3.309e-24
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate MIN",
+      "outcome": "correct",
+      "acwcm_only": 119,
+      "other_only": 91,
+      "p_exact": 0.06218,
+      "diff_pct": 3.48,
+      "diff_ci95_newcombe": [
+        -0.06,
+        7.01
+      ],
+      "p_holm": 0.4974
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate MIN",
+      "outcome": "over",
+      "acwcm_only": 0,
+      "other_only": 119,
+      "p_exact": 3.009e-36,
+      "diff_pct": -14.78,
+      "diff_ci95_newcombe": [
+        -17.35,
+        -12.39
+      ],
+      "p_holm": 5.416e-35
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate MIN",
+      "outcome": "under",
+      "acwcm_only": 91,
+      "other_only": 0,
+      "p_exact": 8.078e-28,
+      "diff_pct": 11.3,
+      "diff_ci95_newcombe": [
+        9.24,
+        13.68
+      ],
+      "p_holm": 1.373e-26
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate MIN",
+      "outcome": "under2",
+      "acwcm_only": 0,
+      "other_only": 0,
+      "p_exact": 1.0,
+      "diff_pct": 0.0,
+      "diff_ci95_newcombe": [
+        -0.47,
+        0.47
+      ],
+      "p_holm": 1.0
+    },
+    {
+      "comparison": "ACWCM vs Sugeno (quantised additive capacity)",
+      "outcome": "correct",
+      "acwcm_only": 122,
+      "other_only": 15,
+      "p_exact": 5.068e-22,
+      "diff_pct": 13.29,
+      "diff_ci95_newcombe": [
+        10.59,
+        16.02
+      ],
+      "p_holm": 7.095e-21
+    },
+    {
+      "comparison": "ACWCM vs Sugeno (quantised additive capacity)",
+      "outcome": "over",
+      "acwcm_only": 15,
+      "other_only": 72,
+      "p_exact": 4.261e-10,
+      "diff_pct": -7.08,
+      "diff_ci95_newcombe": [
+        -9.4,
+        -4.89
+      ],
+      "p_holm": 3.835e-09
+    },
+    {
+      "comparison": "ACWCM vs Sugeno (quantised additive capacity)",
+      "outcome": "under",
+      "acwcm_only": 0,
+      "other_only": 50,
+      "p_exact": 1.776e-15,
+      "diff_pct": -6.21,
+      "diff_ci95_newcombe": [
+        -7.99,
+        -4.56
+      ],
+      "p_holm": 2.131e-14
+    },
+    {
+      "comparison": "ACWCM vs Sugeno (quantised additive capacity)",
+      "outcome": "under2",
+      "acwcm_only": 0,
+      "other_only": 0,
+      "p_exact": 1.0,
+      "diff_pct": 0.0,
+      "diff_ci95_newcombe": [
+        -0.47,
+        0.47
+      ],
+      "p_holm": 1.0
+    },
+    {
+      "comparison": "ACWCM vs Band-clamped Sugeno integral",
+      "outcome": "correct",
+      "acwcm_only": 122,
+      "other_only": 13,
+      "p_exact": 2.244e-23,
+      "diff_pct": 13.54,
+      "diff_ci95_newcombe": [
+        10.87,
+        16.24
+      ],
+      "p_holm": 3.366e-22
+    },
+    {
+      "comparison": "ACWCM vs Band-clamped Sugeno integral",
+      "outcome": "over",
+      "acwcm_only": 13,
+      "other_only": 72,
+      "p_exact": 4.629e-11,
+      "diff_pct": -7.33,
+      "diff_ci95_newcombe": [
+        -9.62,
+        -5.17
+      ],
+      "p_holm": 4.629e-10
+    },
+    {
+      "comparison": "ACWCM vs Band-clamped Sugeno integral",
+      "outcome": "under",
+      "acwcm_only": 0,
+      "other_only": 50,
+      "p_exact": 1.776e-15,
+      "diff_pct": -6.21,
+      "diff_ci95_newcombe": [
+        -7.99,
+        -4.56
+      ],
+      "p_holm": 2.131e-14
+    },
+    {
+      "comparison": "ACWCM vs Band-clamped Sugeno integral",
+      "outcome": "under2",
+      "acwcm_only": 0,
+      "other_only": 0,
+      "p_exact": 1.0,
+      "diff_pct": 0.0,
+      "diff_ci95_newcombe": [
+        -0.47,
+        0.47
+      ],
+      "p_holm": 1.0
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate ACWCM (v1)",
+      "outcome": "correct",
+      "acwcm_only": 370,
+      "other_only": 2,
+      "p_exact": 1.442e-107,
+      "diff_pct": 45.71,
+      "diff_ci95_newcombe": [
+        42.12,
+        49.08
+      ],
+      "p_holm": 2.884e-106
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate ACWCM (v1)",
+      "outcome": "over",
+      "acwcm_only": 0,
+      "other_only": 290,
+      "p_exact": 1.005e-87,
+      "diff_pct": -36.02,
+      "diff_ci95_newcombe": [
+        -39.34,
+        -32.69
+      ],
+      "p_holm": 1.909e-86
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate ACWCM (v1)",
+      "outcome": "under",
+      "acwcm_only": 6,
+      "other_only": 84,
+      "p_exact": 1.081e-18,
+      "diff_pct": -9.69,
+      "diff_ci95_newcombe": [
+        -11.98,
+        -7.5
+      ],
+      "p_holm": 1.405e-17
+    },
+    {
+      "comparison": "ACWCM vs SAFE-Gate ACWCM (v1)",
+      "outcome": "under2",
+      "acwcm_only": 0,
+      "other_only": 0,
+      "p_exact": 1.0,
+      "diff_pct": 0.0,
+      "diff_ci95_newcombe": [
+        -0.47,
+        0.47
+      ],
+      "p_holm": 1.0
+    }
+  ],
+  "noninferiority_vs_DS_dev": {
+    "critical_sensitivity_diff_vs_DS_pct": 0.0,
+    "ci95": [
+      -2.15,
+      2.15
+    ]
+  },
+  "age_tier_interaction_dev": {
+    "lr_stat": 0.005,
+    "df": 1,
+    "p": 0.946,
+    "label": "exploratory"
+  },
+  "certificate_delta_cf_dev": {
+    "1": 757,
+    "not found (censored)": 48
+  },
+  "conflict": {
+    "n_hetero": 55980,
+    "n_false_alarm": 64,
+    "rules": {
+      "SAFE-Gate ACWCM (v2)": {
+        "dilutions_980": 0,
+        "r1_to_r5_980": 0,
+        "dilutions_hetero": 0,
+        "escalations_false_alarm": 64,
+        "dilution_rate_980": 0.0,
+        "escalation_rate_false_alarm": 1.0
+      },
+      "ACWCM fuzzy-quantifier trigger": {
+        "dilutions_980": 0,
+        "r1_to_r5_980": 0,
+        "dilutions_hetero": 0,
+        "escalations_false_alarm": 64,
+        "dilution_rate_980": 0.0,
+        "escalation_rate_false_alarm": 1.0
+      },
+      "Dempster-Shafer": {
+        "dilutions_980": 328,
+        "r1_to_r5_980": 82,
+        "dilutions_hetero": 50988,
+        "escalations_false_alarm": 12,
+        "dilution_rate_980": 0.3346938775510204,
+        "escalation_rate_false_alarm": 0.1875
+      },
+      "Bayesian model averaging": {
+        "dilutions_980": 339,
+        "r1_to_r5_980": 85,
+        "dilutions_hetero": 50639,
+        "escalations_false_alarm": 12,
+        "dilution_rate_980": 0.34591836734693876,
+        "escalation_rate_false_alarm": 0.1875
+      },
+      "BMA min expected cost": {
+        "dilutions_980": 32,
+        "r1_to_r5_980": 2,
+        "dilutions_hetero": 9807,
+        "escalations_false_alarm": 52,
+        "dilution_rate_980": 0.0326530612244898,
+        "escalation_rate_false_alarm": 0.8125
+      },
+      "Sugeno (quantised additive capacity)": {
+        "dilutions_980": 528,
+        "r1_to_r5_980": 24,
+        "dilutions_hetero": 55476,
+        "escalations_false_alarm": 0,
+        "dilution_rate_980": 0.5387755102040817,
+        "escalation_rate_false_alarm": 0.0
+      },
+      "Weighted max (forced top, original)": {
+        "dilutions_980": 280,
+        "r1_to_r5_980": 0,
+        "dilutions_hetero": 18660,
+        "escalations_false_alarm": 48,
+        "dilution_rate_980": 0.2857142857142857,
+        "escalation_rate_false_alarm": 0.75
+      },
+      "Weighted max (normalised possibility)": {
+        "dilutions_980": 20,
+        "r1_to_r5_980": 0,
+        "dilutions_hetero": 17934,
+        "escalations_false_alarm": 60,
+        "dilution_rate_980": 0.02040816326530612,
+        "escalation_rate_false_alarm": 0.9375
+      },
+      "Quantifier-guided OWA (Yager 1996, 'most')": {
+        "dilutions_980": 570,
+        "r1_to_r5_980": 65,
+        "dilutions_hetero": 55103,
+        "escalations_false_alarm": 0,
+        "dilution_rate_980": 0.5816326530612245,
+        "escalation_rate_false_alarm": 0.0
+      },
+      "Band-clamped Sugeno integral": {
+        "dilutions_980": 264,
+        "r1_to_r5_980": 0,
+        "dilutions_hetero": 27738,
+        "escalations_false_alarm": 32,
+        "dilution_rate_980": 0.2693877551020408,
+        "escalation_rate_false_alarm": 0.5
+      },
+      "Prioritized aggregation (Yager 2008)": {
+        "dilutions_980": 539,
+        "r1_to_r5_980": 0,
+        "dilutions_hetero": 51060,
+        "escalations_false_alarm": 0,
+        "dilution_rate_980": 0.55,
+        "escalation_rate_false_alarm": 0.0
+      },
+      "Ordinal OWA (k-th order statistic), k=2": {
+        "dilutions_980": 196,
+        "r1_to_r5_980": 49,
+        "dilutions_hetero": 46656,
+        "escalations_false_alarm": 0,
+        "dilution_rate_980": 0.2,
+        "escalation_rate_false_alarm": 0.0
+      },
+      "Sugeno integral (trained symmetric capacity)": {
+        "dilutions_980": 196,
+        "r1_to_r5_980": 49,
+        "dilutions_hetero": 46656,
+        "escalations_false_alarm": 0,
+        "dilution_rate_980": 0.2,
+        "escalation_rate_false_alarm": 0.0
+      },
+      "TSK fuzzy rule base (zero order)": {
+        "dilutions_980": 833,
+        "r1_to_r5_980": 196,
+        "dilutions_hetero": 55368,
+        "escalations_false_alarm": 0,
+        "dilution_rate_980": 0.85,
+        "escalation_rate_false_alarm": 0.0
+      },
+      "DS Dempster (singleton, BetP)": {
+        "dilutions_980": 328,
+        "r1_to_r5_980": 82,
+        "dilutions_hetero": 50988,
+        "escalations_false_alarm": 12,
+        "dilution_rate_980": 0.3346938775510204,
+        "escalation_rate_false_alarm": 0.1875
+      },
+      "DS Yager rule": {
+        "dilutions_980": 328,
+        "r1_to_r5_980": 82,
+        "dilutions_hetero": 50988,
+        "escalations_false_alarm": 12,
+        "dilution_rate_980": 0.3346938775510204,
+        "escalation_rate_false_alarm": 0.1875
+      },
+      "DS Dubois-Prade rule": {
+        "dilutions_980": 328,
+        "r1_to_r5_980": 82,
+        "dilutions_hetero": 50988,
+        "escalations_false_alarm": 12,
+        "dilution_rate_980": 0.3346938775510204,
+        "escalation_rate_false_alarm": 0.1875
+      },
+      "DS PCR6": {
+        "dilutions_980": 340,
+        "r1_to_r5_980": 85,
+        "dilutions_hetero": 50976,
+        "escalations_false_alarm": 8,
+        "dilution_rate_980": 0.3469387755102041,
+        "escalation_rate_false_alarm": 0.125
+      },
+      "DS cautious rule (Denoeux)": {
+        "dilutions_980": 200,
+        "r1_to_r5_980": 50,
+        "dilutions_hetero": 35868,
+        "escalations_false_alarm": 52,
+        "dilution_rate_980": 0.20408163265306123,
+        "escalation_rate_false_alarm": 0.8125
+      },
+      "DS min expected cost": {
+        "dilutions_980": 224,
+        "r1_to_r5_980": 54,
+        "dilutions_hetero": 42066,
+        "escalations_false_alarm": 28,
+        "dilution_rate_980": 0.22857142857142856,
+        "escalation_rate_false_alarm": 0.4375
+      },
+      "DS (abstention vacuous)": {
+        "dilutions_980": 328,
+        "r1_to_r5_980": 82,
+        "dilutions_hetero": 50988,
+        "escalations_false_alarm": 12,
+        "dilution_rate_980": 0.3346938775510204,
+        "escalation_rate_false_alarm": 0.1875
+      },
+      "DS upper-set (BetP)": {
+        "dilutions_980": 0,
+        "r1_to_r5_980": 0,
+        "dilutions_hetero": 0,
+        "escalations_false_alarm": 64,
+        "dilution_rate_980": 0.0,
+        "escalation_rate_false_alarm": 1.0
+      },
+      "DS upper-set (Bel median)": {
+        "dilutions_980": 0,
+        "r1_to_r5_980": 0,
+        "dilutions_hetero": 0,
+        "escalations_false_alarm": 64,
+        "dilution_rate_980": 0.0,
+        "escalation_rate_false_alarm": 1.0
+      },
+      "DS discounted (train reliability)": {
+        "dilutions_980": 244,
+        "r1_to_r5_980": 61,
+        "dilutions_hetero": 44088,
+        "escalations_false_alarm": 12,
+        "dilution_rate_980": 0.24897959183673468,
+        "escalation_rate_false_alarm": 0.1875
+      }
+    },
+    "breakeven_lambda_ratio1": {
+      "SAFE-Gate ACWCM (v2)": null,
+      "ACWCM fuzzy-quantifier trigger": null,
+      "Dempster-Shafer": 8.739,
+      "Bayesian model averaging": 8.456,
+      "BMA min expected cost": 20.672,
+      "Sugeno (quantised additive capacity)": 6.682,
+      "Weighted max (forced top, original)": 3.15,
+      "Weighted max (normalised possibility)": 11.025,
+      "Quantifier-guided OWA (Yager 1996, 'most')": 6.189,
+      "Band-clamped Sugeno integral": 6.682,
+      "Prioritized aggregation (Yager 2008)": 6.545,
+      "Ordinal OWA (k-th order statistic), k=2": 18.0,
+      "Sugeno integral (trained symmetric capacity)": 18.0,
+      "TSK fuzzy rule base (zero order)": 4.235,
+      "DS Dempster (singleton, BetP)": 8.739,
+      "DS Yager rule": 8.739,
+      "DS Dubois-Prade rule": 8.739,
+      "DS PCR6": 9.079,
+      "DS cautious rule (Denoeux)": 3.308,
+      "DS min expected cost": 8.859,
+      "DS (abstention vacuous)": 8.739,
+      "DS upper-set (BetP)": null,
+      "DS upper-set (Bel median)": null,
+      "DS discounted (train reliability)": 11.748
+    },
+    "prevalence_critical_dev": 0.2174
+  },
+  "quantiser_sensitivity": {
+    "ceil (default)": {
+      "Sugeno additive": 528,
+      "Weighted max forced": 280,
+      "Weighted max normalised": 20,
+      "Band-clamped Sugeno": 264
+    },
+    "round": {
+      "Sugeno additive": 640,
+      "Weighted max forced": 280,
+      "Weighted max normalised": 60,
+      "Band-clamped Sugeno": 320
+    },
+    "floor": {
+      "Sugeno additive": 768,
+      "Weighted max forced": 420,
+      "Weighted max normalised": 120,
+      "Band-clamped Sugeno": 384
+    }
+  },
+  "enumeration": {
+    "confidence_profiles": {
+      "fixed": {
+        "homogeneous": {
+          "G1": 0.8,
+          "G2": 0.8,
+          "G3": 0.8,
+          "G4": 0.8,
+          "G5": 0.8,
+          "G6": 0.8
+        },
+        "heterogeneous": {
+          "G1": 0.9,
+          "G2": 0.5,
+          "G3": 0.7,
+          "G4": 0.6,
+          "G5": 0.8,
+          "G6": 0.4
+        }
+      },
+      "sampled_grid": [
+        {
+          "G1": 0.6,
+          "G2": 1.0,
+          "G3": 0.0,
+          "G4": 0.2,
+          "G5": 0.0,
+          "G6": 0.8
+        },
+        {
+          "G1": 0.6,
+          "G2": 0.0,
+          "G3": 0.0,
+          "G4": 0.8,
+          "G5": 0.2,
+          "G6": 1.0
+        },
+        {
+          "G1": 0.0,
+          "G2": 0.6,
+          "G3": 0.8,
+          "G4": 1.0,
+          "G5": 0.6,
+          "G6": 0.2
+        },
+        {
+          "G1": 0.8,
+          "G2": 1.0,
+          "G3": 0.4,
+          "G4": 0.2,
+          "G5": 0.2,
+          "G6": 0.4
+        },
+        {
+          "G1": 0.2,
+          "G2": 0.2,
+          "G3": 0.2,
+          "G4": 0.4,
+          "G5": 0.0,
+          "G6": 1.0
+        },
+        {
+          "G1": 0.4,
+          "G2": 0.0,
+          "G3": 0.0,
+          "G4": 0.8,
+          "G5": 0.8,
+          "G6": 0.2
+        }
+      ]
+    },
+    "rules": {
+      "SAFE-Gate ACWCM (v2)": {
+        "max_jump_one_step": 2,
+        "CP": 0,
+        "CND": 0,
+        "R1D": 0,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 708
+      },
+      "ACWCM fuzzy-quantifier trigger": {
+        "max_jump_one_step": 2,
+        "CP": 0,
+        "CND": 0,
+        "R1D": 0,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 708
+      },
+      "Dempster-Shafer": {
+        "max_jump_one_step": 4,
+        "CP": 60776,
+        "CND": 65472,
+        "R1D": 15082,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 17460
+      },
+      "Bayesian model averaging": {
+        "max_jump_one_step": 4,
+        "CP": 63729,
+        "CND": 68446,
+        "R1D": 16803,
+        "conf_monotonicity": 540,
+        "n_inputs": 125000,
+        "n_conf_pairs": 25740
+      },
+      "BMA min expected cost": {
+        "max_jump_one_step": 1,
+        "CP": 9299,
+        "CND": 14755,
+        "R1D": 131,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 0
+      },
+      "Sugeno (quantised additive capacity)": {
+        "max_jump_one_step": 1,
+        "CP": 75736,
+        "CND": 91104,
+        "R1D": 474,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 33060
+      },
+      "Weighted max (forced top, original)": {
+        "max_jump_one_step": 1,
+        "CP": 28385,
+        "CND": 35772,
+        "R1D": 570,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 18744
+      },
+      "Weighted max (normalised possibility)": {
+        "max_jump_one_step": 1,
+        "CP": 27017,
+        "CND": 34422,
+        "R1D": 518,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 0
+      },
+      "Quantifier-guided OWA (Yager 1996, 'most')": {
+        "max_jump_one_step": 1,
+        "CP": 80931,
+        "CND": 89941,
+        "R1D": 5208,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 39120
+      },
+      "Band-clamped Sugeno integral": {
+        "max_jump_one_step": 1,
+        "CP": 0,
+        "CND": 24456,
+        "R1D": 0,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 24810
+      },
+      "Prioritized aggregation (Yager 2008)": {
+        "max_jump_one_step": 1,
+        "CP": 84104,
+        "CND": 96056,
+        "R1D": 5608,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 40445
+      },
+      "Ordinal OWA (k-th order statistic), k=2": {
+        "max_jump_one_step": 1,
+        "CP": 13248,
+        "CND": 23328,
+        "R1D": 48,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 7800
+      },
+      "Sugeno integral (trained symmetric capacity)": {
+        "max_jump_one_step": 1,
+        "CP": 13248,
+        "CND": 23328,
+        "R1D": 48,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 7800
+      },
+      "TSK fuzzy rule base (zero order)": {
+        "max_jump_one_step": 2,
+        "CP": 108736,
+        "CND": 108560,
+        "R1D": 59304,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 62410
+      },
+      "DS Dempster (singleton, BetP)": {
+        "max_jump_one_step": 4,
+        "CP": 60776,
+        "CND": 65472,
+        "R1D": 15082,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 17460
+      },
+      "DS Yager rule": {
+        "max_jump_one_step": 4,
+        "CP": 60776,
+        "CND": 65472,
+        "R1D": 15082,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 17460
+      },
+      "DS Dubois-Prade rule": {
+        "max_jump_one_step": 4,
+        "CP": 60776,
+        "CND": 65472,
+        "R1D": 15082,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 17460
+      },
+      "DS PCR6": {
+        "max_jump_one_step": 4,
+        "CP": 61004,
+        "CND": 65688,
+        "R1D": 15190,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 17460
+      },
+      "DS cautious rule (Denoeux)": {
+        "max_jump_one_step": 1,
+        "CP": 52542,
+        "CND": 56772,
+        "R1D": 12975,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 0
+      },
+      "DS min expected cost": {
+        "max_jump_one_step": 4,
+        "CP": 52560,
+        "CND": 58074,
+        "R1D": 11865,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 13500
+      },
+      "DS (abstention vacuous)": {
+        "max_jump_one_step": 4,
+        "CP": 60776,
+        "CND": 65472,
+        "R1D": 15082,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 17460
+      },
+      "DS upper-set (BetP)": {
+        "max_jump_one_step": 0,
+        "CP": 0,
+        "CND": 0,
+        "R1D": 0,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 0
+      },
+      "DS upper-set (Bel median)": {
+        "max_jump_one_step": 1,
+        "CP": 14178,
+        "CND": 19044,
+        "R1D": 633,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 0
+      },
+      "DS discounted (train reliability)": {
+        "max_jump_one_step": 4,
+        "CP": 64462,
+        "CND": 69024,
+        "R1D": 16718,
+        "conf_monotonicity": 0,
+        "n_inputs": 125000,
+        "n_conf_pairs": 26920
+      }
+    }
+  },
+  "profile_analysis": {
+    "n_profiles": 128,
+    "v2_rank_by_train_accuracy": 1,
+    "best_train_accuracy": 83.99,
+    "v2_train_accuracy": 83.99,
+    "robust_selected": {
+      "g1_graded": true,
+      "g4_central_only": true,
+      "g5_age": false,
+      "g5_cap": null,
+      "vacuous_negatives": true,
+      "theta": 0.5,
+      "min_mass": 0.6666666666666666
+    },
+    "robust_equals_v2": false,
+    "robust_row": {
+      "calibration": {
+        "g1_graded": true,
+        "g4_central_only": true,
+        "g5_age": false,
+        "g5_cap": null,
+        "vacuous_negatives": true,
+        "theta": 0.5,
+        "min_mass": 0.6666666666666666
+      },
+      "is_v2": false,
+      "is_v1": false,
+      "train": {
+        "critical_sensitivity_pct": 100.0,
+        "false_discharges": 0,
+        "accuracy_pct": 72.75,
+        "under_triage_pct": 9.59,
+        "over_triage_pct": 17.66
+      },
+      "val": {
+        "critical_sensitivity_pct": 100.0,
+        "false_discharges": 0,
+        "accuracy_pct": 73.56,
+        "under_triage_pct": 9.02,
+        "over_triage_pct": 17.42
+      },
+      "val_independent": {
+        "critical_sensitivity_pct": 96.6,
+        "false_discharges": 0,
+        "accuracy_pct": 49.85,
+        "under_triage_pct": 14.15,
+        "over_triage_pct": 36.0
+      },
+      "val_diagnosis": {
+        "critical_sensitivity_pct": 96.54,
+        "false_discharges": 0,
+        "accuracy_pct": 25.85,
+        "under_triage_pct": 7.2,
+        "over_triage_pct": 66.95
+      },
+      "fresh_independent_generator": {
+        "critical_sensitivity_pct": 96.8,
+        "false_discharges": 0,
+        "accuracy_pct": 49.63,
+        "under_triage_pct": 14.17,
+        "over_triage_pct": 36.2
+      },
+      "fresh_diagnosis_generator": {
+        "critical_sensitivity_pct": 93.3,
+        "false_discharges": 0,
+        "accuracy_pct": 25.5,
+        "under_triage_pct": 7.0,
+        "over_triage_pct": 67.5
+      }
+    },
+    "v2_row": {
+      "calibration": {
+        "g1_graded": true,
+        "g4_central_only": true,
+        "g5_age": false,
+        "g5_cap": 3,
+        "vacuous_negatives": true,
+        "theta": 0.5,
+        "min_mass": 0.6666666666666666
+      },
+      "is_v2": true,
+      "is_v1": false,
+      "train": {
+        "critical_sensitivity_pct": 100.0,
+        "false_discharges": 0,
+        "accuracy_pct": 83.99,
+        "under_triage_pct": 9.59,
+        "over_triage_pct": 6.42
+      },
+      "val": {
+        "critical_sensitivity_pct": 100.0,
+        "false_discharges": 0,
+        "accuracy_pct": 84.59,
+        "under_triage_pct": 9.02,
+        "over_triage_pct": 6.39
+      },
+      "val_independent": {
+        "critical_sensitivity_pct": 92.4,
+        "false_discharges": 0,
+        "accuracy_pct": 53.75,
+        "under_triage_pct": 17.3,
+        "over_triage_pct": 28.95
+      },
+      "val_diagnosis": {
+        "critical_sensitivity_pct": 94.81,
+        "false_discharges": 0,
+        "accuracy_pct": 30.25,
+        "under_triage_pct": 9.2,
+        "over_triage_pct": 60.55
+      },
+      "fresh_independent_generator": {
+        "critical_sensitivity_pct": 94.93,
+        "false_discharges": 0,
+        "accuracy_pct": 54.3,
+        "under_triage_pct": 16.1,
+        "over_triage_pct": 29.6
+      },
+      "fresh_diagnosis_generator": {
+        "critical_sensitivity_pct": 89.74,
+        "false_discharges": 0,
+        "accuracy_pct": 30.02,
+        "under_triage_pct": 9.06,
+        "over_triage_pct": 60.92
+      }
+    }
+  },
+  "multiseed": {
+    "critical_sensitivity_pct": {
+      "mean": 100.0,
+      "sd": 0.0,
+      "min": 100.0,
+      "max": 100.0
+    },
+    "false_discharges": {
+      "mean": 0.0,
+      "sd": 0.0,
+      "min": 0,
+      "max": 0
+    },
+    "accuracy_pct": {
+      "mean": 83.85,
+      "sd": 0.92,
+      "min": 82.48,
+      "max": 86.71
+    },
+    "over_triage_pct": {
+      "mean": 6.01,
+      "sd": 0.63,
+      "min": 4.72,
+      "max": 7.2
+    },
+    "under_triage_pct": {
+      "mean": 10.14,
+      "sd": 0.8,
+      "min": 8.07,
+      "max": 11.3
+    },
+    "r3_under_triage_pct": {
+      "mean": 27.17,
+      "sd": 2.11,
+      "min": 21.67,
+      "max": 30.33
+    },
+    "under_2plus": {
+      "mean": 0.0,
+      "sd": 0.0,
+      "min": 0,
+      "max": 0
+    },
+    "v2_selected_count": 20,
+    "n_seeds": 20,
+    "label": "within-generator sampling variability"
+  }
+}

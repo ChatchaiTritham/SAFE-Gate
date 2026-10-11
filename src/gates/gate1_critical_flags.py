@@ -3,8 +3,9 @@ Gate 1: Critical Red Flag Detection (Rule-Based)
 
 Deterministic screening via 20 Boolean conditions derived from established
 emergency medicine guidelines (AHA/ASA 2019). Rules are grouped into 5
-clinical categories. Any single positive rule immediately produces R1 at
-maximal confidence; all 20 conditions negative yields R5 with c1=1.0.
+clinical categories. Calibration v1: any positive rule gives R1; v2 (graded,
+authors' design): instability gives R1 and other flags R2. All 20 negative
+gives R5 (vacuous, c1=0, under v2).
 """
 
 import os
@@ -26,7 +27,7 @@ class Gate1CriticalFlags:
       4. Severe headache:         thunderclap onset
       5. Respiratory compromise:  O2 < 92%
 
-    Output: R1 (c=1.0) if ANY rule fires; R5 (c=1.0) if ALL negative.
+    Output: see module docstring (v1 vs v2 grading).
     """
 
     # Conditions that need an immediate life-saving intervention (ESI level 1:
@@ -88,14 +89,14 @@ class Gate1CriticalFlags:
 
         Returns:
             (RiskTier, confidence, reasoning_dict)
-            - R1, 1.0 if any red flag detected
-            - R5, 1.0 if all 20 conditions negative
+            - v1: R1, 1.0 if any red flag; v2 (graded): R1 for instability, R2 otherwise
+            - R5 if all 20 conditions negative (confidence 0 with vacuous_negative, else 1.0)
         """
         reasoning = {
             'gate': 'G1_Critical_Red_Flags',
             'triggers': [],
             'mechanism': 'rule-based',
-            'n_rules': 18,
+            'n_rules': 20,
             'categories': 5,
         }
 

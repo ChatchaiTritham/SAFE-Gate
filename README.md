@@ -1,33 +1,26 @@
 # Safety-First Gated Triage with Conservative Risk Merging (SAFE-Gate)
 
-> Re-run a single script and confirm, case by case, that a six-gate triage ensemble keeps every critical patient at a critical tier with zero false discharges and zero broken safety invariants.
+> One command regenerates every number of the IJFS paper: an ordinal aggregation operator (ACWCM) that never dilutes a critical gate output, compared with Sugeno, OWA, belief-function and learned baselines on frozen, never-scored synthetic cohorts.
 
-![License](https://img.shields.io/badge/license-MIT-blue) ![Python](https://img.shields.io/badge/python-3.10%2B-blue) ![Reproducible](https://img.shields.io/badge/reproducible-seed--42-success)
+![License](https://img.shields.io/badge/license-MIT-blue) ![Python](https://img.shields.io/badge/python-3.11-blue)
 
 ## Overview
 
-When several classifiers vote on how urgently a patient should be seen, a plain average can quietly bury a single alarm raised by one module. In triage that arithmetic is dangerous: one model shouting "critical" should not be talked down by four models that happen to favour a calmer label. SAFE-Gate is built around that asymmetry. Six independent gates look at the same case from different angles -- vital-sign red flags, weighted cardiovascular scoring, data completeness, syndrome matching, Monte Carlo dropout uncertainty, and a finite-state temporal check -- and their verdicts are combined by a lattice rule that always keeps the most cautious tier rather than the most popular one.
+SAFE-Gate merges six hand-written triage gates with Adaptive Confidence-Weighted Conservative Merging (ACWCM): the most cautious gate output is returned and relaxed by one tier only when a weighted quota of the confidence lies above it; R1 and abstention are absorbing and a floor of R2 is never relaxed. These are merge-level properties (CP, AC, CND), computed per decision in the audit trail. They are not clinical safety: the system can only keep a critical case that some gate flags. All data are synthetic; nothing here is clinically validated.
 
-The merge step, which we call Adaptive Confidence-Weighted Conservative Merging (ACWCM), starts from that conservative floor and is allowed to step down by at most one tier, and only when the other gates agree with high confidence. Three invariants are stated as theorems, checked on every case, and accompanied by a per-case certificate that counts how many feature changes it would take to move the assigned tier upward. This code exists so a reviewer does not have to take any of that on faith. One command regenerates the cohort, runs SAFE-Gate next to four fusion and tree baselines, and writes out the safety audit.
+## Key results (release v2.0.0-ijfs)
 
-The honest counterpart to the safety story is the cost of paying for it. Because the merge concentrates decisions on the critical and low-risk ends of the scale, the high-risk, moderate, and minimal tiers are rarely assigned, so headline accuracy and discharge specificity are low. We report those numbers as the price of the guarantee, not as competitive triage performance, and the script reproduces them exactly so the trade-off is visible rather than hidden.
+- Exhaustive counts over 5^6 tier profiles x 8 confidence profiles: ACWCM never breaks CP or CND; every Sugeno, OWA, prioritized, TSK and Dempster-Shafer variant tested does. ACWCM is not smooth: a one-tier input change can move the output by two tiers.
+- Fresh cohorts frozen before scoring (`results/round4_protocol.json`): critical sensitivity 94.9% (independent generator) and 89.7% (diagnosis-conditioned generator), 0 false discharges, equal to the gate-recall bound; over-triage 29.6% and 60.9%; R3-conditional under-triage 32.3% and 36.7%. Dempster-Shafer: 84.3% and 80.6% with 7 and 9 false discharges. The minimum, normalised weighted max, consonant belief-median and min-cost BMA rules are about as safe as ACWCM.
+- Development cohort (seed 42; its test split was scored in earlier rounds): 175/175 critical, accuracy 82.5%, over-triage 6.2%, 30.3% of R3 cases under-triaged by one tier.
+- The calibration v2 chosen for accuracy is less robust than a robustness-aware choice (89.7% vs 93.3% critical sensitivity on the diagnosis-conditioned cohort).
 
-## Key results
-
-All figures below come from `run_all.py` on the held-out 805-case test split (seed 42); the safety audit runs over the full 6,400-case cohort.
-
-- Critical-tier sensitivity (R1/R2) is 100.0% -- 175 of 175 critical cases retained, exact 95% CI 97.9-100.0% -- with zero false discharges.
-- The safety invariants (conservative preservation, abstention correctness, critical non-dilution) hold with 0 violations on all 6,400 cases, on every stress-test input, and over an exhaustive enumeration of 93,312 gate-output profiles.
-- With the gate calibration selected on the training split (results/calibration_protocol.json), ACWCM reaches 82.5% accuracy, 6.2% over-triage, 66.7% discharge recall and 11.3% one-tier under-triage (v1 calibration: 36.8%, 42.2%, 0%, 21.0%).
-- Dempster-Shafer performs similarly on the clean cohort but demotes 83 cases by two tiers; across 980 conflicting-evidence configurations it dilutes the critical signal in 34.3%, the additive Sugeno integral in 53.9%, ACWCM in none.
-- Stress tests: under 30% MCAR missingness ACWCM abstains on 53.8% of cases and keeps every critical case; with 20% label noise or red flags and timing cues removed, true-tier critical sensitivity falls to 68.1% and 52.0%.
-
-Caveat: the cohort is synthetic and the tier boundaries are by design separable, which is why a plain tree scores so high on accuracy. The defensible claim here is the safety floor, not the leaderboard number.
+See `REPRODUCIBILITY.md` for the full protocol.
 
 ## Repository structure
 
 ```text
-src/            ACWCM merge, six gates, risk lattice, safety certificates, baselines, theorem checks
+src/            ACWCM merge, six gates, risk lattice, counterfactual explanation records, baselines
 data/           Synthetic generator + train/val/test JSON splits (4797 / 798 / 805)
 results/        Metrics regenerated by run_all.py (summary.json, safety_check.json, CSVs)
 evaluation/     Figure scripts + exported manuscript/supplementary figures (PNG/PDF)
@@ -48,27 +41,18 @@ pip install -r requirements.txt
 ## Reproducing the results
 
 ```bash
-python run_all.py        # fixed seed 42; a few minutes on a standard workstation
+python run_all.py --round4   # pinned env: pip install -r requirements.lock
 ```
 
 The driver regenerates the synthetic cohort, runs SAFE-Gate plus the baselines, evaluates the safety properties, and writes `results/summary.json`, `results/safety_check.json`, `results/theorem_verification.json`, and the per-tier, baseline, ablation, and confusion-matrix CSVs. Every metric is computed from a fixed seed, so a second run reproduces the same values; the determinism of the pipeline has been confirmed by repeated execution.
 
-## Results and figures
+## Figures
 
-The curated figure set is listed in `FIGURE_MANIFEST.csv` (four manuscript figures, two supplementary). Each is exported as both PNG and PDF at 300 DPI under `evaluation/manuscript_figures/`.
-
-- `evaluation/manuscript_figures/safety_performance.png` (SAFE-F1) -- the safety dashboard: critical-case capture, abstention behaviour, risk distribution, and sensitivity by tier. Read it as the headline evidence that the critical tier is caught in full.
-- `evaluation/manuscript_figures/baseline_comparison.png` (SAFE-F2) -- SAFE-Gate set against the fusion and tree baselines. The point to notice is the gap in critical sensitivity, where arithmetic averaging collapses to 28.0% while the conservative methods stay at the top.
-- `evaluation/manuscript_figures/confusion_matrix.png` (SAFE-F3) -- the R1-R5 confusion matrix for ACWCM. Look along the R1/R2 rows: nothing lands in the R4 or R5 columns, the visual confirmation that no critical case is discharged, and note the empty R3 prediction column and the three-case R5 column (all truly R4) that explain the low accuracy.
-- `evaluation/manuscript_figures/per_class_metrics.png` (SAFE-F4) -- precision, recall, and F1 per tier. It makes the trade-off concrete: full recall at R1 and strong recall at R4, with R2, R3, and R5 at zero recall under the released calibration.
-- `evaluation/manuscript_figures/risk_distribution.png` (SAFE-F5, supplementary) -- the observed risk-tier distribution, useful for placing the evaluation in context.
-- `evaluation/manuscript_figures/support_distribution.png` (SAFE-F6, supplementary) -- per-tier support counts for the test cohort.
-
-If only the numbers are needed, `results/baseline_comparison.csv` carries the same comparison as SAFE-F2, and `results/confusion_matrix.csv` and `results/tier_metrics.csv` back SAFE-F3 and SAFE-F4 directly.
+`FIGURE_MANIFEST.csv` lists the manuscript and supplement figures, produced by `evaluation/generate_manuscript_figures.py` from `results/`. `evaluation/generate_figures_from_results.py` is a legacy dashboard script.
 
 ## Data
 
-No human subjects are involved and no ethics approval is required. The cohort is fully synthetic: 6,400 vertigo-triage cases with 52 clinical features, generated under seed 42 and split into 4,797 training, 798 validation, and 805 test cases (`data/synthetic/`). The generator lives in `data/generation/`, so the data can be rebuilt rather than trusted as a static dump.
+No human subjects are involved and no ethics approval is required. All cohorts are synthetic and regenerated from seeds (see REPRODUCIBILITY.md). The development cohort has 6,400 vertigo-triage cases with 52 clinical features, generated under seed 42 and split into 4,797 training, 798 validation, and 805 test cases (`data/synthetic/`). The generator lives in `data/generation/`, so the data can be rebuilt rather than trusted as a static dump.
 
 ## Citation
 

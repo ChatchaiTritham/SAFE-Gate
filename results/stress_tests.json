@@ -1337,9 +1337,9 @@
     "critical_ci95_high_pct": 80.43,
     "false_discharges": 5,
     "abstention_pct": 0.0,
-    "accuracy_pct_decided": 53.05,
-    "over_triage_pct_decided": 16.0,
-    "under_triage_pct_decided": 30.95,
+    "accuracy_pct_decided": 53.1,
+    "over_triage_pct_decided": 16.15,
+    "under_triage_pct_decided": 30.75,
     "cases_with_abstaining_gate": 0,
     "invariant_violations": 198
   },

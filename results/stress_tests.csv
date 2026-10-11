@@ -82,7 +82,7 @@ MCAR 30%,XGBoost (trained on clean train),805,175,66.29,58.76,73.24,59,0.0,79.75
 independent generator variant,"SAFE-Gate (ACWCM, v2)",2000,500,93.2,90.63,95.25,0,0.0,54.1,28.55,17.35,0,0
 independent generator variant,"SAFE-Gate (ACWCM, v1)",2000,500,94.0,91.55,95.92,0,0.0,35.7,47.75,16.55,,
 independent generator variant,Dempster-Shafer,2000,500,83.6,80.06,86.74,6,0.0,49.9,23.65,26.45,0,111
-independent generator variant,Bayesian model averaging,2000,500,76.8,72.85,80.43,5,0.0,53.05,16.0,30.95,0,198
+independent generator variant,Bayesian model averaging,2000,500,76.8,72.85,80.43,5,0.0,53.1,16.15,30.75,0,198
 independent generator variant,Sugeno integral (additive capacity),2000,500,54.8,50.32,59.22,0,0.0,46.55,21.6,31.85,0,451
 independent generator variant,Ordinal weighted maximum,2000,500,90.2,87.25,92.66,0,0.0,50.05,39.45,10.5,0,49
 independent generator variant,Arithmetic ensemble averaging,2000,500,22.8,19.19,26.73,0,0.0,35.2,20.4,44.4,,

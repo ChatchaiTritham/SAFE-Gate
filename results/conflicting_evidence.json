@@ -36,8 +36,8 @@
     ]
   },
   "dilution_counts": {
-    "dempster_shafer": 336,
-    "bayesian_model_avg": 344,
+    "dempster_shafer": 328,
+    "bayesian_model_avg": 339,
     "dempster_shafer_tie_benign": 352,
     "bayesian_model_avg_tie_benign": 349,
     "arithmetic_average": 615,
@@ -46,8 +46,8 @@
     "safegate_acwcm": 0
   },
   "r1_to_r5_counts": {
-    "dempster_shafer": 84,
-    "bayesian_model_avg": 87,
+    "dempster_shafer": 82,
+    "bayesian_model_avg": 85,
     "dempster_shafer_tie_benign": 88,
     "bayesian_model_avg_tie_benign": 90,
     "arithmetic_average": 3,
@@ -56,12 +56,12 @@
     "safegate_acwcm": 0
   },
   "exact_ties": {
-    "dempster_shafer": 16,
-    "bayesian_model_avg": 5
+    "dempster_shafer": 24,
+    "bayesian_model_avg": 10
   },
   "dilution_rate_pct": {
-    "dempster_shafer": 34.29,
-    "bayesian_model_avg": 35.1,
+    "dempster_shafer": 33.47,
+    "bayesian_model_avg": 34.59,
     "dempster_shafer_tie_benign": 35.92,
     "bayesian_model_avg_tie_benign": 35.61,
     "arithmetic_average": 62.76,

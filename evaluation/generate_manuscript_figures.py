@@ -332,7 +332,7 @@ def fig5_dilution():
              ("bayesian_model_avg", "Bayesian model avg.", YELLOW, "^"),
              ("dempster_shafer", "Dempster–Shafer", ORANGE, "s"),
              ("sugeno_additive", "Sugeno (additive)", PINK, "D"),
-             ("weighted_max", "Ordinal weighted max", GREEN, "v"),
+             ("weighted_max", "Weighted max (forced top)", GREEN, "v"),
              ("safegate_acwcm", "SAFE-Gate (ACWCM)", BLUE, "*")]
     ns = sorted({int(r["n_dissenting"]) for r in data})
     n_r1 = sum(1 for r in data if r["critical_tier"] == "R1" and int(r["n_dissenting"]) == ns[0])

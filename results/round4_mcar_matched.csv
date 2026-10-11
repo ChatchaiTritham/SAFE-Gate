@@ -1,0 +1,58 @@
+mcar_pct,method,coverage_pct,deferred_critical,sensitivity_among_decided_pct,false_discharges,own_abstention_pct
+10,SAFE-Gate ACWCM (v2),99.63,1,100.0,0,0.37
+10,SAFE-Gate ACWCM (v1),99.63,1,99.43,0,0.37
+10,SAFE-Gate MIN,99.63,1,100.0,0,0.37
+10,ACWCM fuzzy-quantifier trigger,99.63,1,100.0,0,0.37
+10,Dempster-Shafer,99.63,1,98.85,0,0.0
+10,Bayesian model averaging,99.63,1,98.28,0,0.0
+10,BMA min expected cost,99.63,1,100.0,0,0.0
+10,Sugeno (quantised additive capacity),99.63,1,86.21,0,0.0
+10,"Weighted max (forced top, original)",99.63,1,100.0,0,0.0
+10,Weighted max (normalised possibility),99.63,1,100.0,0,0.0
+10,"Ordinal OWA (k-th order statistic), k=2",99.63,1,99.43,0,0.0
+10,"Quantifier-guided OWA (Yager 1996, 'most')",99.63,1,89.08,0,0.0
+10,Band-clamped Sugeno integral,99.63,1,88.51,0,0.0
+10,Sugeno integral (trained symmetric capacity),99.63,1,99.43,0,0.0
+10,Prioritized aggregation (Yager 2008),99.63,1,88.51,0,0.0
+10,TSK fuzzy rule base (zero order),99.63,1,81.61,0,0.0
+10,XGBoost,99.63,1,90.8,16,0.0
+10,"XGBoost (safety threshold, val >=99%)",99.63,1,88.51,16,0.0
+10,Ordinal logistic regression,99.63,1,79.31,0,0.0
+20,SAFE-Gate ACWCM (v2),86.46,23,99.34,0,13.54
+20,SAFE-Gate ACWCM (v1),86.46,23,99.34,0,13.54
+20,SAFE-Gate MIN,86.46,23,99.34,0,13.54
+20,ACWCM fuzzy-quantifier trigger,86.46,23,99.34,0,13.54
+20,Dempster-Shafer,86.46,23,96.05,1,0.0
+20,Bayesian model averaging,86.46,23,91.45,1,0.0
+20,BMA min expected cost,86.46,23,99.34,0,0.0
+20,Sugeno (quantised additive capacity),86.46,23,68.42,0,0.0
+20,"Weighted max (forced top, original)",86.46,23,98.03,0,0.0
+20,Weighted max (normalised possibility),86.46,23,98.68,0,0.0
+20,"Ordinal OWA (k-th order statistic), k=2",86.46,23,96.05,0,0.0
+20,"Quantifier-guided OWA (Yager 1996, 'most')",86.46,23,76.97,0,0.0
+20,Band-clamped Sugeno integral,86.46,23,71.05,0,0.0
+20,Sugeno integral (trained symmetric capacity),86.46,23,96.05,0,0.0
+20,Prioritized aggregation (Yager 2008),86.46,23,78.95,1,0.0
+20,TSK fuzzy rule base (zero order),86.46,23,56.58,0,0.0
+20,XGBoost,86.46,23,84.87,23,0.0
+20,"XGBoost (safety threshold, val >=99%)",86.46,23,83.55,23,0.0
+20,Ordinal logistic regression,86.46,23,75.66,0,0.0
+30,SAFE-Gate ACWCM (v2),49.07,90,100.0,0,50.93
+30,SAFE-Gate ACWCM (v1),49.07,90,100.0,0,50.93
+30,SAFE-Gate MIN,49.07,90,100.0,0,50.93
+30,ACWCM fuzzy-quantifier trigger,49.07,90,100.0,0,50.93
+30,Dempster-Shafer,49.07,90,98.82,0,0.0
+30,Bayesian model averaging,49.07,90,92.94,0,0.0
+30,BMA min expected cost,49.07,90,100.0,0,0.0
+30,Sugeno (quantised additive capacity),49.07,90,52.94,0,0.0
+30,"Weighted max (forced top, original)",49.07,90,100.0,0,0.0
+30,Weighted max (normalised possibility),49.07,90,100.0,0,0.0
+30,"Ordinal OWA (k-th order statistic), k=2",49.07,90,98.82,0,0.0
+30,"Quantifier-guided OWA (Yager 1996, 'most')",49.07,90,68.24,0,0.0
+30,Band-clamped Sugeno integral,49.07,90,62.35,0,0.0
+30,Sugeno integral (trained symmetric capacity),49.07,90,98.82,0,0.0
+30,Prioritized aggregation (Yager 2008),49.07,90,81.18,0,0.0
+30,TSK fuzzy rule base (zero order),49.07,90,42.35,0,0.0
+30,XGBoost,49.07,90,80.0,17,0.0
+30,"XGBoost (safety threshold, val >=99%)",49.07,90,76.47,17,0.0
+30,Ordinal logistic regression,49.07,90,76.47,0,0.0
