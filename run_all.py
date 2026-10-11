@@ -626,6 +626,7 @@ def main():
                         "protocol_timestamp_utc": proto.get("timestamp_utc")},
         "acwcm": metric_block(test, acwcm),
         "acwcm_v1": metric_block(test, acwcm_v1),
+        "acwcm_any_dissent": metric_block(test, acwcm_any),
         "basic_min": metric_block(test, basic),
         "baselines": baselines,
         "ablation": abl,

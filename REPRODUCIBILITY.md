@@ -42,40 +42,41 @@ synthetic-data circularity disclosed as a limitation in the manuscript.
 Every truly critical case is kept at a critical tier, no critical case is routed to
 discharge, and all four formally specified invariants hold with zero violations.
 
-## Measured performance (point estimates, ACWCM, 805-case test split)
+## Calibration protocol
 
-| Metric | Basic MIN | ACWCM |
-|---|---|---|
-| Overall accuracy | 33.8% | 29.9% |
-| Macro F1 | — | 19.2% |
-| Discharge specificity (R5 recall) | 0.0% | 0.0% |
-| Over-triage rate | 66.2% | 42.2% |
-| Abstention rate | 0.0% | 0.0% |
+The gate calibration (v2) was selected on the training split by
+`scripts/select_calibration.py` (128 discrete profiles; hard constraints
+confirmed on validation) and recorded in `results/calibration_protocol.json`,
+committed before the test split was scored. `run_all.py` refuses to run if
+`src/calibration.py` disagrees with that file. The earlier calibration (v1) is
+reported as a sensitivity row.
 
-Per-tier recall (ACWCM): R1 100%, R2 0%, R3 0%, R4 86.9%, R5 0%.
+## Measured performance (805-case test split)
 
-These figures are reported as the genuine output of the released implementation.
-The conservative merging rule keeps every critical case critical (the design goal),
-but at the cost of pervasive over-triage: R2, R3 and R5 are seldom or never assigned,
-so discharge specificity is 0% and overall accuracy is low. The reproducible,
-defensible contribution is the **safety floor**, not high aggregate accuracy.
-
-## Comparison baselines (critical-tier sensitivity)
-
-| Method | Sensitivity | Missed critical | Accuracy |
+| Metric | Basic MIN | ACWCM (v2) | ACWCM (v1) |
 |---|---|---|---|
-| Arithmetic ensemble averaging | 28.0% | 126 | 35.2% |
-| Dempster–Shafer | 100.0% | 0 | 34.8% |
-| Bayesian model averaging | 98.9% | 2 | 42.2% |
-| Single XGBoost | 100.0% | 0 | 100.0% |
-| SAFE-Gate (ACWCM) | 100.0% | 0 | 29.9% |
+| Overall accuracy | 79.0% | 82.5% | 36.8% |
+| Macro F1 | 70.9% | 86.3% | 26.2% |
+| Discharge recall (R5) | 0.0% | 66.7% | 0.0% |
+| Over-triage | 21.0% | 6.2% | 42.2% |
+| Under-triage (all one tier) | 0.0% | 11.3% | 21.0% |
 
-On this internally consistent synthetic cohort, Dempster–Shafer also attains 100%
-critical sensitivity and the single XGBoost classifier separates the tiers almost
-perfectly — consistent with the manuscript's caution that synthetic class boundaries
-are sharper than real emergency-department records. The distinguishing property of
-the lattice approach is therefore the *formally guaranteed* zero-violation safety
-floor with per-case audit certificates, not empirical accuracy superiority.
+## Comparison baselines
+
+| Method | Sensitivity | Accuracy | Over-triage | Under-triage (>=2 tiers) |
+|---|---|---|---|---|
+| Arithmetic ensemble averaging | 28.0% | 35.2% | 13.7% | 51.2% (0) |
+| Dempster-Shafer | 100.0% | 83.2% | 5.7% | 11.1% (83) |
+| Bayesian model averaging | 100.0% | 87.7% | 0.0% | 12.3% (83) |
+| Sugeno integral (additive capacity) | 100.0% | 69.2% | 13.3% | 17.5% (0) |
+| Ordinal weighted maximum | 100.0% | 79.9% | 20.1% | 0.0% (0) |
+| Single XGBoost | 100.0% | 100.0% | 0.0% | 0.0% (0) |
+| SAFE-Gate (ACWCM) | 100.0% | 82.5% | 6.2% | 11.3% (0) |
+
+Also regenerated: conflicting-evidence enumeration (`results/conflicting_evidence.*`),
+exhaustive invariant enumeration (`results/invariant_enumeration.*`), stress tests
+(`results/stress_tests.*`: label noise, atypical presentations, MCAR missingness,
+independent generator), subgroup and age diagnostics. Runtime about one minute.
 
 ## Artifacts
 

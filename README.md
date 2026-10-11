@@ -16,11 +16,11 @@ The honest counterpart to the safety story is the cost of paying for it. Because
 
 All figures below come from `run_all.py` on the held-out 805-case test split (seed 42); the safety audit runs over the full 6,400-case cohort.
 
-- Critical-tier sensitivity (R1/R2) is 100.0% -- 175 of 175 critical cases retained, exact 95% CI 97.9-100.0% -- with zero false discharges and a false-negative rate of 0.0%.
-- All four safety properties (conservative preservation, abstention correctness, critical non-dilution, no false discharge) hold with 0 violations across 805 test cases and across all 6,400 generated cases.
-- The guarantee is bought with conservative over-triage: ACWCM overall accuracy is 29.9% and R5 discharge specificity is 0.0%; over-triage falls from 66.2% under plain minimum selection to 42.2% under ACWCM.
-- Against alternatives on the same split, arithmetic averaging misses 126 of 175 critical cases (28.0% sensitivity), while Dempster-Shafer keeps all critical cases (100.0% sensitivity, 34.8% accuracy) and a single gradient-boosted tree separates the deliberately sharp synthetic tiers almost perfectly (100.0% accuracy). The lattice contribution is the proven zero-violation floor, not aggregate accuracy.
-- Gate ablation leaves critical sensitivity at 100.0% under every single-gate removal; only removing the syndrome gate (G4) lets the merge reach the discharge tier (R5 specificity 90.7%), identifying G4 as the binding constraint on de-escalation.
+- Critical-tier sensitivity (R1/R2) is 100.0% -- 175 of 175 critical cases retained, exact 95% CI 97.9-100.0% -- with zero false discharges.
+- The safety invariants (conservative preservation, abstention correctness, critical non-dilution) hold with 0 violations on all 6,400 cases, on every stress-test input, and over an exhaustive enumeration of 93,312 gate-output profiles.
+- With the gate calibration selected on the training split (results/calibration_protocol.json), ACWCM reaches 82.5% accuracy, 6.2% over-triage, 66.7% discharge recall and 11.3% one-tier under-triage (v1 calibration: 36.8%, 42.2%, 0%, 21.0%).
+- Dempster-Shafer performs similarly on the clean cohort but demotes 83 cases by two tiers; across 980 conflicting-evidence configurations it dilutes the critical signal in 34.3%, the additive Sugeno integral in 53.9%, ACWCM in none.
+- Stress tests: under 30% MCAR missingness ACWCM abstains on 53.8% of cases and keeps every critical case; with 20% label noise or red flags and timing cues removed, true-tier critical sensitivity falls to 68.1% and 52.0%.
 
 Caveat: the cohort is synthetic and the tier boundaries are by design separable, which is why a plain tree scores so high on accuracy. The defensible claim here is the safety floor, not the leaderboard number.
 

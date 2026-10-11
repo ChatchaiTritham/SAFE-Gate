@@ -76,6 +76,26 @@
     "abstention_count": 0,
     "abstention_rate_pct": 0.0
   },
+  "acwcm_any_dissent": {
+    "accuracy_pct": 38.76,
+    "critical_sensitivity_pct": 100.0,
+    "critical_caught": 175,
+    "critical_total": 175,
+    "critical_sensitivity_ci95": [
+      97.91,
+      100.0
+    ],
+    "false_discharges": 0,
+    "false_negative_rate_pct": 0.0,
+    "discharge_specificity_R5_pct": 82.41,
+    "macro_f1_pct": 51.98,
+    "over_triage_rate_pct": 3.98,
+    "under_triage_count": 461,
+    "under_triage_rate_pct": 57.27,
+    "max_under_triage_depth": 1,
+    "abstention_count": 0,
+    "abstention_rate_pct": 0.0
+  },
   "basic_min": {
     "accuracy_pct": 79.01,
     "critical_sensitivity_pct": 100.0,
