@@ -40,6 +40,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from baselines.bayesian_model_avg import BayesianModelAveraging  # noqa: E402
 from baselines.dempster_shafer import DempsterShaferCombination  # noqa: E402
+from baselines.sugeno import SugenoAdditive, WeightedMax  # noqa: E402
+from calibration import V2  # noqa: E402
 from merging.conservative_merging import ConservativeMerging  # noqa: E402
 from merging.risk_lattice import RiskTier  # noqa: E402
 
@@ -53,6 +55,9 @@ C_BENIGN = [0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90]
 N_DISSENT = [1, 2, 3, 4, 5]
 CRIT_TIERS = ["R1", "R2"]
 BENIGN_TIERS = ["R4", "R5"]
+METHODS = ["dempster_shafer", "bayesian_model_avg",
+           "dempster_shafer_tie_benign", "bayesian_model_avg_tie_benign",
+           "arithmetic_average", "sugeno_additive", "weighted_max", "safegate_acwcm"]
 
 
 def arithmetic_average(outputs: dict[str, str], confs: dict[str, float]) -> str:
@@ -76,13 +81,15 @@ def tie_benign(scores: dict[str, float], tol: float = 1e-9) -> str:
 
 def acwcm(outputs: dict[str, str], confs: dict[str, float]) -> str:
     tiers = {g: RiskTier[t] for g, t in outputs.items()}
-    final, _enforcing, _audit = ConservativeMerging(mode="acwcm").merge(tiers, confs)
+    merger = ConservativeMerging(mode="acwcm", theta=V2["theta"], min_mass=V2["min_mass"])
+    final, _enforcing, _audit = merger.merge(tiers, confs)
     return str(final)
 
 
 def main() -> int:
     ds = DempsterShaferCombination()
     bma = BayesianModelAveraging()
+    sug, wmax = SugenoAdditive(), WeightedMax()
 
     rows = []
     for crit_tier, benign_tier, n_dis, c_crit, c_ben in product(
@@ -112,11 +119,11 @@ def main() -> int:
             "dempster_shafer_tie_benign": tie_benign(ds_res["beliefs"]),
             "bayesian_model_avg_tie_benign": tie_benign(bma_res["probabilities"]),
             "arithmetic_average": arithmetic_average(outputs, confs),
+            "sugeno_additive": sug.classify(outputs, confs)["final_tier"],
+            "weighted_max": wmax.classify(outputs, confs)["final_tier"],
             "safegate_acwcm": acwcm(outputs, confs),
         }
-        for method in ("dempster_shafer", "bayesian_model_avg",
-                       "dempster_shafer_tie_benign", "bayesian_model_avg_tie_benign",
-                       "arithmetic_average", "safegate_acwcm"):
+        for method in METHODS:
             result[f"{method}_dilutes"] = result[method] not in CRITICAL
         rows.append(result)
 
@@ -127,9 +134,7 @@ def main() -> int:
         w.writeheader()
         w.writerows(rows)
 
-    methods = ["dempster_shafer", "bayesian_model_avg",
-               "dempster_shafer_tie_benign", "bayesian_model_avg_tie_benign",
-               "arithmetic_average", "safegate_acwcm"]
+    methods = METHODS
     summary = {
         "n_configurations": len(rows),
         "grid": {

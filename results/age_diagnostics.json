@@ -1,0 +1,226 @@
+{
+  "age_mix_by_true_tier": [
+    {
+      "tier": "R1",
+      "n": 48,
+      "mean_age": 73.5,
+      "share_over_60_pct": 100.0
+    },
+    {
+      "tier": "R2",
+      "n": 127,
+      "mean_age": 70.8,
+      "share_over_60_pct": 85.8
+    },
+    {
+      "tier": "R3",
+      "n": 300,
+      "mean_age": 57.3,
+      "share_over_60_pct": 41.0
+    },
+    {
+      "tier": "R4",
+      "n": 222,
+      "mean_age": 49.4,
+      "share_over_60_pct": 19.4
+    },
+    {
+      "tier": "R5",
+      "n": 108,
+      "mean_age": 44.5,
+      "share_over_60_pct": 16.7
+    }
+  ],
+  "within_tier": [
+    {
+      "calibration": "v2",
+      "true_tier": "R1",
+      "group": "age > 60",
+      "n": 48,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    },
+    {
+      "calibration": "v2",
+      "true_tier": "R1",
+      "group": "age <= 60",
+      "n": 0,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    },
+    {
+      "calibration": "v2",
+      "true_tier": "R2",
+      "group": "age > 60",
+      "n": 109,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    },
+    {
+      "calibration": "v2",
+      "true_tier": "R2",
+      "group": "age <= 60",
+      "n": 18,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    },
+    {
+      "calibration": "v2",
+      "true_tier": "R3",
+      "group": "age > 60",
+      "n": 123,
+      "under_triaged": 27,
+      "under_triage_pct": 21.95
+    },
+    {
+      "calibration": "v2",
+      "true_tier": "R3",
+      "group": "age <= 60",
+      "n": 177,
+      "under_triaged": 64,
+      "under_triage_pct": 36.16
+    },
+    {
+      "calibration": "v2",
+      "true_tier": "R4",
+      "group": "age > 60",
+      "n": 43,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    },
+    {
+      "calibration": "v2",
+      "true_tier": "R4",
+      "group": "age <= 60",
+      "n": 179,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    },
+    {
+      "calibration": "v2",
+      "true_tier": "R5",
+      "group": "age > 60",
+      "n": 18,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    },
+    {
+      "calibration": "v2",
+      "true_tier": "R5",
+      "group": "age <= 60",
+      "n": 90,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    },
+    {
+      "calibration": "v1",
+      "true_tier": "R1",
+      "group": "age > 60",
+      "n": 48,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    },
+    {
+      "calibration": "v1",
+      "true_tier": "R1",
+      "group": "age <= 60",
+      "n": 0,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    },
+    {
+      "calibration": "v1",
+      "true_tier": "R2",
+      "group": "age > 60",
+      "n": 109,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    },
+    {
+      "calibration": "v1",
+      "true_tier": "R2",
+      "group": "age <= 60",
+      "n": 18,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    },
+    {
+      "calibration": "v1",
+      "true_tier": "R3",
+      "group": "age > 60",
+      "n": 123,
+      "under_triaged": 40,
+      "under_triage_pct": 32.52
+    },
+    {
+      "calibration": "v1",
+      "true_tier": "R3",
+      "group": "age <= 60",
+      "n": 177,
+      "under_triaged": 126,
+      "under_triage_pct": 71.19
+    },
+    {
+      "calibration": "v1",
+      "true_tier": "R4",
+      "group": "age > 60",
+      "n": 43,
+      "under_triaged": 1,
+      "under_triage_pct": 2.33
+    },
+    {
+      "calibration": "v1",
+      "true_tier": "R4",
+      "group": "age <= 60",
+      "n": 179,
+      "under_triaged": 2,
+      "under_triage_pct": 1.12
+    },
+    {
+      "calibration": "v1",
+      "true_tier": "R5",
+      "group": "age > 60",
+      "n": 18,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    },
+    {
+      "calibration": "v1",
+      "true_tier": "R5",
+      "group": "age <= 60",
+      "n": 90,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0
+    }
+  ],
+  "counterfactual_v2_without_G2_age_point": [
+    {
+      "calibration": "v2 without G2 age point (diagnostic only)",
+      "subgroup": "age > 60",
+      "n": 341,
+      "under_triaged": 40,
+      "under_triage_pct": 11.73,
+      "ci95_low_pct": 8.51,
+      "ci95_high_pct": 15.63,
+      "share_of_all_under_triage_pct": 38.46,
+      "over_triaged": 9,
+      "over_triage_pct": 2.64,
+      "ot_ci95_low_pct": 1.21,
+      "ot_ci95_high_pct": 4.95
+    },
+    {
+      "calibration": "v2 without G2 age point (diagnostic only)",
+      "subgroup": "age <= 60",
+      "n": 464,
+      "under_triaged": 64,
+      "under_triage_pct": 13.79,
+      "ci95_low_pct": 10.79,
+      "ci95_high_pct": 17.27,
+      "share_of_all_under_triage_pct": 61.54,
+      "over_triaged": 28,
+      "over_triage_pct": 6.03,
+      "ot_ci95_low_pct": 4.05,
+      "ot_ci95_high_pct": 8.6
+    }
+  ]
+}

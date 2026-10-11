@@ -166,7 +166,7 @@ def fig1_architecture():
             ha="center", va="center", fontsize=BODY_PT, fontweight="bold", color=ORANGE, zorder=4)
     phases = [("Phase 1", r"any $r_i \in \{R^*, R1\}$", r"return it ($R^*$ first)"),
               ("Phase 2", r"$r_{\min}$ = most cautious $r_i$", "safety floor (MIN)"),
-              ("Phase 3", "weighted-majority consensus", r"relax $\leq$1 tier; R2 held")]
+              ("Phase 3", "qualified-majority consensus", r"relax $\leq$1 tier; R2 held")]
     pw, pgap = 24.5, 2.5
     px0 = (100 - (3 * pw + 2 * pgap)) / 2
     for j, (head, l1, l2) in enumerate(phases):
@@ -239,13 +239,16 @@ def fig3_safety_tradeoff():
     spec = [("Arithmetic ensemble averaging", "Arithmetic averaging", GREY),
             ("Bayesian model averaging", "Bayesian model avg.", GREY),
             ("Dempster-Shafer", "Dempster–Shafer", GREY),
+            ("Sugeno integral (additive capacity)", "Sugeno (additive)", YELLOW),
+            ("Ordinal weighted maximum", "Ordinal weighted max", YELLOW),
             ("Single XGBoost", "Single XGBoost", GREY),
             ("Always-critical rule (R1)", "Always-critical (R1)", ORANGE),
             ("SAFE-Gate (MIN)", "SAFE-Gate (MIN)", SKY),
             ("SAFE-Gate (ACWCM, any-dissent trigger)", "ACWCM, any-dissent", SKY),
+            ("SAFE-Gate (ACWCM, v1 calibration)", "ACWCM, v1 calibration", SKY),
             ("SAFE-Gate (ACWCM)", "SAFE-Gate (ACWCM)", BLUE)]
     y = np.arange(len(spec))[::-1]
-    fig, axes = plt.subplots(1, 3, figsize=(W_IN, W_IN * 0.42), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(W_IN, W_IN * 0.50), sharey=True)
     titles = ("Critical-tier sensitivity (%)", "Over-triage (%)", "Under-triage (%)")
     for p, (ax, title) in enumerate(zip(axes, titles)):
         for (key, _, colour), yy in zip(spec, y):
@@ -309,7 +312,8 @@ def fig4_ablation():
             if abs(v - base) >= 5:
                 left = (v < base and v >= 20) or v >= 80
                 ax.text(v - 5 if left else v + 5, yy, f"{v:.1f}", fontsize=BODY_PT - 1,
-                        color=GREY, ha="right" if left else "left", va="center")
+                        color=GREY, ha="right" if left else "left", va="center", zorder=5,
+                        bbox=dict(boxstyle="square,pad=0.08", facecolor="white", edgecolor="none"))
         ax.set_xlim(0, 104)
         ax.set_xticks([0, 50, 100])
         ax.set_title(f"({'abcd'[p]}) {title}", pad=3)
@@ -327,6 +331,8 @@ def fig5_dilution():
     rules = [("arithmetic_average", "Arithmetic averaging", GREY, "o"),
              ("bayesian_model_avg", "Bayesian model avg.", YELLOW, "^"),
              ("dempster_shafer", "Dempster–Shafer", ORANGE, "s"),
+             ("sugeno_additive", "Sugeno (additive)", PINK, "D"),
+             ("weighted_max", "Ordinal weighted max", GREEN, "v"),
              ("safegate_acwcm", "SAFE-Gate (ACWCM)", BLUE, "*")]
     ns = sorted({int(r["n_dissenting"]) for r in data})
     n_r1 = sum(1 for r in data if r["critical_tier"] == "R1" and int(r["n_dissenting"]) == ns[0])
@@ -350,10 +356,61 @@ def fig5_dilution():
         _clean_axes(ax)
         ax.set_title(("(a) Share of configurations diluted", "(b) Life-threatening signal discharged")[p], pad=3)
     handles, labs = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labs, loc="upper center", ncol=4, frameon=False,
+    fig.legend(handles, labs, loc="upper center", ncol=3, frameon=False,
                bbox_to_anchor=(0.5, 1.0), handletextpad=0.4, columnspacing=1.0)
-    fig.tight_layout(pad=0.3, w_pad=1.6, rect=(0, 0, 1, 0.88))
+    fig.tight_layout(pad=0.3, w_pad=1.6, rect=(0, 0, 1, 0.84))
     save(fig, "fig5_dilution")
+
+
+# --------------------------------------------------------------------------
+def fig6_robustness():
+    """True-tier critical sensitivity (95% CI) and false discharges under stress."""
+    data = rows("stress_tests.csv")
+    scen = [("clean test split", "Clean"),
+            ("label noise 10%", "Label noise 10%"),
+            ("label noise 20%", "Label noise 20%"),
+            ("atypical critical (red flags removed)", "Atypical: no red flags"),
+            ("atypical critical (red flags and timing cues removed)", "Atypical: no flags, no timing"),
+            ("MCAR 20%", "Missing 20% (MCAR)"),
+            ("MCAR 30%", "Missing 30% (MCAR)"),
+            ("independent generator variant", "Independent generator")]
+    meths = [("SAFE-Gate (ACWCM, v2)", "SAFE-Gate (ACWCM)", BLUE, "*"),
+             ("SAFE-Gate (ACWCM, v1)", "ACWCM, v1 calibration", SKY, "o"),
+             ("Dempster-Shafer", "Dempster–Shafer", ORANGE, "s"),
+             ("Sugeno integral (additive capacity)", "Sugeno (additive)", PINK, "D"),
+             ("XGBoost (trained on clean train)", "XGBoost", GREY, "^")]
+    idx = {(r["scenario"], r["method"]): r for r in data}
+    y = np.arange(len(scen))[::-1]
+    off = np.linspace(0.30, -0.30, len(meths))
+    fig, axes = plt.subplots(1, 2, figsize=(W_IN, W_IN * 0.50), sharey=True,
+                             gridspec_kw={"width_ratios": [1.6, 1.0]})
+    for (key, lab, col, mk), dy in zip(meths, off):
+        xs, lo, hi, fd = [], [], [], []
+        for s_, _ in scen:
+            r = idx[(s_, key)]
+            xs.append(float(r["critical_sensitivity_pct"]))
+            lo.append(float(r["critical_ci95_low_pct"]))
+            hi.append(float(r["critical_ci95_high_pct"]))
+            fd.append(int(r["false_discharges"]))
+        xs, lo, hi = map(np.array, (xs, lo, hi))
+        kw = dict(marker=mk, color=col, markeredgecolor=INK, markeredgewidth=0.4,
+                  markersize=7 if mk == "*" else 4, linestyle="none", label=lab, zorder=3)
+        axes[0].errorbar(xs, y + dy, xerr=[xs - lo, hi - xs], ecolor=col, elinewidth=0.6,
+                         capsize=1.2, **kw)
+        axes[1].plot(fd, y + dy, **kw)
+    axes[0].set_xlim(-3, 103)
+    axes[0].set_xticks([0, 25, 50, 75, 100])
+    axes[0].set_title("(a) True-tier critical sensitivity (%)", pad=3)
+    axes[1].set_title("(b) False discharges (count)", pad=3)
+    axes[0].set_yticks(y)
+    axes[0].set_yticklabels([lab for _, lab in scen])
+    for ax in axes:
+        _clean_axes(ax, "x")
+    handles, labs = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labs, loc="upper center", ncol=5, frameon=False,
+               bbox_to_anchor=(0.5, 1.0), handletextpad=0.3, columnspacing=0.8)
+    fig.tight_layout(pad=0.3, w_pad=1.2, rect=(0, 0, 1, 0.90))
+    save(fig, "fig6_robustness")
 
 
 def main():
@@ -363,7 +420,8 @@ def main():
     fig3_safety_tradeoff()
     fig4_ablation()
     fig5_dilution()
-    print("five manuscript figures at %.0f pt, 8 pt floor" % TEXT_PT)
+    fig6_robustness()
+    print("six manuscript figures at %.0f pt, 8 pt floor" % TEXT_PT)
 
 
 if __name__ == "__main__":

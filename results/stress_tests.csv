@@ -1,0 +1,89 @@
+scenario,method,n,n_critical,critical_sensitivity_pct,critical_ci95_low_pct,critical_ci95_high_pct,false_discharges,abstention_pct,accuracy_pct_decided,over_triage_pct_decided,under_triage_pct_decided,cases_with_abstaining_gate,invariant_violations
+clean test split,"SAFE-Gate (ACWCM, v2)",805,175,100.0,97.91,100.0,0,0.0,82.48,6.21,11.3,0,0
+clean test split,"SAFE-Gate (ACWCM, v1)",805,175,100.0,97.91,100.0,0,0.0,36.77,42.24,20.99,,
+clean test split,Dempster-Shafer,805,175,100.0,97.91,100.0,0,0.0,83.23,5.71,11.06,0,12
+clean test split,Bayesian model averaging,805,175,100.0,97.91,100.0,0,0.0,87.7,0.0,12.3,0,13
+clean test split,Sugeno integral (additive capacity),805,175,100.0,97.91,100.0,0,0.0,69.19,13.29,17.52,0,13
+clean test split,Ordinal weighted maximum,805,175,100.0,97.91,100.0,0,0.0,79.88,20.12,0.0,0,7
+clean test split,Arithmetic ensemble averaging,805,175,28.0,21.49,35.27,0,0.0,35.16,13.66,51.18,,
+clean test split,XGBoost (trained on clean train),805,175,100.0,97.91,100.0,0,0.0,100.0,0.0,0.0,,
+label noise 5%,"SAFE-Gate (ACWCM, v2)",805,181,93.37,88.71,96.53,0,0.0,79.5,7.7,12.8,0,0
+label noise 5%,"SAFE-Gate (ACWCM, v1)",805,181,93.92,89.39,96.93,0,0.0,35.65,42.48,21.86,,
+label noise 5%,Dempster-Shafer,805,181,93.37,88.71,96.53,2,0.0,80.12,7.08,12.8,0,12
+label noise 5%,Bayesian model averaging,805,181,92.82,88.03,96.12,2,0.0,84.1,1.61,14.29,0,13
+label noise 5%,Sugeno integral (additive capacity),805,181,92.82,88.03,96.12,0,0.0,66.34,14.78,18.88,0,13
+label noise 5%,Ordinal weighted maximum,805,181,93.37,88.71,96.53,0,0.0,76.77,21.37,1.86,0,7
+label noise 5%,Arithmetic ensemble averaging,805,181,26.52,20.25,33.58,0,0.0,34.29,14.91,50.81,,
+label noise 5%,XGBoost (trained on clean train),805,181,92.82,88.03,96.12,2,0.0,95.4,2.24,2.36,,
+label noise 10%,"SAFE-Gate (ACWCM, v2)",805,194,85.57,79.82,90.19,1,0.0,74.53,9.94,15.53,0,0
+label noise 10%,"SAFE-Gate (ACWCM, v1)",805,194,88.66,83.34,92.76,0,0.0,34.16,42.24,23.6,,
+label noise 10%,Dempster-Shafer,805,194,85.05,79.24,89.75,5,0.0,75.03,9.32,15.65,0,12
+label noise 10%,Bayesian model averaging,805,194,85.05,79.24,89.75,4,0.0,79.01,3.98,17.02,0,13
+label noise 10%,Sugeno integral (additive capacity),805,194,85.05,79.24,89.75,0,0.0,62.36,16.27,21.37,0,13
+label noise 10%,Ordinal weighted maximum,805,194,85.57,79.82,90.19,0,0.0,72.55,22.61,4.84,0,7
+label noise 10%,Arithmetic ensemble averaging,805,194,24.74,18.84,31.43,0,0.0,33.17,15.4,51.43,,
+label noise 10%,XGBoost (trained on clean train),805,194,85.05,79.24,89.75,2,0.0,90.43,4.35,5.22,,
+label noise 20%,"SAFE-Gate (ACWCM, v2)",805,216,68.06,61.39,74.22,8,0.0,65.71,13.42,20.87,0,0
+label noise 20%,"SAFE-Gate (ACWCM, v1)",805,216,73.61,67.2,79.36,0,0.0,32.05,41.74,26.21,,
+label noise 20%,Dempster-Shafer,805,216,73.15,66.71,78.93,20,0.0,67.2,13.04,19.75,0,12
+label noise 20%,Bayesian model averaging,805,216,67.59,60.91,73.78,20,0.0,69.44,8.45,22.11,0,13
+label noise 20%,Sugeno integral (additive capacity),805,216,67.59,60.91,73.78,0,0.0,56.02,18.76,25.22,0,13
+label noise 20%,Ordinal weighted maximum,805,216,68.06,61.39,74.22,0,0.0,64.84,24.47,10.68,0,7
+label noise 20%,Arithmetic ensemble averaging,805,216,18.52,13.57,24.35,0,0.0,31.43,16.77,51.8,,
+label noise 20%,XGBoost (trained on clean train),805,216,67.59,60.91,73.78,12,0.0,78.76,9.19,12.05,,
+atypical critical (red flags removed),"SAFE-Gate (ACWCM, v2)",175,175,100.0,97.91,100.0,0,0.0,100.0,0.0,0.0,0,0
+atypical critical (red flags removed),"SAFE-Gate (ACWCM, v1)",175,175,100.0,97.91,100.0,0,0.0,100.0,0.0,0.0,,
+atypical critical (red flags removed),Dempster-Shafer,175,175,100.0,97.91,100.0,0,0.0,100.0,0.0,0.0,0,0
+atypical critical (red flags removed),Bayesian model averaging,175,175,98.29,95.07,99.65,0,0.0,98.29,0.0,1.71,0,3
+atypical critical (red flags removed),Sugeno integral (additive capacity),175,175,0.0,0.0,2.09,0,0.0,0.0,0.0,100.0,0,175
+atypical critical (red flags removed),Ordinal weighted maximum,175,175,100.0,97.91,100.0,0,0.0,100.0,0.0,0.0,0,0
+atypical critical (red flags removed),Arithmetic ensemble averaging,175,175,0.0,0.0,2.09,0,0.0,0.0,0.0,100.0,,
+atypical critical (red flags removed),XGBoost (trained on clean train),175,175,100.0,97.91,100.0,0,0.0,100.0,0.0,0.0,,
+atypical critical (red flags and timing cues removed),"SAFE-Gate (ACWCM, v2)",175,175,52.0,44.33,59.6,0,0.0,34.29,0.0,65.71,0,0
+atypical critical (red flags and timing cues removed),"SAFE-Gate (ACWCM, v1)",175,175,80.57,73.92,86.15,0,0.0,56.57,0.0,43.43,,
+atypical critical (red flags and timing cues removed),Dempster-Shafer,175,175,0.0,0.0,2.09,0,0.0,0.0,0.0,100.0,0,91
+atypical critical (red flags and timing cues removed),Bayesian model averaging,175,175,0.0,0.0,2.09,0,0.0,0.0,0.0,100.0,0,91
+atypical critical (red flags and timing cues removed),Sugeno integral (additive capacity),175,175,0.0,0.0,2.09,0,0.0,0.0,0.0,100.0,0,91
+atypical critical (red flags and timing cues removed),Ordinal weighted maximum,175,175,26.29,19.93,33.46,0,0.0,14.29,0.0,85.71,0,45
+atypical critical (red flags and timing cues removed),Arithmetic ensemble averaging,175,175,0.0,0.0,2.09,0,0.0,0.0,0.0,100.0,,
+atypical critical (red flags and timing cues removed),XGBoost (trained on clean train),175,175,0.0,0.0,2.09,0,0.0,0.0,0.0,100.0,,
+spurious red flag in R4/R5,"SAFE-Gate (ACWCM, v2)",330,0,,,,0,0.0,0.0,100.0,0.0,0,0
+spurious red flag in R4/R5,"SAFE-Gate (ACWCM, v1)",330,0,,,,0,0.0,0.0,100.0,0.0,,
+spurious red flag in R4/R5,Dempster-Shafer,330,0,,,,0,0.0,10.91,89.09,0.0,0,37
+spurious red flag in R4/R5,Bayesian model averaging,330,0,,,,0,0.0,52.42,47.58,0.0,0,213
+spurious red flag in R4/R5,Sugeno integral (additive capacity),330,0,,,,0,0.0,27.58,72.42,0.0,0,330
+spurious red flag in R4/R5,Ordinal weighted maximum,330,0,,,,0,0.0,0.0,100.0,0.0,0,0
+spurious red flag in R4/R5,Arithmetic ensemble averaging,330,0,,,,0,0.0,63.94,36.06,0.0,,
+spurious red flag in R4/R5,XGBoost (trained on clean train),330,0,,,,0,0.0,100.0,0.0,0.0,,
+MCAR 10%,"SAFE-Gate (ACWCM, v2)",805,175,100.0,97.91,100.0,0,0.25,79.7,7.6,12.7,2,0
+MCAR 10%,"SAFE-Gate (ACWCM, v1)",805,175,100.0,97.91,100.0,0,0.25,38.61,40.22,21.17,,
+MCAR 10%,Dempster-Shafer,805,175,99.43,96.86,99.99,1,0.0,78.76,3.6,17.64,2,14
+MCAR 10%,Bayesian model averaging,805,175,97.14,93.46,99.07,1,0.0,81.12,0.62,18.26,2,18
+MCAR 10%,Sugeno integral (additive capacity),805,175,88.57,82.9,92.88,0,0.0,64.72,13.29,21.99,2,33
+MCAR 10%,Ordinal weighted maximum,805,175,99.43,96.86,99.99,0,0.0,79.63,20.0,0.37,2,12
+MCAR 10%,Arithmetic ensemble averaging,805,175,26.86,20.45,34.07,0,0.0,33.91,13.79,52.3,,
+MCAR 10%,XGBoost (trained on clean train),805,175,92.0,86.94,95.56,14,0.0,96.27,1.12,2.61,,
+MCAR 20%,"SAFE-Gate (ACWCM, v2)",805,175,100.0,97.91,100.0,0,13.42,73.6,11.91,14.49,108,0
+MCAR 20%,"SAFE-Gate (ACWCM, v1)",805,175,99.43,96.86,99.99,0,13.42,41.32,37.45,21.23,,
+MCAR 20%,Dempster-Shafer,805,175,96.0,91.93,98.38,1,0.0,71.55,4.47,23.98,108,114
+MCAR 20%,Bayesian model averaging,805,175,92.0,86.94,95.56,1,0.0,72.8,0.62,26.58,108,122
+MCAR 20%,Sugeno integral (additive capacity),805,175,66.29,58.76,73.24,0,0.0,59.88,13.42,26.71,108,160
+MCAR 20%,Ordinal weighted maximum,805,175,100.0,97.91,100.0,0,0.0,72.92,26.71,0.37,108,110
+MCAR 20%,Arithmetic ensemble averaging,805,175,22.86,16.86,29.8,0,0.0,34.29,13.79,51.93,,
+MCAR 20%,XGBoost (trained on clean train),805,175,77.14,70.2,83.14,40,0.0,86.96,3.35,9.69,,
+MCAR 30%,"SAFE-Gate (ACWCM, v2)",805,175,100.0,97.91,100.0,0,53.79,73.66,12.63,13.71,433,0
+MCAR 30%,"SAFE-Gate (ACWCM, v1)",805,175,99.43,96.86,99.99,0,53.79,38.17,42.74,19.09,,
+MCAR 30%,Dempster-Shafer,805,175,91.43,86.26,95.12,3,0.0,70.19,3.6,26.21,433,437
+MCAR 30%,Bayesian model averaging,805,175,88.57,82.9,92.88,3,0.0,72.3,0.12,27.58,433,439
+MCAR 30%,Sugeno integral (additive capacity),805,175,59.43,51.76,66.77,0,0.0,62.36,14.66,22.98,433,470
+MCAR 30%,Ordinal weighted maximum,805,175,97.71,94.25,99.37,0,0.0,53.66,44.22,2.11,433,435
+MCAR 30%,Arithmetic ensemble averaging,805,175,18.29,12.86,24.82,0,0.0,31.18,13.66,55.16,,
+MCAR 30%,XGBoost (trained on clean train),805,175,66.29,58.76,73.24,59,0.0,79.75,6.21,14.04,,
+independent generator variant,"SAFE-Gate (ACWCM, v2)",2000,500,93.2,90.63,95.25,0,0.0,54.1,28.55,17.35,0,0
+independent generator variant,"SAFE-Gate (ACWCM, v1)",2000,500,94.0,91.55,95.92,0,0.0,35.7,47.75,16.55,,
+independent generator variant,Dempster-Shafer,2000,500,83.6,80.06,86.74,6,0.0,49.9,23.65,26.45,0,111
+independent generator variant,Bayesian model averaging,2000,500,76.8,72.85,80.43,5,0.0,53.05,16.0,30.95,0,198
+independent generator variant,Sugeno integral (additive capacity),2000,500,54.8,50.32,59.22,0,0.0,46.55,21.6,31.85,0,451
+independent generator variant,Ordinal weighted maximum,2000,500,90.2,87.25,92.66,0,0.0,50.05,39.45,10.5,0,49
+independent generator variant,Arithmetic ensemble averaging,2000,500,22.8,19.19,26.73,0,0.0,35.2,20.4,44.4,,
+independent generator variant,XGBoost (trained on clean train),2000,500,39.6,35.29,44.04,0,0.0,48.05,24.25,27.7,,

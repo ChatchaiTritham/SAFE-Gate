@@ -1,0 +1,9 @@
+rule,n_inputs,n_monotonicity_pairs,CP_violations,AC_violations,CND_violations,R1D_violations,MON_violations,IDEM_violations
+SAFE-Gate ACWCM (v2),93312,150000,0,0,0,0,0,0
+SAFE-Gate ACWCM (v1),93312,150000,0,0,0,0,0,0
+SAFE-Gate MIN,93312,150000,0,0,0,0,0,0
+Sugeno integral (additive capacity),93312,150000,19641,62062,24264,10,0,0
+Ordinal weighted maximum,93312,150000,1679,62062,2646,0,0,0
+Dempster-Shafer,93312,150000,15220,62062,16410,6181,13476,0
+Bayesian model averaging,93312,150000,15739,62062,16940,7389,9616,0
+Weighted arithmetic mean,93312,150000,19713,62062,23289,1,0,0

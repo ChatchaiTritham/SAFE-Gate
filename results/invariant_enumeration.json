@@ -1,0 +1,110 @@
+{
+  "profiles": {
+    "homogeneous": {
+      "G1": 0.8,
+      "G2": 0.8,
+      "G3": 0.8,
+      "G4": 0.8,
+      "G5": 0.8,
+      "G6": 0.8
+    },
+    "heterogeneous": {
+      "G1": 0.9,
+      "G2": 0.5,
+      "G3": 0.7,
+      "G4": 0.6,
+      "G5": 0.8,
+      "G6": 0.4
+    }
+  },
+  "rows": [
+    {
+      "rule": "SAFE-Gate ACWCM (v2)",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 0,
+      "AC_violations": 0,
+      "CND_violations": 0,
+      "R1D_violations": 0,
+      "MON_violations": 0,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "SAFE-Gate ACWCM (v1)",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 0,
+      "AC_violations": 0,
+      "CND_violations": 0,
+      "R1D_violations": 0,
+      "MON_violations": 0,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "SAFE-Gate MIN",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 0,
+      "AC_violations": 0,
+      "CND_violations": 0,
+      "R1D_violations": 0,
+      "MON_violations": 0,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "Sugeno integral (additive capacity)",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 19641,
+      "AC_violations": 62062,
+      "CND_violations": 24264,
+      "R1D_violations": 10,
+      "MON_violations": 0,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "Ordinal weighted maximum",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 1679,
+      "AC_violations": 62062,
+      "CND_violations": 2646,
+      "R1D_violations": 0,
+      "MON_violations": 0,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "Dempster-Shafer",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 15220,
+      "AC_violations": 62062,
+      "CND_violations": 16410,
+      "R1D_violations": 6181,
+      "MON_violations": 13476,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "Bayesian model averaging",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 15739,
+      "AC_violations": 62062,
+      "CND_violations": 16940,
+      "R1D_violations": 7389,
+      "MON_violations": 9616,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "Weighted arithmetic mean",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 19713,
+      "AC_violations": 62062,
+      "CND_violations": 23289,
+      "R1D_violations": 1,
+      "MON_violations": 0,
+      "IDEM_violations": 0
+    }
+  ]
+}

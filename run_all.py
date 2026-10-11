@@ -4,11 +4,20 @@ SAFE-Gate end-to-end reproducible evaluation driver.
 
 Single entry point that:
   1. Regenerates the seeded synthetic cohort (seed=42, 6,400 cases, 52 features).
-  2. Classifies the held-out test split with SAFE-Gate (ACWCM and basic MIN).
-  3. Runs the four comparison fusion baselines (arithmetic ensemble averaging,
-     Dempster-Shafer, Bayesian model averaging, single XGBoost).
-  4. Verifies the formal safety properties on the test split.
-  5. Writes every headline artifact to results/ as committed CSV / JSON.
+  2. Checks that the gate calibration in src/calibration.py (v2) is the one
+     recorded in results/calibration_protocol.json, which was selected on the
+     training split by scripts/select_calibration.py before any test run.
+  3. Classifies the held-out test split with SAFE-Gate (ACWCM and basic MIN,
+     calibration v2; ACWCM with the earlier v1 calibration as a sensitivity row).
+  4. Runs the comparison fusion baselines (arithmetic ensemble averaging,
+     Dempster-Shafer, Bayesian model averaging, two Sugeno-integral rules on
+     the risk chain, single XGBoost).
+  5. Verifies the formal safety properties, runs the ablation, paired tests,
+     subgroup analysis, the conflicting-evidence and invariant enumerations
+     and the robustness / stress tests.
+  6. Writes every headline artifact to results/ as committed CSV / JSON.
+
+Runtime: about 4-6 minutes on a laptop CPU (the stress tests dominate).
 
 The pipeline is fully deterministic: data generation is seeded, gate inference is
 seeded per case, and no metric is hardcoded. Re-running reproduces byte-identical
@@ -37,6 +46,13 @@ from safegate import SAFEGate  # noqa: E402
 from baselines.ensemble_average import EnsembleAverage  # noqa: E402
 from baselines.dempster_shafer import DempsterShaferCombination  # noqa: E402
 from baselines.bayesian_model_avg import BayesianModelAveraging  # noqa: E402
+from baselines.sugeno import SugenoAdditive, WeightedMax  # noqa: E402
+from calibration import V1, V2  # noqa: E402
+
+sys.path.insert(0, str(ROOT / "scripts"))
+import conflicting_evidence  # noqa: E402
+import invariant_enumeration  # noqa: E402
+import stress_tests  # noqa: E402
 
 SEED = 42
 N_TOTAL = 6400
@@ -190,26 +206,36 @@ def run_bma(gate_io):
     return preds
 
 
-def run_xgboost(train, test):
-    """Single gradient-boosted tree on the encoded feature matrix."""
+def run_sugeno(gate_io, rule):
+    return [rule.classify(o, c)["final_tier"] for o, c in gate_io]
+
+
+def fit_xgboost(train):
+    """Single gradient-boosted tree on the encoded feature matrix.
+
+    Returns a predictor that also accepts cases with missing features (absent
+    keys are encoded as NaN, which XGBoost routes natively)."""
     try:
         from xgboost import XGBClassifier
     except Exception:
         return None
+    import hashlib
 
     def encode(rows):
         X = []
         for r in rows:
             vec = []
             for f in FEATURE_SCHEMA:
-                v = r[f]
-                if isinstance(v, bool):
+                v = r.get(f)
+                if v is None:
+                    vec.append(np.nan)
+                elif isinstance(v, bool):
                     vec.append(1.0 if v else 0.0)
                 elif isinstance(v, (int, float)):
                     vec.append(float(v))
                 else:
                     # Stable categorical hashing into a small numeric code.
-                    vec.append(float(int(__import__("hashlib").sha256(str(v).encode()).hexdigest()[:6], 16) % 997))
+                    vec.append(float(int(hashlib.sha256(str(v).encode()).hexdigest()[:6], 16) % 997))
             X.append(vec)
         return np.asarray(X, dtype=float)
 
@@ -220,8 +246,7 @@ def run_xgboost(train, test):
         num_class=len(TIERS), objective="multi:softmax",
     )
     clf.fit(encode(train), y_train)
-    pred_idx = clf.predict(encode(test))
-    return [TIERS[int(i)] for i in pred_idx]
+    return lambda cases: [TIERS[int(i)] for i in clf.predict(encode(cases))]
 
 
 def baseline_row(name, cases, preds):
@@ -326,9 +351,13 @@ def paired_tests(cases, reference, others):
 # --------------------------------------------------------------------------- #
 # Under-triage by subgroup (age, sex) and by true tier
 # --------------------------------------------------------------------------- #
-def subgroup_under_triage(cases, preds):
+def subgroup_triage(cases, preds, calibration_label):
+    """Under- and over-triage by age, sex and true tier, with exact 95% CIs."""
     def ut(c, p):
         return TIER_IDX.get(p, -1) > TIER_IDX[c["ground_truth_tier"]]
+
+    def ot(c, p):
+        return p in TIERS and TIER_IDX[p] < TIER_IDX[c["ground_truth_tier"]]
     groups = [
         ("age > 60", lambda c: c["age"] > 60),
         ("age <= 60", lambda c: c["age"] <= 60),
@@ -339,9 +368,11 @@ def subgroup_under_triage(cases, preds):
     rows = []
     for name, f in groups:
         idx = [i for i, c in enumerate(cases) if f(c)]
-        k = sum(ut(cases[i], preds[i]) for i in idx)
         n = len(idx)
+        k = sum(ut(cases[i], preds[i]) for i in idx)
+        o = sum(ot(cases[i], preds[i]) for i in idx)
         rows.append({
+            "calibration": calibration_label,
             "subgroup": name,
             "n": n,
             "under_triaged": k,
@@ -349,8 +380,46 @@ def subgroup_under_triage(cases, preds):
             "ci95_low_pct": round(100 * clopper_pearson_lower(k, n), 2) if n else 0.0,
             "ci95_high_pct": round(100 * clopper_pearson_upper(k, n), 2) if n else 0.0,
             "share_of_all_under_triage_pct": round(100 * k / total_ut, 2) if total_ut else 0.0,
+            "over_triaged": o,
+            "over_triage_pct": round(100 * o / n, 2) if n else 0.0,
+            "ot_ci95_low_pct": round(100 * clopper_pearson_lower(o, n), 2) if n else 0.0,
+            "ot_ci95_high_pct": round(100 * clopper_pearson_upper(o, n), 2) if n else 0.0,
         })
     return rows
+
+
+def age_diagnostics(cases, preds_by_cal):
+    """Decompose the age gap in under-triage: cohort composition vs. rule.
+
+    Reports the age mix of each true tier, and under-triage by age within each
+    true tier, for every calibration in preds_by_cal. If the gap vanishes
+    within tiers, it is a composition effect of the generator's tier-specific
+    age distributions; if it persists within a tier, a gate rule treats ages
+    differently there."""
+    out = {"age_mix_by_true_tier": [], "within_tier": []}
+    for t in TIERS:
+        ages = [c["age"] for c in cases if c["ground_truth_tier"] == t]
+        out["age_mix_by_true_tier"].append({
+            "tier": t, "n": len(ages), "mean_age": round(float(np.mean(ages)), 1),
+            "share_over_60_pct": round(100 * sum(a > 60 for a in ages) / len(ages), 1)})
+    for cal, preds in preds_by_cal.items():
+        for t in TIERS:
+            for grp, f in (("age > 60", lambda a: a > 60), ("age <= 60", lambda a: a <= 60)):
+                idx = [i for i, c in enumerate(cases) if c["ground_truth_tier"] == t and f(c["age"])]
+                k = sum(TIER_IDX.get(preds[i], -1) > TIER_IDX[t] for i in idx)
+                n = len(idx)
+                out["within_tier"].append({
+                    "calibration": cal, "true_tier": t, "group": grp, "n": n, "under_triaged": k,
+                    "under_triage_pct": round(100 * k / n, 2) if n else 0.0})
+    # Diagnostic counterfactual (NOT adopted): v2 with G2's age > 60 point set
+    # to zero, to measure how much of the remaining gap that point explains.
+    sg = SAFEGate()
+    sg.gates["G2"].demographic_weights["age_over_60"] = 0.0
+    cf = [sg.classify(c, return_audit_trail=False, return_certificate=False)["final_tier"]
+          for c in cases]
+    out["counterfactual_v2_without_G2_age_point"] = subgroup_triage(
+        cases, cf, "v2 without G2 age point (diagnostic only)")[:2]
+    return out
 
 
 # --------------------------------------------------------------------------- #
@@ -423,63 +492,125 @@ def verify_properties(cases, calibration="v2"):
 # --------------------------------------------------------------------------- #
 # Main
 # --------------------------------------------------------------------------- #
+def metric_block(cases, preds):
+    conf, abst = confusion(cases, preds)
+    rows = tier_metrics(conf)
+    kept, total = critical_sensitivity(cases, preds)
+    return {
+        "accuracy_pct": round(100 * accuracy(conf), 2),
+        "critical_sensitivity_pct": round(100 * kept / total, 2),
+        "critical_caught": kept,
+        "critical_total": total,
+        "critical_sensitivity_ci95": [round(100 * clopper_pearson_lower(kept, total), 2), 100.0
+                                      if kept == total else round(100 * clopper_pearson_upper(kept, total), 2)],
+        "false_discharges": false_discharges(cases, preds),
+        "false_negative_rate_pct": round(100 * (total - kept) / total, 4),
+        "discharge_specificity_R5_pct": round(100 * next(r["recall"] for r in rows if r["tier"] == "R5"), 2),
+        "macro_f1_pct": round(100 * float(np.mean([r["f1"] for r in rows])), 2),
+        "over_triage_rate_pct": round(100 * over_triage_rate(conf), 2),
+        "under_triage_count": under_triage(conf)[0],
+        "under_triage_rate_pct": round(100 * under_triage(conf)[0] / len(cases), 2),
+        "max_under_triage_depth": under_triage(conf)[2],
+        "abstention_count": abst,
+        "abstention_rate_pct": round(100 * abst / len(cases), 2),
+    }
+
+
+def headline_rates(cases, named_preds):
+    """Counts and exact 95% CIs of the rates quoted in the manuscript text."""
+    out = {}
+    for name, preds in named_preds:
+        ind = _indicators(cases, preds)
+        r5 = [i for i, c in enumerate(cases) if c["ground_truth_tier"] == DISCHARGE]
+        block = {}
+        for key, xs, n in (("over_triage", sum(ind["over_triage"]), len(cases)),
+                           ("under_triage", sum(ind["under_triage"]), len(cases)),
+                           ("accuracy", sum(ind["correct"]), len(cases)),
+                           ("discharge_recall_R5", sum(preds[i] == DISCHARGE for i in r5), len(r5))):
+            block[key] = {"count": int(xs), "n": n, "pct": round(100 * xs / n, 2),
+                          "ci95_pct": [round(100 * clopper_pearson_lower(xs, n), 2),
+                                       round(100 * clopper_pearson_upper(xs, n), 2)]}
+        out[name] = block
+    return out
+
+
+def check_calibration():
+    """The test split may only be evaluated with the profile committed in the
+    calibration protocol (selected on train/validation)."""
+    proto = json.loads((RESULTS / "calibration_protocol.json").read_text(encoding="utf-8"))
+    sel = proto["selected"]
+    assert all(abs(sel[k] - V2[k]) < 1e-12 if isinstance(V2[k], float) else sel[k] == V2[k]
+               for k in V2), "src/calibration.py V2 differs from results/calibration_protocol.json"
+    return proto
+
+
 def main():
-    print("[1/5] Regenerating seeded synthetic cohort ...")
+    print("[1/7] Regenerating seeded synthetic cohort ...")
     gen = SAFEGateDataGenerator(n_total=N_TOTAL, random_state=SEED)
     all_cases, train, val, test, written = gen.save(DATA)
     print(f"      cohort={len(all_cases)}  train={len(train)}  val={len(val)}  test={len(test)}")
-    print(f"      features per case = {len(FEATURE_SCHEMA)}")
+    proto = check_calibration()
+    print(f"      calibration v2 = {V2} (protocol {proto.get('timestamp_utc', 'unstamped')})")
 
-    print("[2/5] Classifying test split with SAFE-Gate (ACWCM + MIN) ...")
+    print("[2/7] Classifying test split with SAFE-Gate (v2 ACWCM + MIN, v1 ACWCM) ...")
     acwcm = classify_safegate(test, "acwcm")
     acwcm_any = classify_safegate(test, "acwcm", trigger="any_dissent")
     basic = classify_safegate(test, "min")
-    # Validation-split check of the a-priori trigger thresholds (reported, not tuned).
+    acwcm_v1 = classify_safegate(test, "acwcm", calibration="v1")
     val_rows = [baseline_row("SAFE-Gate (ACWCM)", val, classify_safegate(val, "acwcm")),
-                baseline_row("SAFE-Gate (ACWCM, any-dissent trigger)", val,
-                             classify_safegate(val, "acwcm", trigger="any_dissent"))]
+                baseline_row("SAFE-Gate (ACWCM, v1 calibration)", val,
+                             classify_safegate(val, "acwcm", calibration="v1"))]
 
     conf_acwcm, abstain_acwcm = confusion(test, acwcm)
-    conf_basic, abstain_basic = confusion(test, basic)
     rows_acwcm = tier_metrics(conf_acwcm)
-    rows_basic = tier_metrics(conf_basic)
 
-    kept, crit_total = critical_sensitivity(test, acwcm)
-    cs_lo = clopper_pearson_lower(kept, crit_total)
-    macro_f1 = float(np.mean([r["f1"] for r in rows_acwcm]))
-
-    print("[3/5] Running fusion baselines (ensemble / DS / BMA / XGBoost) ...")
+    print("[3/7] Running fusion baselines ...")
     gate_io = gate_outputs_for(test)
     ens = run_ensemble(test)
     ds = run_ds(gate_io)
     bma = run_bma(gate_io)
-    xgb = run_xgboost(train, test)
+    sug = run_sugeno(gate_io, SugenoAdditive())
+    wmax = run_sugeno(gate_io, WeightedMax())
+    xgb_predict = fit_xgboost(train)
+    xgb = xgb_predict(test) if xgb_predict else None
 
     baselines = [
         baseline_row("Arithmetic ensemble averaging", test, ens),
         baseline_row("Dempster-Shafer", test, ds),
         baseline_row("Bayesian model averaging", test, bma),
+        baseline_row("Sugeno integral (additive capacity)", test, sug),
+        baseline_row("Ordinal weighted maximum", test, wmax),
     ]
     if xgb is not None:
         baselines.append(baseline_row("Single XGBoost", test, xgb))
-    # Trivial reference: escalate every case to the most critical tier. It attains
-    # perfect critical sensitivity by construction, so any safety claim must beat
-    # it on over-triage, not on sensitivity.
+    # Trivial reference: escalate every case to the most critical tier.
     baselines.append(baseline_row("Always-critical rule (R1)", test, ["R1"] * len(test)))
     baselines.append(baseline_row("SAFE-Gate (MIN)", test, basic))
     baselines.append(baseline_row("SAFE-Gate (ACWCM, any-dissent trigger)", test, acwcm_any))
+    baselines.append(baseline_row("SAFE-Gate (ACWCM, v1 calibration)", test, acwcm_v1))
     baselines.append(baseline_row("SAFE-Gate (ACWCM)", test, acwcm))
 
-    print("[4/5] Verifying formal safety properties + ablation ...")
+    print("[4/7] Verifying formal safety properties + ablation + paired tests ...")
     props = verify_properties(test)
     props_all = verify_properties(all_cases)
     abl = ablation(test)
-    paired = paired_tests(test, acwcm, [("MIN", basic), ("Dempster-Shafer", ds),
+    paired = paired_tests(test, acwcm, [("Dempster-Shafer", ds), ("MIN", basic),
+                                         ("Sugeno integral", sug), ("v1 calibration", acwcm_v1),
                                          ("any-dissent trigger", acwcm_any)])
-    subgroups = subgroup_under_triage(test, acwcm)
+    subgroups = subgroup_triage(test, acwcm, "v2") + subgroup_triage(test, acwcm_v1, "v1")
+    age_diag = age_diagnostics(test, {"v2": acwcm, "v1": acwcm_v1})
+    headline = headline_rates(test, [("ACWCM", acwcm), ("MIN", basic), ("Dempster-Shafer", ds),
+                                     ("ACWCM v1", acwcm_v1), ("any-dissent", acwcm_any),
+                                     ("Sugeno additive", sug), ("weighted max", wmax),
+                                     ("BMA", bma)])
 
-    # ---- assemble summary ----
-    n_test = sum(sum(conf_acwcm[t].values()) for t in TIERS) + abstain_acwcm
+    print("[5/7] Conflicting-evidence and invariant enumerations ...")
+    conflicting_evidence.main()
+    inv_rows = invariant_enumeration.main()
+
+    print("[6/7] Robustness / stress tests ...")
+    stress_rows = stress_tests.run(test, xgb_predict)
+
     summary = {
         "seed": SEED,
         "cohort": {
@@ -490,45 +621,29 @@ def main():
             "n_features": len(FEATURE_SCHEMA),
             "tier_distribution_test": {t: sum(conf_acwcm[t].values()) for t in TIERS},
         },
-        "acwcm": {
-            "accuracy_pct": round(100 * accuracy(conf_acwcm), 2),
-            "critical_sensitivity_pct": round(100 * kept / crit_total, 2),
-            "critical_caught": kept,
-            "critical_total": crit_total,
-            "critical_sensitivity_ci95": [round(100 * cs_lo, 2), 100.0],
-            "false_discharges": false_discharges(test, acwcm),
-            "false_negative_rate_pct": round(100 * (crit_total - kept) / crit_total, 4),
-            "discharge_specificity_R5_pct": next(r["recall"] for r in rows_acwcm if r["tier"] == "R5") * 100,
-            "macro_f1_pct": round(100 * macro_f1, 2),
-            "over_triage_rate_pct": round(100 * over_triage_rate(conf_acwcm), 2),
-            "under_triage_count": under_triage(conf_acwcm)[0],
-            "under_triage_rate_pct": round(100 * under_triage(conf_acwcm)[0] / len(test), 2),
-            "max_under_triage_depth": under_triage(conf_acwcm)[2],
-            "abstention_count": abstain_acwcm,
-            "abstention_rate_pct": round(100 * abstain_acwcm / n_test, 2),
-        },
-        "basic_min": {
-            "accuracy_pct": round(100 * accuracy(conf_basic), 2),
-            "macro_f1_pct": round(100 * float(np.mean([r["f1"] for r in rows_basic])), 2),
-            "discharge_specificity_R5_pct": next(r["recall"] for r in rows_basic if r["tier"] == "R5") * 100,
-            "over_triage_rate_pct": round(100 * over_triage_rate(conf_basic), 2),
-            "under_triage_rate_pct": round(100 * under_triage(conf_basic)[0] / len(test), 2),
-        },
+        "calibration": {"v2": V2, "v1": V1,
+                        "protocol": "results/calibration_protocol.json",
+                        "protocol_timestamp_utc": proto.get("timestamp_utc")},
+        "acwcm": metric_block(test, acwcm),
+        "acwcm_v1": metric_block(test, acwcm_v1),
+        "basic_min": metric_block(test, basic),
         "baselines": baselines,
         "ablation": abl,
         "paired_tests": paired,
-        "subgroup_under_triage": subgroups,
+        "headline_rates": headline,
+        "subgroup_triage": subgroups,
+        "age_diagnostics": age_diag,
         "validation_check": val_rows,
-        "acwcm_trigger": {"rule": "consensus", "theta": 0.5, "min_mass": 0.5,
-                          "provenance": "fixed a priori; validation split reported as a check, not tuned"},
+        "acwcm_trigger": {"rule": "consensus", "theta": V2["theta"], "min_mass": V2["min_mass"],
+                          "provenance": "selected with the gate calibration on the training split"},
         "safety_properties": props,
         "safety_properties_all_cases": props_all,
+        "invariant_enumeration": inv_rows,
     }
 
-    print("[5/5] Writing committed artifacts to results/ ...")
+    print("[7/7] Writing committed artifacts to results/ ...")
     RESULTS.mkdir(exist_ok=True)
 
-    # confusion matrix (ACWCM)
     with (RESULTS / "confusion_matrix.csv").open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["true\\pred"] + TIERS + ["support"])
@@ -537,44 +652,25 @@ def main():
         w.writerow(["total_predicted"] + [sum(conf_acwcm[r][p] for r in TIERS) for p in TIERS]
                    + [sum(sum(conf_acwcm[t].values()) for t in TIERS)])
 
-    # per-tier metrics (ACWCM)
-    with (RESULTS / "tier_metrics.csv").open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows_acwcm[0]))
-        w.writeheader()
-        w.writerows(rows_acwcm)
-
-    # baseline comparison
-    with (RESULTS / "baseline_comparison.csv").open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=list(baselines[0]))
-        w.writeheader()
-        w.writerows(baselines)
-
-    # ablation
-    with (RESULTS / "ablation.csv").open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=list(abl[0]))
-        w.writeheader()
-        w.writerows(abl)
-
-    for name, rows_ in (("paired_tests.csv", paired), ("subgroup_under_triage.csv", subgroups)):
+    for name, rows_ in (("tier_metrics.csv", rows_acwcm), ("baseline_comparison.csv", baselines),
+                        ("ablation.csv", abl), ("paired_tests.csv", paired),
+                        ("subgroup_under_triage.csv", subgroups)):
         with (RESULTS / name).open("w", newline="", encoding="utf-8") as f:
             w = csv.DictWriter(f, fieldnames=list(rows_[0]))
             w.writeheader()
             w.writerows(rows_)
 
-    # theorem / property verification
+    (RESULTS / "age_diagnostics.json").write_text(json.dumps(age_diag, indent=2), encoding="utf-8")
     (RESULTS / "theorem_verification.json").write_text(
         json.dumps({"test_split": props, "all_cases": props_all}, indent=2), encoding="utf-8")
-
-    # master summary
     (RESULTS / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-
-    # overwrite the previously broken figure summary with the real numbers
     fig_dir = ROOT / "evaluation" / "figures"
     fig_dir.mkdir(parents=True, exist_ok=True)
     (fig_dir / "performance_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
 
     print("\n" + "=" * 70)
-    print(json.dumps(summary, indent=2))
+    print(json.dumps({k: summary[k] for k in ("acwcm", "acwcm_v1", "calibration")}, indent=2))
+    print(f"stress-test rows: {len(stress_rows)}")
     print("=" * 70)
 
 

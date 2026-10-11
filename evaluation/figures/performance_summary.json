@@ -14,7 +14,49 @@
       "R5": 108
     }
   },
+  "calibration": {
+    "v2": {
+      "g1_graded": true,
+      "g4_central_only": true,
+      "g5_age": false,
+      "g5_cap": 3,
+      "vacuous_negatives": true,
+      "theta": 0.5,
+      "min_mass": 0.6666666666666666
+    },
+    "v1": {
+      "g1_graded": false,
+      "g4_central_only": false,
+      "g5_age": true,
+      "g5_cap": null,
+      "vacuous_negatives": false,
+      "theta": 0.5,
+      "min_mass": 0.5
+    },
+    "protocol": "results/calibration_protocol.json",
+    "protocol_timestamp_utc": "2026-10-11T09:01:59Z"
+  },
   "acwcm": {
+    "accuracy_pct": 82.48,
+    "critical_sensitivity_pct": 100.0,
+    "critical_caught": 175,
+    "critical_total": 175,
+    "critical_sensitivity_ci95": [
+      97.91,
+      100.0
+    ],
+    "false_discharges": 0,
+    "false_negative_rate_pct": 0.0,
+    "discharge_specificity_R5_pct": 66.67,
+    "macro_f1_pct": 86.32,
+    "over_triage_rate_pct": 6.21,
+    "under_triage_count": 91,
+    "under_triage_rate_pct": 11.3,
+    "max_under_triage_depth": 1,
+    "abstention_count": 0,
+    "abstention_rate_pct": 0.0
+  },
+  "acwcm_v1": {
     "accuracy_pct": 36.77,
     "critical_sensitivity_pct": 100.0,
     "critical_caught": 175,
@@ -35,11 +77,24 @@
     "abstention_rate_pct": 0.0
   },
   "basic_min": {
-    "accuracy_pct": 33.79,
-    "macro_f1_pct": 20.06,
+    "accuracy_pct": 79.01,
+    "critical_sensitivity_pct": 100.0,
+    "critical_caught": 175,
+    "critical_total": 175,
+    "critical_sensitivity_ci95": [
+      97.91,
+      100.0
+    ],
+    "false_discharges": 0,
+    "false_negative_rate_pct": 0.0,
     "discharge_specificity_R5_pct": 0.0,
-    "over_triage_rate_pct": 66.21,
-    "under_triage_rate_pct": 0.0
+    "macro_f1_pct": 70.91,
+    "over_triage_rate_pct": 20.99,
+    "under_triage_count": 0,
+    "under_triage_rate_pct": 0.0,
+    "max_under_triage_depth": 0,
+    "abstention_count": 0,
+    "abstention_rate_pct": 0.0
   },
   "baselines": [
     {
@@ -63,26 +118,54 @@
       "critical_total": 175,
       "missed_critical": 0,
       "discharge_specificity_R5": 100.0,
-      "accuracy": 34.78,
+      "accuracy": 83.23,
       "false_discharges": 0,
-      "over_triage": 27.95,
-      "under_triage": 37.27,
-      "under_triage_2plus_tiers": 300,
+      "over_triage": 5.71,
+      "under_triage": 11.06,
+      "under_triage_2plus_tiers": 83,
       "max_under_triage_depth": 2
     },
     {
       "method": "Bayesian model averaging",
-      "critical_sensitivity": 98.86,
-      "critical_caught": 173,
+      "critical_sensitivity": 100.0,
+      "critical_caught": 175,
       "critical_total": 175,
-      "missed_critical": 2,
+      "missed_critical": 0,
       "discharge_specificity_R5": 100.0,
-      "accuracy": 42.24,
-      "false_discharges": 2,
+      "accuracy": 87.7,
+      "false_discharges": 0,
       "over_triage": 0.0,
-      "under_triage": 57.76,
-      "under_triage_2plus_tiers": 243,
-      "max_under_triage_depth": 3
+      "under_triage": 12.3,
+      "under_triage_2plus_tiers": 83,
+      "max_under_triage_depth": 2
+    },
+    {
+      "method": "Sugeno integral (additive capacity)",
+      "critical_sensitivity": 100.0,
+      "critical_caught": 175,
+      "critical_total": 175,
+      "missed_critical": 0,
+      "discharge_specificity_R5": 0.93,
+      "accuracy": 69.19,
+      "false_discharges": 0,
+      "over_triage": 13.29,
+      "under_triage": 17.52,
+      "under_triage_2plus_tiers": 0,
+      "max_under_triage_depth": 1
+    },
+    {
+      "method": "Ordinal weighted maximum",
+      "critical_sensitivity": 100.0,
+      "critical_caught": 175,
+      "critical_total": 175,
+      "missed_critical": 0,
+      "discharge_specificity_R5": 0.0,
+      "accuracy": 79.88,
+      "false_discharges": 0,
+      "over_triage": 20.12,
+      "under_triage": 0.0,
+      "under_triage_2plus_tiers": 0,
+      "max_under_triage_depth": 0
     },
     {
       "method": "Single XGBoost",
@@ -119,9 +202,9 @@
       "critical_total": 175,
       "missed_critical": 0,
       "discharge_specificity_R5": 0.0,
-      "accuracy": 33.79,
+      "accuracy": 79.01,
       "false_discharges": 0,
-      "over_triage": 66.21,
+      "over_triage": 20.99,
       "under_triage": 0.0,
       "under_triage_2plus_tiers": 0,
       "max_under_triage_depth": 0
@@ -132,16 +215,16 @@
       "critical_caught": 175,
       "critical_total": 175,
       "missed_critical": 0,
-      "discharge_specificity_R5": 0.0,
-      "accuracy": 29.94,
+      "discharge_specificity_R5": 82.41,
+      "accuracy": 38.76,
       "false_discharges": 0,
-      "over_triage": 42.24,
-      "under_triage": 27.83,
+      "over_triage": 3.98,
+      "under_triage": 57.27,
       "under_triage_2plus_tiers": 0,
       "max_under_triage_depth": 1
     },
     {
-      "method": "SAFE-Gate (ACWCM)",
+      "method": "SAFE-Gate (ACWCM, v1 calibration)",
       "critical_sensitivity": 100.0,
       "critical_caught": 175,
       "critical_total": 175,
@@ -153,6 +236,20 @@
       "under_triage": 20.99,
       "under_triage_2plus_tiers": 0,
       "max_under_triage_depth": 1
+    },
+    {
+      "method": "SAFE-Gate (ACWCM)",
+      "critical_sensitivity": 100.0,
+      "critical_caught": 175,
+      "critical_total": 175,
+      "missed_critical": 0,
+      "discharge_specificity_R5": 66.67,
+      "accuracy": 82.48,
+      "false_discharges": 0,
+      "over_triage": 6.21,
+      "under_triage": 11.3,
+      "under_triage_2plus_tiers": 0,
+      "max_under_triage_depth": 1
     }
   ],
   "ablation": [
@@ -160,11 +257,11 @@
       "configuration": "Full ACWCM (6 gates)",
       "critical_sensitivity_pct": 100.0,
       "missed_critical": 0,
-      "discharge_specificity_R5_pct": 0.0,
-      "over_triage_pct": 42.2,
-      "macro_f1_pct": 26.2,
-      "accuracy_pct": 36.8,
-      "under_triage_pct": 21.0,
+      "discharge_specificity_R5_pct": 66.7,
+      "over_triage_pct": 6.2,
+      "macro_f1_pct": 86.3,
+      "accuracy_pct": 82.5,
+      "under_triage_pct": 11.3,
       "under_triage_2plus_tiers": 0,
       "delta_f1": 0.0
     },
@@ -172,256 +269,1027 @@
       "configuration": "-G1",
       "critical_sensitivity_pct": 100.0,
       "missed_critical": 0,
-      "discharge_specificity_R5_pct": 0.0,
-      "over_triage_pct": 26.6,
-      "macro_f1_pct": 54.9,
-      "accuracy_pct": 56.8,
-      "under_triage_pct": 16.6,
+      "discharge_specificity_R5_pct": 66.7,
+      "over_triage_pct": 6.2,
+      "macro_f1_pct": 86.3,
+      "accuracy_pct": 82.5,
+      "under_triage_pct": 11.3,
       "under_triage_2plus_tiers": 0,
-      "delta_f1": 28.7
+      "delta_f1": 0.0
     },
     {
       "configuration": "-G2",
       "critical_sensitivity_pct": 100.0,
       "missed_critical": 0,
-      "discharge_specificity_R5_pct": 0.0,
-      "over_triage_pct": 41.1,
-      "macro_f1_pct": 27.6,
-      "accuracy_pct": 38.6,
-      "under_triage_pct": 20.2,
+      "discharge_specificity_R5_pct": 89.8,
+      "over_triage_pct": 1.4,
+      "macro_f1_pct": 96.3,
+      "accuracy_pct": 95.0,
+      "under_triage_pct": 3.6,
       "under_triage_2plus_tiers": 0,
-      "delta_f1": 1.4
+      "delta_f1": 10.0
     },
     {
       "configuration": "-G3",
       "critical_sensitivity_pct": 100.0,
       "missed_critical": 0,
-      "discharge_specificity_R5_pct": 0.0,
-      "over_triage_pct": 42.4,
-      "macro_f1_pct": 29.8,
-      "accuracy_pct": 41.0,
-      "under_triage_pct": 16.6,
+      "discharge_specificity_R5_pct": 66.7,
+      "over_triage_pct": 6.2,
+      "macro_f1_pct": 86.3,
+      "accuracy_pct": 82.5,
+      "under_triage_pct": 11.3,
       "under_triage_2plus_tiers": 0,
-      "delta_f1": 3.6
+      "delta_f1": 0.0
     },
     {
       "configuration": "-G4",
       "critical_sensitivity_pct": 100.0,
       "missed_critical": 0,
-      "discharge_specificity_R5_pct": 90.7,
-      "over_triage_pct": 27.7,
-      "macro_f1_pct": 22.3,
-      "accuracy_pct": 22.9,
-      "under_triage_pct": 49.4,
+      "discharge_specificity_R5_pct": 92.6,
+      "over_triage_pct": 3.1,
+      "macro_f1_pct": 97.1,
+      "accuracy_pct": 96.9,
+      "under_triage_pct": 0.0,
       "under_triage_2plus_tiers": 0,
-      "delta_f1": -3.9
+      "delta_f1": 10.8
     },
     {
       "configuration": "-G5",
       "critical_sensitivity_pct": 100.0,
       "missed_critical": 0,
-      "discharge_specificity_R5_pct": 0.0,
-      "over_triage_pct": 33.3,
-      "macro_f1_pct": 22.1,
-      "accuracy_pct": 33.9,
-      "under_triage_pct": 32.8,
+      "discharge_specificity_R5_pct": 2.8,
+      "over_triage_pct": 15.4,
+      "macro_f1_pct": 75.4,
+      "accuracy_pct": 84.6,
+      "under_triage_pct": 0.0,
       "under_triage_2plus_tiers": 0,
-      "delta_f1": -4.1
+      "delta_f1": -10.9
     },
     {
       "configuration": "-G6",
       "critical_sensitivity_pct": 100.0,
       "missed_critical": 0,
-      "discharge_specificity_R5_pct": 0.0,
-      "over_triage_pct": 42.4,
-      "macro_f1_pct": 20.1,
-      "accuracy_pct": 30.7,
-      "under_triage_pct": 27.0,
+      "discharge_specificity_R5_pct": 0.9,
+      "over_triage_pct": 17.6,
+      "macro_f1_pct": 60.8,
+      "accuracy_pct": 64.8,
+      "under_triage_pct": 17.5,
       "under_triage_2plus_tiers": 0,
-      "delta_f1": -6.1
+      "delta_f1": -25.5
     },
     {
       "configuration": "-G1-G4",
       "critical_sensitivity_pct": 100.0,
       "missed_critical": 0,
-      "discharge_specificity_R5_pct": 90.7,
-      "over_triage_pct": 11.9,
-      "macro_f1_pct": 54.2,
-      "accuracy_pct": 45.0,
-      "under_triage_pct": 43.1,
+      "discharge_specificity_R5_pct": 92.6,
+      "over_triage_pct": 3.1,
+      "macro_f1_pct": 97.1,
+      "accuracy_pct": 96.9,
+      "under_triage_pct": 0.0,
       "under_triage_2plus_tiers": 0,
-      "delta_f1": 28.0
+      "delta_f1": 10.8
     }
   ],
   "paired_tests": [
     {
+      "comparison": "ACWCM vs Dempster-Shafer",
+      "outcome": "correct",
+      "acwcm_rate_pct": 82.48,
+      "other_rate_pct": 83.23,
+      "acwcm_only": 52,
+      "other_only": 58,
+      "mcnemar_exact_p": 0.634
+    },
+    {
+      "comparison": "ACWCM vs Dempster-Shafer",
+      "outcome": "over_triage",
+      "acwcm_rate_pct": 6.21,
+      "other_rate_pct": 5.71,
+      "acwcm_only": 48,
+      "other_only": 44,
+      "mcnemar_exact_p": 0.755
+    },
+    {
+      "comparison": "ACWCM vs Dempster-Shafer",
+      "outcome": "under_triage",
+      "acwcm_rate_pct": 11.3,
+      "other_rate_pct": 11.06,
+      "acwcm_only": 12,
+      "other_only": 10,
+      "mcnemar_exact_p": 0.832
+    },
+    {
       "comparison": "ACWCM vs MIN",
       "outcome": "correct",
-      "acwcm_rate_pct": 36.77,
-      "other_rate_pct": 33.79,
-      "acwcm_only": 193,
-      "other_only": 169,
-      "mcnemar_exact_p": 0.227
+      "acwcm_rate_pct": 82.48,
+      "other_rate_pct": 79.01,
+      "acwcm_only": 119,
+      "other_only": 91,
+      "mcnemar_exact_p": 0.0622
     },
     {
       "comparison": "ACWCM vs MIN",
       "outcome": "over_triage",
-      "acwcm_rate_pct": 42.24,
-      "other_rate_pct": 66.21,
+      "acwcm_rate_pct": 6.21,
+      "other_rate_pct": 20.99,
       "acwcm_only": 0,
-      "other_only": 193,
-      "mcnemar_exact_p": 1.59e-58
+      "other_only": 119,
+      "mcnemar_exact_p": 3.01e-36
     },
     {
       "comparison": "ACWCM vs MIN",
       "outcome": "under_triage",
-      "acwcm_rate_pct": 20.99,
+      "acwcm_rate_pct": 11.3,
       "other_rate_pct": 0.0,
-      "acwcm_only": 169,
+      "acwcm_only": 91,
       "other_only": 0,
-      "mcnemar_exact_p": 2.67e-51
+      "mcnemar_exact_p": 8.08e-28
     },
     {
-      "comparison": "ACWCM vs Dempster-Shafer",
+      "comparison": "ACWCM vs Sugeno integral",
       "outcome": "correct",
-      "acwcm_rate_pct": 36.77,
-      "other_rate_pct": 34.78,
-      "acwcm_only": 248,
-      "other_only": 232,
-      "mcnemar_exact_p": 0.494
+      "acwcm_rate_pct": 82.48,
+      "other_rate_pct": 69.19,
+      "acwcm_only": 122,
+      "other_only": 15,
+      "mcnemar_exact_p": 5.07e-22
     },
     {
-      "comparison": "ACWCM vs Dempster-Shafer",
+      "comparison": "ACWCM vs Sugeno integral",
       "outcome": "over_triage",
-      "acwcm_rate_pct": 42.24,
-      "other_rate_pct": 27.95,
-      "acwcm_only": 311,
-      "other_only": 196,
-      "mcnemar_exact_p": 3.7e-07
+      "acwcm_rate_pct": 6.21,
+      "other_rate_pct": 13.29,
+      "acwcm_only": 15,
+      "other_only": 72,
+      "mcnemar_exact_p": 4.26e-10
     },
     {
-      "comparison": "ACWCM vs Dempster-Shafer",
+      "comparison": "ACWCM vs Sugeno integral",
       "outcome": "under_triage",
-      "acwcm_rate_pct": 20.99,
-      "other_rate_pct": 37.27,
-      "acwcm_only": 3,
-      "other_only": 134,
-      "mcnemar_exact_p": 4.92e-36
+      "acwcm_rate_pct": 11.3,
+      "other_rate_pct": 17.52,
+      "acwcm_only": 0,
+      "other_only": 50,
+      "mcnemar_exact_p": 1.78e-15
     },
     {
-      "comparison": "ACWCM vs any-dissent trigger",
+      "comparison": "ACWCM vs v1 calibration",
       "outcome": "correct",
-      "acwcm_rate_pct": 36.77,
-      "other_rate_pct": 29.94,
-      "acwcm_only": 55,
-      "other_only": 0,
-      "mcnemar_exact_p": 5.55e-17
+      "acwcm_rate_pct": 82.48,
+      "other_rate_pct": 36.77,
+      "acwcm_only": 370,
+      "other_only": 2,
+      "mcnemar_exact_p": 1.44e-107
     },
     {
-      "comparison": "ACWCM vs any-dissent trigger",
+      "comparison": "ACWCM vs v1 calibration",
       "outcome": "over_triage",
-      "acwcm_rate_pct": 42.24,
+      "acwcm_rate_pct": 6.21,
       "other_rate_pct": 42.24,
       "acwcm_only": 0,
+      "other_only": 290,
+      "mcnemar_exact_p": 1.01e-87
+    },
+    {
+      "comparison": "ACWCM vs v1 calibration",
+      "outcome": "under_triage",
+      "acwcm_rate_pct": 11.3,
+      "other_rate_pct": 20.99,
+      "acwcm_only": 6,
+      "other_only": 84,
+      "mcnemar_exact_p": 1.08e-18
+    },
+    {
+      "comparison": "ACWCM vs any-dissent trigger",
+      "outcome": "correct",
+      "acwcm_rate_pct": 82.48,
+      "other_rate_pct": 38.76,
+      "acwcm_only": 370,
+      "other_only": 18,
+      "mcnemar_exact_p": 1.39e-86
+    },
+    {
+      "comparison": "ACWCM vs any-dissent trigger",
+      "outcome": "over_triage",
+      "acwcm_rate_pct": 6.21,
+      "other_rate_pct": 3.98,
+      "acwcm_only": 18,
       "other_only": 0,
-      "mcnemar_exact_p": 1.0
+      "mcnemar_exact_p": 7.63e-06
     },
     {
       "comparison": "ACWCM vs any-dissent trigger",
       "outcome": "under_triage",
-      "acwcm_rate_pct": 20.99,
-      "other_rate_pct": 27.83,
+      "acwcm_rate_pct": 11.3,
+      "other_rate_pct": 57.27,
       "acwcm_only": 0,
-      "other_only": 55,
-      "mcnemar_exact_p": 5.55e-17
+      "other_only": 370,
+      "mcnemar_exact_p": 8.32e-112
     }
   ],
-  "subgroup_under_triage": [
+  "headline_rates": {
+    "ACWCM": {
+      "over_triage": {
+        "count": 50,
+        "n": 805,
+        "pct": 6.21,
+        "ci95_pct": [
+          4.64,
+          8.11
+        ]
+      },
+      "under_triage": {
+        "count": 91,
+        "n": 805,
+        "pct": 11.3,
+        "ci95_pct": [
+          9.2,
+          13.7
+        ]
+      },
+      "accuracy": {
+        "count": 664,
+        "n": 805,
+        "pct": 82.48,
+        "ci95_pct": [
+          79.68,
+          85.05
+        ]
+      },
+      "discharge_recall_R5": {
+        "count": 72,
+        "n": 108,
+        "pct": 66.67,
+        "ci95_pct": [
+          56.95,
+          75.45
+        ]
+      }
+    },
+    "MIN": {
+      "over_triage": {
+        "count": 169,
+        "n": 805,
+        "pct": 20.99,
+        "ci95_pct": [
+          18.23,
+          23.97
+        ]
+      },
+      "under_triage": {
+        "count": 0,
+        "n": 805,
+        "pct": 0.0,
+        "ci95_pct": [
+          0.0,
+          0.46
+        ]
+      },
+      "accuracy": {
+        "count": 636,
+        "n": 805,
+        "pct": 79.01,
+        "ci95_pct": [
+          76.03,
+          81.77
+        ]
+      },
+      "discharge_recall_R5": {
+        "count": 0,
+        "n": 108,
+        "pct": 0.0,
+        "ci95_pct": [
+          0.0,
+          3.36
+        ]
+      }
+    },
+    "Dempster-Shafer": {
+      "over_triage": {
+        "count": 46,
+        "n": 805,
+        "pct": 5.71,
+        "ci95_pct": [
+          4.21,
+          7.55
+        ]
+      },
+      "under_triage": {
+        "count": 89,
+        "n": 805,
+        "pct": 11.06,
+        "ci95_pct": [
+          8.97,
+          13.43
+        ]
+      },
+      "accuracy": {
+        "count": 670,
+        "n": 805,
+        "pct": 83.23,
+        "ci95_pct": [
+          80.47,
+          85.75
+        ]
+      },
+      "discharge_recall_R5": {
+        "count": 108,
+        "n": 108,
+        "pct": 100.0,
+        "ci95_pct": [
+          96.64,
+          100.0
+        ]
+      }
+    },
+    "ACWCM v1": {
+      "over_triage": {
+        "count": 340,
+        "n": 805,
+        "pct": 42.24,
+        "ci95_pct": [
+          38.8,
+          45.73
+        ]
+      },
+      "under_triage": {
+        "count": 169,
+        "n": 805,
+        "pct": 20.99,
+        "ci95_pct": [
+          18.23,
+          23.97
+        ]
+      },
+      "accuracy": {
+        "count": 296,
+        "n": 805,
+        "pct": 36.77,
+        "ci95_pct": [
+          33.43,
+          40.21
+        ]
+      },
+      "discharge_recall_R5": {
+        "count": 0,
+        "n": 108,
+        "pct": 0.0,
+        "ci95_pct": [
+          0.0,
+          3.36
+        ]
+      }
+    },
+    "any-dissent": {
+      "over_triage": {
+        "count": 32,
+        "n": 805,
+        "pct": 3.98,
+        "ci95_pct": [
+          2.73,
+          5.57
+        ]
+      },
+      "under_triage": {
+        "count": 461,
+        "n": 805,
+        "pct": 57.27,
+        "ci95_pct": [
+          53.77,
+          60.71
+        ]
+      },
+      "accuracy": {
+        "count": 312,
+        "n": 805,
+        "pct": 38.76,
+        "ci95_pct": [
+          35.38,
+          42.22
+        ]
+      },
+      "discharge_recall_R5": {
+        "count": 89,
+        "n": 108,
+        "pct": 82.41,
+        "ci95_pct": [
+          73.9,
+          89.06
+        ]
+      }
+    },
+    "Sugeno additive": {
+      "over_triage": {
+        "count": 107,
+        "n": 805,
+        "pct": 13.29,
+        "ci95_pct": [
+          11.02,
+          15.83
+        ]
+      },
+      "under_triage": {
+        "count": 141,
+        "n": 805,
+        "pct": 17.52,
+        "ci95_pct": [
+          14.95,
+          20.32
+        ]
+      },
+      "accuracy": {
+        "count": 557,
+        "n": 805,
+        "pct": 69.19,
+        "ci95_pct": [
+          65.87,
+          72.37
+        ]
+      },
+      "discharge_recall_R5": {
+        "count": 1,
+        "n": 108,
+        "pct": 0.93,
+        "ci95_pct": [
+          0.02,
+          5.05
+        ]
+      }
+    },
+    "weighted max": {
+      "over_triage": {
+        "count": 162,
+        "n": 805,
+        "pct": 20.12,
+        "ci95_pct": [
+          17.41,
+          23.06
+        ]
+      },
+      "under_triage": {
+        "count": 0,
+        "n": 805,
+        "pct": 0.0,
+        "ci95_pct": [
+          0.0,
+          0.46
+        ]
+      },
+      "accuracy": {
+        "count": 643,
+        "n": 805,
+        "pct": 79.88,
+        "ci95_pct": [
+          76.94,
+          82.59
+        ]
+      },
+      "discharge_recall_R5": {
+        "count": 0,
+        "n": 108,
+        "pct": 0.0,
+        "ci95_pct": [
+          0.0,
+          3.36
+        ]
+      }
+    },
+    "BMA": {
+      "over_triage": {
+        "count": 0,
+        "n": 805,
+        "pct": 0.0,
+        "ci95_pct": [
+          0.0,
+          0.46
+        ]
+      },
+      "under_triage": {
+        "count": 99,
+        "n": 805,
+        "pct": 12.3,
+        "ci95_pct": [
+          10.11,
+          14.77
+        ]
+      },
+      "accuracy": {
+        "count": 706,
+        "n": 805,
+        "pct": 87.7,
+        "ci95_pct": [
+          85.23,
+          89.89
+        ]
+      },
+      "discharge_recall_R5": {
+        "count": 108,
+        "n": 108,
+        "pct": 100.0,
+        "ci95_pct": [
+          96.64,
+          100.0
+        ]
+      }
+    }
+  },
+  "subgroup_triage": [
     {
+      "calibration": "v2",
       "subgroup": "age > 60",
       "n": 341,
-      "under_triaged": 41,
-      "under_triage_pct": 12.02,
-      "ci95_low_pct": 8.77,
-      "ci95_high_pct": 15.96,
-      "share_of_all_under_triage_pct": 24.26
+      "under_triaged": 27,
+      "under_triage_pct": 7.92,
+      "ci95_low_pct": 5.28,
+      "ci95_high_pct": 11.31,
+      "share_of_all_under_triage_pct": 29.67,
+      "over_triaged": 22,
+      "over_triage_pct": 6.45,
+      "ot_ci95_low_pct": 4.09,
+      "ot_ci95_high_pct": 9.61
     },
     {
+      "calibration": "v2",
       "subgroup": "age <= 60",
       "n": 464,
-      "under_triaged": 128,
-      "under_triage_pct": 27.59,
-      "ci95_low_pct": 23.57,
-      "ci95_high_pct": 31.9,
-      "share_of_all_under_triage_pct": 75.74
+      "under_triaged": 64,
+      "under_triage_pct": 13.79,
+      "ci95_low_pct": 10.79,
+      "ci95_high_pct": 17.27,
+      "share_of_all_under_triage_pct": 70.33,
+      "over_triaged": 28,
+      "over_triage_pct": 6.03,
+      "ot_ci95_low_pct": 4.05,
+      "ot_ci95_high_pct": 8.6
     },
     {
+      "calibration": "v2",
       "subgroup": "female",
       "n": 390,
-      "under_triaged": 83,
-      "under_triage_pct": 21.28,
-      "ci95_low_pct": 17.32,
-      "ci95_high_pct": 25.68,
-      "share_of_all_under_triage_pct": 49.11
+      "under_triaged": 47,
+      "under_triage_pct": 12.05,
+      "ci95_low_pct": 8.99,
+      "ci95_high_pct": 15.7,
+      "share_of_all_under_triage_pct": 51.65,
+      "over_triaged": 13,
+      "over_triage_pct": 3.33,
+      "ot_ci95_low_pct": 1.79,
+      "ot_ci95_high_pct": 5.63
     },
     {
+      "calibration": "v2",
       "subgroup": "male",
       "n": 415,
-      "under_triaged": 86,
-      "under_triage_pct": 20.72,
-      "ci95_low_pct": 16.92,
-      "ci95_high_pct": 24.95,
-      "share_of_all_under_triage_pct": 50.89
+      "under_triaged": 44,
+      "under_triage_pct": 10.6,
+      "ci95_low_pct": 7.81,
+      "ci95_high_pct": 13.97,
+      "share_of_all_under_triage_pct": 48.35,
+      "over_triaged": 37,
+      "over_triage_pct": 8.92,
+      "ot_ci95_low_pct": 6.36,
+      "ot_ci95_high_pct": 12.08
     },
     {
+      "calibration": "v2",
       "subgroup": "true R1",
       "n": 48,
       "under_triaged": 0,
       "under_triage_pct": 0.0,
       "ci95_low_pct": 0.0,
       "ci95_high_pct": 7.4,
-      "share_of_all_under_triage_pct": 0.0
+      "share_of_all_under_triage_pct": 0.0,
+      "over_triaged": 0,
+      "over_triage_pct": 0.0,
+      "ot_ci95_low_pct": 0.0,
+      "ot_ci95_high_pct": 7.4
     },
     {
+      "calibration": "v2",
       "subgroup": "true R2",
       "n": 127,
       "under_triaged": 0,
       "under_triage_pct": 0.0,
       "ci95_low_pct": 0.0,
       "ci95_high_pct": 2.86,
-      "share_of_all_under_triage_pct": 0.0
+      "share_of_all_under_triage_pct": 0.0,
+      "over_triaged": 0,
+      "over_triage_pct": 0.0,
+      "ot_ci95_low_pct": 0.0,
+      "ot_ci95_high_pct": 2.86
     },
     {
+      "calibration": "v2",
       "subgroup": "true R3",
       "n": 300,
-      "under_triaged": 166,
-      "under_triage_pct": 55.33,
-      "ci95_low_pct": 49.51,
-      "ci95_high_pct": 61.05,
-      "share_of_all_under_triage_pct": 98.22
+      "under_triaged": 91,
+      "under_triage_pct": 30.33,
+      "ci95_low_pct": 25.18,
+      "ci95_high_pct": 35.88,
+      "share_of_all_under_triage_pct": 100.0,
+      "over_triaged": 12,
+      "over_triage_pct": 4.0,
+      "ot_ci95_low_pct": 2.08,
+      "ot_ci95_high_pct": 6.88
     },
     {
+      "calibration": "v2",
       "subgroup": "true R4",
       "n": 222,
-      "under_triaged": 3,
-      "under_triage_pct": 1.35,
-      "ci95_low_pct": 0.28,
-      "ci95_high_pct": 3.9,
-      "share_of_all_under_triage_pct": 1.78
+      "under_triaged": 0,
+      "under_triage_pct": 0.0,
+      "ci95_low_pct": 0.0,
+      "ci95_high_pct": 1.65,
+      "share_of_all_under_triage_pct": 0.0,
+      "over_triaged": 2,
+      "over_triage_pct": 0.9,
+      "ot_ci95_low_pct": 0.11,
+      "ot_ci95_high_pct": 3.22
     },
     {
+      "calibration": "v2",
       "subgroup": "true R5",
       "n": 108,
       "under_triaged": 0,
       "under_triage_pct": 0.0,
       "ci95_low_pct": 0.0,
       "ci95_high_pct": 3.36,
-      "share_of_all_under_triage_pct": 0.0
+      "share_of_all_under_triage_pct": 0.0,
+      "over_triaged": 36,
+      "over_triage_pct": 33.33,
+      "ot_ci95_low_pct": 24.55,
+      "ot_ci95_high_pct": 43.05
+    },
+    {
+      "calibration": "v1",
+      "subgroup": "age > 60",
+      "n": 341,
+      "under_triaged": 41,
+      "under_triage_pct": 12.02,
+      "ci95_low_pct": 8.77,
+      "ci95_high_pct": 15.96,
+      "share_of_all_under_triage_pct": 24.26,
+      "over_triaged": 184,
+      "over_triage_pct": 53.96,
+      "ot_ci95_low_pct": 48.51,
+      "ot_ci95_high_pct": 59.34
+    },
+    {
+      "calibration": "v1",
+      "subgroup": "age <= 60",
+      "n": 464,
+      "under_triaged": 128,
+      "under_triage_pct": 27.59,
+      "ci95_low_pct": 23.57,
+      "ci95_high_pct": 31.9,
+      "share_of_all_under_triage_pct": 75.74,
+      "over_triaged": 156,
+      "over_triage_pct": 33.62,
+      "ot_ci95_low_pct": 29.33,
+      "ot_ci95_high_pct": 38.12
+    },
+    {
+      "calibration": "v1",
+      "subgroup": "female",
+      "n": 390,
+      "under_triaged": 83,
+      "under_triage_pct": 21.28,
+      "ci95_low_pct": 17.32,
+      "ci95_high_pct": 25.68,
+      "share_of_all_under_triage_pct": 49.11,
+      "over_triaged": 151,
+      "over_triage_pct": 38.72,
+      "ot_ci95_low_pct": 33.86,
+      "ot_ci95_high_pct": 43.75
+    },
+    {
+      "calibration": "v1",
+      "subgroup": "male",
+      "n": 415,
+      "under_triaged": 86,
+      "under_triage_pct": 20.72,
+      "ci95_low_pct": 16.92,
+      "ci95_high_pct": 24.95,
+      "share_of_all_under_triage_pct": 50.89,
+      "over_triaged": 189,
+      "over_triage_pct": 45.54,
+      "ot_ci95_low_pct": 40.68,
+      "ot_ci95_high_pct": 50.47
+    },
+    {
+      "calibration": "v1",
+      "subgroup": "true R1",
+      "n": 48,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0,
+      "ci95_low_pct": 0.0,
+      "ci95_high_pct": 7.4,
+      "share_of_all_under_triage_pct": 0.0,
+      "over_triaged": 0,
+      "over_triage_pct": 0.0,
+      "ot_ci95_low_pct": 0.0,
+      "ot_ci95_high_pct": 7.4
+    },
+    {
+      "calibration": "v1",
+      "subgroup": "true R2",
+      "n": 127,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0,
+      "ci95_low_pct": 0.0,
+      "ci95_high_pct": 2.86,
+      "share_of_all_under_triage_pct": 0.0,
+      "over_triaged": 127,
+      "over_triage_pct": 100.0,
+      "ot_ci95_low_pct": 97.14,
+      "ot_ci95_high_pct": 100.0
+    },
+    {
+      "calibration": "v1",
+      "subgroup": "true R3",
+      "n": 300,
+      "under_triaged": 166,
+      "under_triage_pct": 55.33,
+      "ci95_low_pct": 49.51,
+      "ci95_high_pct": 61.05,
+      "share_of_all_under_triage_pct": 98.22,
+      "over_triaged": 79,
+      "over_triage_pct": 26.33,
+      "ot_ci95_low_pct": 21.44,
+      "ot_ci95_high_pct": 31.7
+    },
+    {
+      "calibration": "v1",
+      "subgroup": "true R4",
+      "n": 222,
+      "under_triaged": 3,
+      "under_triage_pct": 1.35,
+      "ci95_low_pct": 0.28,
+      "ci95_high_pct": 3.9,
+      "share_of_all_under_triage_pct": 1.78,
+      "over_triaged": 26,
+      "over_triage_pct": 11.71,
+      "ot_ci95_low_pct": 7.79,
+      "ot_ci95_high_pct": 16.69
+    },
+    {
+      "calibration": "v1",
+      "subgroup": "true R5",
+      "n": 108,
+      "under_triaged": 0,
+      "under_triage_pct": 0.0,
+      "ci95_low_pct": 0.0,
+      "ci95_high_pct": 3.36,
+      "share_of_all_under_triage_pct": 0.0,
+      "over_triaged": 108,
+      "over_triage_pct": 100.0,
+      "ot_ci95_low_pct": 96.64,
+      "ot_ci95_high_pct": 100.0
     }
   ],
+  "age_diagnostics": {
+    "age_mix_by_true_tier": [
+      {
+        "tier": "R1",
+        "n": 48,
+        "mean_age": 73.5,
+        "share_over_60_pct": 100.0
+      },
+      {
+        "tier": "R2",
+        "n": 127,
+        "mean_age": 70.8,
+        "share_over_60_pct": 85.8
+      },
+      {
+        "tier": "R3",
+        "n": 300,
+        "mean_age": 57.3,
+        "share_over_60_pct": 41.0
+      },
+      {
+        "tier": "R4",
+        "n": 222,
+        "mean_age": 49.4,
+        "share_over_60_pct": 19.4
+      },
+      {
+        "tier": "R5",
+        "n": 108,
+        "mean_age": 44.5,
+        "share_over_60_pct": 16.7
+      }
+    ],
+    "within_tier": [
+      {
+        "calibration": "v2",
+        "true_tier": "R1",
+        "group": "age > 60",
+        "n": 48,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      },
+      {
+        "calibration": "v2",
+        "true_tier": "R1",
+        "group": "age <= 60",
+        "n": 0,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      },
+      {
+        "calibration": "v2",
+        "true_tier": "R2",
+        "group": "age > 60",
+        "n": 109,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      },
+      {
+        "calibration": "v2",
+        "true_tier": "R2",
+        "group": "age <= 60",
+        "n": 18,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      },
+      {
+        "calibration": "v2",
+        "true_tier": "R3",
+        "group": "age > 60",
+        "n": 123,
+        "under_triaged": 27,
+        "under_triage_pct": 21.95
+      },
+      {
+        "calibration": "v2",
+        "true_tier": "R3",
+        "group": "age <= 60",
+        "n": 177,
+        "under_triaged": 64,
+        "under_triage_pct": 36.16
+      },
+      {
+        "calibration": "v2",
+        "true_tier": "R4",
+        "group": "age > 60",
+        "n": 43,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      },
+      {
+        "calibration": "v2",
+        "true_tier": "R4",
+        "group": "age <= 60",
+        "n": 179,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      },
+      {
+        "calibration": "v2",
+        "true_tier": "R5",
+        "group": "age > 60",
+        "n": 18,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      },
+      {
+        "calibration": "v2",
+        "true_tier": "R5",
+        "group": "age <= 60",
+        "n": 90,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      },
+      {
+        "calibration": "v1",
+        "true_tier": "R1",
+        "group": "age > 60",
+        "n": 48,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      },
+      {
+        "calibration": "v1",
+        "true_tier": "R1",
+        "group": "age <= 60",
+        "n": 0,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      },
+      {
+        "calibration": "v1",
+        "true_tier": "R2",
+        "group": "age > 60",
+        "n": 109,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      },
+      {
+        "calibration": "v1",
+        "true_tier": "R2",
+        "group": "age <= 60",
+        "n": 18,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      },
+      {
+        "calibration": "v1",
+        "true_tier": "R3",
+        "group": "age > 60",
+        "n": 123,
+        "under_triaged": 40,
+        "under_triage_pct": 32.52
+      },
+      {
+        "calibration": "v1",
+        "true_tier": "R3",
+        "group": "age <= 60",
+        "n": 177,
+        "under_triaged": 126,
+        "under_triage_pct": 71.19
+      },
+      {
+        "calibration": "v1",
+        "true_tier": "R4",
+        "group": "age > 60",
+        "n": 43,
+        "under_triaged": 1,
+        "under_triage_pct": 2.33
+      },
+      {
+        "calibration": "v1",
+        "true_tier": "R4",
+        "group": "age <= 60",
+        "n": 179,
+        "under_triaged": 2,
+        "under_triage_pct": 1.12
+      },
+      {
+        "calibration": "v1",
+        "true_tier": "R5",
+        "group": "age > 60",
+        "n": 18,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      },
+      {
+        "calibration": "v1",
+        "true_tier": "R5",
+        "group": "age <= 60",
+        "n": 90,
+        "under_triaged": 0,
+        "under_triage_pct": 0.0
+      }
+    ],
+    "counterfactual_v2_without_G2_age_point": [
+      {
+        "calibration": "v2 without G2 age point (diagnostic only)",
+        "subgroup": "age > 60",
+        "n": 341,
+        "under_triaged": 40,
+        "under_triage_pct": 11.73,
+        "ci95_low_pct": 8.51,
+        "ci95_high_pct": 15.63,
+        "share_of_all_under_triage_pct": 38.46,
+        "over_triaged": 9,
+        "over_triage_pct": 2.64,
+        "ot_ci95_low_pct": 1.21,
+        "ot_ci95_high_pct": 4.95
+      },
+      {
+        "calibration": "v2 without G2 age point (diagnostic only)",
+        "subgroup": "age <= 60",
+        "n": 464,
+        "under_triaged": 64,
+        "under_triage_pct": 13.79,
+        "ci95_low_pct": 10.79,
+        "ci95_high_pct": 17.27,
+        "share_of_all_under_triage_pct": 61.54,
+        "over_triaged": 28,
+        "over_triage_pct": 6.03,
+        "ot_ci95_low_pct": 4.05,
+        "ot_ci95_high_pct": 8.6
+      }
+    ]
+  },
   "validation_check": [
     {
       "method": "SAFE-Gate (ACWCM)",
+      "critical_sensitivity": 100.0,
+      "critical_caught": 173,
+      "critical_total": 173,
+      "missed_critical": 0,
+      "discharge_specificity_R5": 65.42,
+      "accuracy": 84.59,
+      "false_discharges": 0,
+      "over_triage": 6.39,
+      "under_triage": 9.02,
+      "under_triage_2plus_tiers": 0,
+      "max_under_triage_depth": 1
+    },
+    {
+      "method": "SAFE-Gate (ACWCM, v1 calibration)",
       "critical_sensitivity": 100.0,
       "critical_caught": 173,
       "critical_total": 173,
@@ -433,27 +1301,13 @@
       "under_triage": 20.8,
       "under_triage_2plus_tiers": 0,
       "max_under_triage_depth": 1
-    },
-    {
-      "method": "SAFE-Gate (ACWCM, any-dissent trigger)",
-      "critical_sensitivity": 100.0,
-      "critical_caught": 173,
-      "critical_total": 173,
-      "missed_critical": 0,
-      "discharge_specificity_R5": 0.0,
-      "accuracy": 29.32,
-      "false_discharges": 0,
-      "over_triage": 43.61,
-      "under_triage": 27.07,
-      "under_triage_2plus_tiers": 0,
-      "max_under_triage_depth": 1
     }
   ],
   "acwcm_trigger": {
     "rule": "consensus",
     "theta": 0.5,
-    "min_mass": 0.5,
-    "provenance": "fixed a priori; validation split reported as a check, not tuned"
+    "min_mass": 0.6666666666666666,
+    "provenance": "selected with the gate calibration on the training split"
   },
   "safety_properties": {
     "n_cases": 805,
@@ -512,5 +1366,95 @@
     },
     "total_violations": 0,
     "all_pass": true
-  }
+  },
+  "invariant_enumeration": [
+    {
+      "rule": "SAFE-Gate ACWCM (v2)",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 0,
+      "AC_violations": 0,
+      "CND_violations": 0,
+      "R1D_violations": 0,
+      "MON_violations": 0,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "SAFE-Gate ACWCM (v1)",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 0,
+      "AC_violations": 0,
+      "CND_violations": 0,
+      "R1D_violations": 0,
+      "MON_violations": 0,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "SAFE-Gate MIN",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 0,
+      "AC_violations": 0,
+      "CND_violations": 0,
+      "R1D_violations": 0,
+      "MON_violations": 0,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "Sugeno integral (additive capacity)",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 19641,
+      "AC_violations": 62062,
+      "CND_violations": 24264,
+      "R1D_violations": 10,
+      "MON_violations": 0,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "Ordinal weighted maximum",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 1679,
+      "AC_violations": 62062,
+      "CND_violations": 2646,
+      "R1D_violations": 0,
+      "MON_violations": 0,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "Dempster-Shafer",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 15220,
+      "AC_violations": 62062,
+      "CND_violations": 16410,
+      "R1D_violations": 6181,
+      "MON_violations": 13476,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "Bayesian model averaging",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 15739,
+      "AC_violations": 62062,
+      "CND_violations": 16940,
+      "R1D_violations": 7389,
+      "MON_violations": 9616,
+      "IDEM_violations": 0
+    },
+    {
+      "rule": "Weighted arithmetic mean",
+      "n_inputs": 93312,
+      "n_monotonicity_pairs": 150000,
+      "CP_violations": 19713,
+      "AC_violations": 62062,
+      "CND_violations": 23289,
+      "R1D_violations": 1,
+      "MON_violations": 0,
+      "IDEM_violations": 0
+    }
+  ]
 }
