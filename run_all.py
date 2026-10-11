@@ -677,3 +677,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+    if "--round4" in sys.argv:
+        # Round-4 analyses: frozen fresh cohorts (primary results), new
+        # baselines, multi-seed and selection analyses. See scripts/round4.py.
+        import round4
+        round4.evaluate("--skip-multiseed" in sys.argv)

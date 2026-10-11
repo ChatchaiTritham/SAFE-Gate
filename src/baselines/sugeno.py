@@ -11,12 +11,15 @@ quantised onto the same chain so that the whole computation stays ordinal
     q(c) = ceil(5 * c) clipped to {0..5}.
 
   SugenoAdditive  mu(A) = q( sum_{i in A} c_i / sum_i c_i )
-                  A normalised additive (confidence-proportional) capacity;
-                  the Sugeno integral is then an ordinal weighted median.
+                  A quantised additive (confidence-proportional) capacity.
+                  This is NOT an ordinal weighted median: with c = 1 for all
+                  gates, (R1,R1,R1,R5,R5,R5) gives R3, outside the inputs.
   WeightedMax     mu(A) = max_{i in A} q(c_i)
-                  A possibility measure (Dubois & Prade); the Sugeno integral
-                  reduces to the weighted maximum max_i min(x_i, q(c_i)). With
-                  every q(c_i) = 5 it equals basic MIN selection.
+                  A possibility-type capacity, BUT mu(N) is forced to TOP
+                  below, so unless some q(c_i) = TOP it is not the Dubois-Prade
+                  weighted max (which needs a normalised distribution); the
+                  normalised version is ordinal_extra.WeightedMaxNormalised.
+                  With every q(c_i) = 5 it equals basic MIN selection.
 
     S_mu(x) = max_{l in L} min( l, mu({i : x_i >= l}) ).
 

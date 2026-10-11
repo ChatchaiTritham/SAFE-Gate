@@ -10,6 +10,8 @@ from typing import Dict, List
 
 import numpy as np
 
+from .dempster_shafer import argmax_tol
+
 
 class BayesianModelAveraging:
     """
@@ -64,8 +66,8 @@ class BayesianModelAveraging:
         # Normalise
         combined /= combined.sum() + 1e-10
 
-        best_idx = np.argmax(combined)
-        best_tier = self.TIERS[best_idx]
+        # Ties within a relative tolerance are broken toward the more critical tier.
+        best_tier = argmax_tol({t: float(combined[i]) for i, t in enumerate(self.TIERS)}, self.TIERS)
 
         return {
             'final_tier': best_tier,

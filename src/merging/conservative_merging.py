@@ -26,6 +26,7 @@ class ConservativeMerging:
     # must carry at least half of the total confidence (a weighted majority).
     THETA = 0.5
     MIN_MASS = 0.5
+    ALPHA = 0.5
 
     def __init__(self, mode: str = "acwcm", trigger: str = "consensus",
                  theta: float = THETA, min_mass: float = MIN_MASS):
@@ -38,7 +39,7 @@ class ConservativeMerging:
             theta: margin of tau_w above rank(r_min) required by "consensus"
             min_mass: share of total confidence that must lie strictly above r_min
         """
-        if trigger not in ("consensus", "any_dissent"):
+        if trigger not in ("consensus", "any_dissent", "fuzzy_quantifier"):
             raise ValueError(f"unknown trigger: {trigger}")
         self.lattice = RiskLattice()
         self.mode = mode
@@ -110,6 +111,7 @@ class ConservativeMerging:
             audit["merging_logic"].append(f"R* triggered by {enforcing}")
             audit["final_tier"] = str(RiskTier.R_STAR)
             audit["enforcing_gate"] = enforcing
+            audit["safety_properties"] = self.check_properties(gate_outputs, RiskTier.R_STAR)
             return RiskTier.R_STAR, enforcing, audit
 
         # Minimum selection
@@ -148,6 +150,7 @@ class ConservativeMerging:
             audit["merging_logic"].append(f"Phase 1: R* triggered by {enforcing}")
             audit["final_tier"] = str(RiskTier.R_STAR)
             audit["enforcing_gate"] = enforcing
+            audit["safety_properties"] = self.check_properties(gate_outputs, RiskTier.R_STAR)
             return RiskTier.R_STAR, enforcing, audit
 
         # Line 4-5: Critical always propagates
@@ -157,6 +160,7 @@ class ConservativeMerging:
             audit["merging_logic"].append(f"Phase 1: R1 triggered by {enforcing}")
             audit["final_tier"] = str(RiskTier.R1)
             audit["enforcing_gate"] = enforcing
+            audit["safety_properties"] = self.check_properties(gate_outputs, RiskTier.R1)
             return RiskTier.R1, enforcing, audit
 
         # --- Phase 2: Adaptive confidence-weighted selection ---
@@ -181,6 +185,16 @@ class ConservativeMerging:
         if self.trigger == "any_dissent":
             # Earlier rule: min(ceil(tau_w), relax(r_min,1)) relaxes iff tau_w > rank(r_min)
             relax_ok = tau_w > self._rank(r_min)
+        elif self.trigger == "fuzzy_quantifier":
+            # Graded generalisation of the weighted-quota trigger: the degree to
+            # which "most of the confidence lies above the floor" holds, with the
+            # RIM quantifier Q(r) = clip((r - 0.3) / 0.5). Relax iff the margin
+            # condition holds and Q(mass_share) >= ALPHA. For a monotone Q this
+            # equals a crisp quota at Q^{-1}(ALPHA) = 0.55; the degree is kept in
+            # the audit trail.
+            degree = min(1.0, max(0.0, (mass_share - 0.3) / 0.5))
+            audit["quantifier_degree"] = degree
+            relax_ok = (tau_w >= self._rank(r_min) + self.theta and degree >= self.ALPHA)
         else:
             relax_ok = (tau_w >= self._rank(r_min) + self.theta
                         and mass_share >= self.min_mass)
@@ -210,13 +224,29 @@ class ConservativeMerging:
         audit["enforcing_gate"] = enforcing
 
         # Safety property verification
-        audit["safety_properties"] = {
-            "CP": self._rank(r_final) <= self._rank(r_min) + 1,
-            "AC": True,  # already handled in Phase 1
-            "CND": True,  # enforced above
-        }
+        audit["safety_properties"] = self.check_properties(gate_outputs, r_final)
 
         return r_final, enforcing, audit
+
+    @staticmethod
+    def check_properties(gate_outputs: Dict[str, RiskTier], r_final: RiskTier) -> Dict[str, bool]:
+        """Evaluate the merge-level properties on this input/output pair.
+
+        Every flag is computed from the gate outputs and the merged tier; none
+        is asserted by construction. CP is vacuous (True) when a gate abstains,
+        AC is vacuous when no gate abstains, CND is vacuous when r_min is not
+        critical.
+        """
+        tiers = list(gate_outputs.values())
+        abstain = any(t == RiskTier.R_STAR for t in tiers)
+        ranked = [t.value for t in tiers if t != RiskTier.R_STAR]
+        r_min = min(ranked) if ranked else 0
+        fr = r_final.value
+        return {
+            "CP": abstain or fr <= r_min + 1,
+            "AC": (not abstain) or r_final == RiskTier.R_STAR,
+            "CND": abstain or r_min not in (1, 2) or fr in (0, 1, 2),
+        }
 
     def resolve_conflicts(
         self,

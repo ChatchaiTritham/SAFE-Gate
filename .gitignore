@@ -60,3 +60,6 @@ data/synthetic/*.json
 *.tmp
 *.bak
 *.swp
+
+# Round-4 fresh cohorts: regenerated from seeds; digests in results/round4_protocol.json
+data/fresh/

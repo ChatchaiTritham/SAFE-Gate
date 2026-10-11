@@ -20,7 +20,7 @@ class SafetyCertificate:
     def __init__(
         self,
         delta_min: float,
-        delta_cf: int,
+        delta_cf: Optional[int],
         g_enforce: str,
         rationale: str,
         gate_outputs: Optional[Dict] = None,
@@ -110,8 +110,8 @@ class SafetyCertificateGenerator:
                 patient_data, r_final, classify_fn, feature_names
             )
         else:
-            # Approximate: use number of features contributing to the enforcing gate
-            delta_cf = max(1, int(delta_min) + 2) if rank_final >= 4 else 1
+            # Not computed: no classifier was supplied, so no value is reported.
+            delta_cf = None
 
         # Line 12: rationale = extract_clinical_rule(g_enforce, x)
         rationale = self._extract_rationale(
@@ -160,13 +160,9 @@ class SafetyCertificateGenerator:
             if k == 1:
                 for feat in feature_names:
                     perturbed = self._adversarial_perturb(patient_data, [feat])
-                    try:
-                        result = classify_fn(perturbed)
-                        new_tier = result.get("final_tier", str(r_final))
-                        if self._rank_str(new_tier) < rank_final:
-                            return k
-                    except Exception:
-                        continue
+                    result = classify_fn(perturbed)
+                    if self._rank_str(result["final_tier"]) < rank_final:
+                        return k
             elif k <= 3:
                 # Test a sample of pairs/triples for tractability
                 import itertools
@@ -178,20 +174,16 @@ class SafetyCertificateGenerator:
                     combos = random.Random(k).sample(combos, 100)
                 for subset in combos:
                     perturbed = self._adversarial_perturb(patient_data, list(subset))
-                    try:
-                        result = classify_fn(perturbed)
-                        new_tier = result.get("final_tier", str(r_final))
-                        if self._rank_str(new_tier) < rank_final:
-                            return k
-                    except Exception:
-                        continue
+                    result = classify_fn(perturbed)
+                    if self._rank_str(result["final_tier"]) < rank_final:
+                        return k
             else:
                 # Censored value: no escalation was found among all single
                 # features and the sampled pairs/triples. This is NOT a lower
                 # bound on the true minimum (pairs/triples are sampled).
-                return k
+                return None  # censored: not found among the searched subsets
 
-        return len(feature_names)
+        return None
 
     @staticmethod
     def _adversarial_perturb(patient_data: Dict, features: List[str]) -> Dict:

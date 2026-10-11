@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11.15-slim
 
 LABEL maintainer="Chatchai Tritham <chatchait66@nu.ac.th>"
 LABEL repository="SAFE-Gate"
@@ -10,8 +10,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY requirements.txt ./
-RUN pip install --upgrade pip && pip install -r requirements.txt
+COPY requirements.txt requirements.lock ./
+RUN pip install --upgrade pip && pip install -r requirements.lock && pip install matplotlib seaborn pyyaml tqdm
 
 COPY . .
 RUN pip install -e .

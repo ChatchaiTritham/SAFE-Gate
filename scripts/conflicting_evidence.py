@@ -39,7 +39,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from baselines.bayesian_model_avg import BayesianModelAveraging  # noqa: E402
-from baselines.dempster_shafer import DempsterShaferCombination  # noqa: E402
+from baselines.dempster_shafer import DempsterShaferCombination, argmax_tol  # noqa: E402
 from baselines.sugeno import SugenoAdditive, WeightedMax  # noqa: E402
 from calibration import V2  # noqa: E402
 from merging.conservative_merging import ConservativeMerging  # noqa: E402
@@ -75,8 +75,7 @@ def arithmetic_average(outputs: dict[str, str], confs: dict[str, float]) -> str:
 def tie_benign(scores: dict[str, float], tol: float = 1e-9) -> str:
     """Argmax over tiers with exact ties (within tol) broken toward the LESS
     critical tier -- the tie-break sensitivity counterpart of the default."""
-    best = max(scores.values())
-    return [t for t in ["R1", "R2", "R3", "R4", "R5"] if scores[t] >= best - tol][-1]
+    return argmax_tol(scores, ["R1", "R2", "R3", "R4", "R5"], toward="benign")
 
 
 def acwcm(outputs: dict[str, str], confs: dict[str, float]) -> str:
