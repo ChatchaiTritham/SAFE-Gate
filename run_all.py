@@ -146,8 +146,8 @@ def clopper_pearson_lower(x, n, alpha=0.05):
 # --------------------------------------------------------------------------- #
 # SAFE-Gate classification
 # --------------------------------------------------------------------------- #
-def classify_safegate(cases, mode, trigger="consensus"):
-    sg = SAFEGate(mode=mode, trigger=trigger)
+def classify_safegate(cases, mode, trigger="consensus", calibration="v2"):
+    sg = SAFEGate(mode=mode, trigger=trigger, calibration=calibration)
     return [sg.classify(c, return_audit_trail=False, return_certificate=False)["final_tier"]
             for c in cases]
 
@@ -356,7 +356,7 @@ def subgroup_under_triage(cases, preds):
 # --------------------------------------------------------------------------- #
 # Formal safety property verification (as stated in the manuscript)
 # --------------------------------------------------------------------------- #
-def verify_properties(cases):
+def verify_properties(cases, calibration="v2"):
     """
     Verify the three formally proven invariants plus the no-false-discharge
     guarantee, evaluating each property exactly as defined in the manuscript.
@@ -366,7 +366,7 @@ def verify_properties(cases):
       CND Critical non-dilution:     r_min in {R1,R2}  =>  r_final in {R*,R1,R2}.
       ND  No false discharge:        true critical (R1/R2)  =>  r_final != R5.
     """
-    sg = SAFEGate()
+    sg = SAFEGate(calibration=calibration)
     counts = {"CP": 0, "AC": 0, "CND": 0, "ND": 0}
     n_abstain_inputs = 0
     examples = {"CP": [], "AC": [], "CND": [], "ND": []}

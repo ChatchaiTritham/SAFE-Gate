@@ -55,13 +55,23 @@ class Gate5Uncertainty:
     ESCALATE_1_THRESHOLD = 0.30  # 0.30 <= mu < 0.60 -> escalate 1
     # mu < 0.30 -> NN prediction
 
-    def __init__(self, model_path: Optional[str] = None):
+    def __init__(self, model_path: Optional[str] = None, age_heuristic: bool = True,
+                 escalation_cap: Optional[int] = None):
         """
         Initialise uncertainty quantification gate.
 
         Args:
             model_path: Path to trained BNN (.h5 file)
         """
+        # age_heuristic=True (calibration v1): the surrogate's base tier uses
+        # age > 70 -> R3 and age < 50 -> R5. Neither cut-off has a guideline
+        # source (age enters the risk model through G2's ABCD2-style age point),
+        # so calibration v2 drops it.
+        # escalation_cap (v2: 3 = R3): uncertainty may escalate a prediction
+        # but not, on its own, into the critical band; critical uncertainty is
+        # expressed by abstention (mu >= 0.80). Base predictions are not capped.
+        self.age_heuristic = age_heuristic
+        self.escalation_cap = escalation_cap
         self.model = None
         if model_path:
             self.load_model(model_path)
@@ -143,6 +153,8 @@ class Gate5Uncertainty:
         elif mu >= self.ESCALATE_2_THRESHOLD:
             # Escalate 2 tiers toward R1 from NN prediction
             escalated = max(1, nn_prediction.value - 2)
+            if self.escalation_cap is not None:
+                escalated = max(escalated, min(self.escalation_cap, nn_prediction.value))
             tier = RiskTier(escalated)
             reasoning['decision'] = (
                 f'High uncertainty: mu = {mu:.3f} in [{self.ESCALATE_2_THRESHOLD}, '
@@ -152,6 +164,8 @@ class Gate5Uncertainty:
         elif mu >= self.ESCALATE_1_THRESHOLD:
             # Escalate 1 tier toward R1 from NN prediction
             escalated = max(1, nn_prediction.value - 1)
+            if self.escalation_cap is not None:
+                escalated = max(escalated, min(self.escalation_cap, nn_prediction.value))
             tier = RiskTier(escalated)
             reasoning['decision'] = (
                 f'Moderate uncertainty: mu = {mu:.3f} in [{self.ESCALATE_1_THRESHOLD}, '
@@ -235,13 +249,13 @@ class Gate5Uncertainty:
         if has_severe_flags or has_critical:
             base_tier = RiskTier.R1.value
             noise_std = 0.2
-        elif age > 75 and hemodynamic_flags >= 1:
+        elif self.age_heuristic and age > 75 and hemodynamic_flags >= 1:
             base_tier = RiskTier.R2.value
             noise_std = 0.3
-        elif age > 70 or hemodynamic_flags >= 1 or neuro_flags >= 1:
+        elif (self.age_heuristic and age > 70) or hemodynamic_flags >= 1 or neuro_flags >= 1:
             base_tier = RiskTier.R3.value
             noise_std = 0.4
-        elif chronic_onset or positional or age < 50:
+        elif chronic_onset or positional or (self.age_heuristic and age < 50):
             base_tier = RiskTier.R5.value
             noise_std = 0.35
         else:

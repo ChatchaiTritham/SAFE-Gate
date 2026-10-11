@@ -36,8 +36,15 @@ class Gate3DataQuality:
     Confidence: c3 = rho_comp(x)
     """
 
-    def __init__(self):
-        """Initialize the 22 essential clinical fields."""
+    def __init__(self, vacuous_complete: bool = False):
+        """Initialize the 22 essential clinical fields.
+
+        Args:
+            vacuous_complete: calibration v2. A complete record says nothing
+                about the patient's risk, so the satisfactory output R5 carries
+                confidence 0 (a vacuous belief) instead of rho.
+        """
+        self.vacuous_complete = vacuous_complete
         self.essential_fields = [
             # Vital signs (6)
             'systolic_bp',
@@ -127,6 +134,8 @@ class Gate3DataQuality:
             )
 
         confidence = rho  # c3 = rho_comp(x)
+        if self.vacuous_complete and tier == RiskTier.R5:
+            confidence = 0.0
         return tier, confidence, reasoning
 
     def get_name(self) -> str:

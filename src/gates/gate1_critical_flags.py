@@ -29,8 +29,28 @@ class Gate1CriticalFlags:
     Output: R1 (c=1.0) if ANY rule fires; R5 (c=1.0) if ALL negative.
     """
 
-    def __init__(self):
-        """Initialize red flag rules matching article Table 1."""
+    # Conditions that need an immediate life-saving intervention (ESI level 1:
+    # hypotension, extreme heart rate, hypoxaemia, depressed consciousness).
+    # Under the graded calibration every other red flag (hypertensive crisis,
+    # focal deficit, central HINTS sign, headache red flag) maps to R2, the
+    # high-risk/emergent tier (ESI level 2, which includes stroke symptoms).
+    LIFE_THREAT_PREFIXES = ('Hemodynamic: SBP', 'Hemodynamic: HR', 'Altered mental status',
+                            'Respiratory compromise')
+
+    def __init__(self, graded: bool = False, vacuous_negative: bool = False):
+        """Initialize red flag rules matching article Table 1.
+
+        Args:
+            graded: False (calibration v1) maps every red flag to R1. True
+                (calibration v2) maps life-threatening instability to R1 and the
+                remaining red flags to R2.
+        """
+        self.graded = graded
+        # vacuous_negative (calibration v2): finding no red flag is absence of
+        # evidence, not evidence of a benign course, so the negative output R5
+        # carries confidence 0 (a vacuous belief): it sets no floor and has no
+        # weight in the consensus of the merging rule.
+        self.vacuous_negative = vacuous_negative
         # Category 1: Hemodynamic instability
         self.sbp_low = 90  # SBP < 90 mmHg
         self.sbp_high = 180  # SBP > 180 mmHg
@@ -139,7 +159,16 @@ class Gate1CriticalFlags:
             )
 
         # --- Decision: ANY trigger → R1 (c=1.0); ALL negative → R5 (c=1.0) ---
-        if reasoning['triggers']:
+        life_threat = [t for t in reasoning['triggers']
+                       if t.startswith(self.LIFE_THREAT_PREFIXES) and 'hypertensive' not in t]
+        if reasoning['triggers'] and self.graded and not life_threat:
+            tier = RiskTier.R2
+            confidence = 1.0
+            reasoning['decision'] = (
+                f'RED FLAG DETECTED without life-threatening instability: '
+                f'{len(reasoning["triggers"])} finding(s). Emergent R2 classification.'
+            )
+        elif reasoning['triggers']:
             tier = RiskTier.R1
             confidence = 1.0
             reasoning['decision'] = (
@@ -148,7 +177,7 @@ class Gate1CriticalFlags:
             )
         else:
             tier = RiskTier.R5
-            confidence = 1.0
+            confidence = 0.0 if self.vacuous_negative else 1.0
             reasoning['decision'] = (
                 'No critical red flags detected across all 20 conditions. '
                 'R5 assigned with full confidence.'

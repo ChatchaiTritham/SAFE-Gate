@@ -49,8 +49,19 @@ class Gate4TiTrATELogic:
     HIGH_SIMILARITY = 0.85
     MODERATE_SIMILARITY = 0.60
 
-    def __init__(self):
-        """Initialise syndrome reference profiles and feature weights."""
+    def __init__(self, central_only_escalation: bool = False):
+        """Initialise syndrome reference profiles and feature weights.
+
+        Args:
+            central_only_escalation: False (calibration v1) uses the original
+                mapping (>=0.85 and no red flag -> R5, >=0.60 -> R3, else R2).
+                True (calibration v2) reserves R2 for presentations with a
+                central sign or focal deficit (TiTrATE/HINTS: a peripheral
+                HINTS pattern argues against stroke) and grades the rest by
+                benign-syndrome similarity: >=0.85 -> R5, >=0.60 -> R4,
+                otherwise R3 (undifferentiated, not reassuring).
+        """
+        self.central_only_escalation = central_only_escalation
         # ---- Feature weights (clinical discriminative value) ----
         # Higher weight = stronger discriminator for syndrome matching
         self.feature_weights = {
@@ -201,6 +212,28 @@ class Gate4TiTrATELogic:
         has_red_flags = len(red_flags) > 0
 
         # Step 4: Tier assignment per article thresholds
+        if self.central_only_escalation:
+            if has_red_flags:
+                tier = RiskTier.R2
+                reasoning['decision'] = (
+                    f'Central sign or focal deficit present ({", ".join(red_flags)}): R2.')
+            elif best_similarity >= self.HIGH_SIMILARITY:
+                tier = RiskTier.R5
+                reasoning['decision'] = (
+                    f'Peripheral pattern, high similarity to {best_syndrome} '
+                    f'({best_similarity:.2f}): R5.')
+            elif best_similarity >= self.MODERATE_SIMILARITY:
+                tier = RiskTier.R4
+                reasoning['decision'] = (
+                    f'Peripheral pattern, partial match to {best_syndrome} '
+                    f'({best_similarity:.2f}): R4.')
+            else:
+                tier = RiskTier.R3
+                reasoning['decision'] = (
+                    f'Peripheral pattern, no benign syndrome matched '
+                    f'({best_similarity:.2f}): undifferentiated, R3.')
+            return tier, best_similarity, reasoning
+
         if best_similarity >= self.HIGH_SIMILARITY and not has_red_flags:
             tier = RiskTier.R5
             reasoning['decision'] = (

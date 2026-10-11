@@ -21,6 +21,7 @@ from gates.gate3_data_quality import Gate3DataQuality
 from gates.gate4_titrate_logic import Gate4TiTrATELogic
 from gates.gate5_uncertainty import Gate5Uncertainty
 from gates.gate6_temporal_risk import Gate6TemporalRisk
+from calibration import resolve as resolve_calibration
 from merging.conservative_merging import ConservativeMerging
 from merging.risk_lattice import RiskTier
 from merging.safety_certificate import SafetyCertificate, SafetyCertificateGenerator
@@ -49,7 +50,8 @@ class SAFEGate:
       - Critical Non-Dilution (CND)
     """
 
-    def __init__(self, mode: str = DEFAULT_CLASSIFICATION_MODE, trigger: str = "consensus"):
+    def __init__(self, mode: str = DEFAULT_CLASSIFICATION_MODE, trigger: str = "consensus",
+                 calibration="v2"):
         """
         Initialize SAFE-Gate system.
 
@@ -57,16 +59,19 @@ class SAFEGate:
             mode: "acwcm" for Adaptive Confidence-Weighted Conservative Merging,
                   "min" for basic minimum selection (Equation 2)
         """
+        cal = resolve_calibration(calibration)
+        self.calibration = cal
         self.gates = {
-            'G1': Gate1CriticalFlags(),
+            'G1': Gate1CriticalFlags(graded=cal['g1_graded'], vacuous_negative=cal['vacuous_negatives']),
             'G2': Gate2ModerateRisk(),
-            'G3': Gate3DataQuality(),
-            'G4': Gate4TiTrATELogic(),
-            'G5': Gate5Uncertainty(),
+            'G3': Gate3DataQuality(vacuous_complete=cal['vacuous_negatives']),
+            'G4': Gate4TiTrATELogic(central_only_escalation=cal['g4_central_only']),
+            'G5': Gate5Uncertainty(age_heuristic=cal['g5_age'], escalation_cap=cal['g5_cap']),
             'G6': Gate6TemporalRisk(),
         }
 
-        self.merger = ConservativeMerging(mode=mode, trigger=trigger)
+        self.merger = ConservativeMerging(mode=mode, trigger=trigger,
+                                          theta=cal['theta'], min_mass=cal['min_mass'])
         self.cert_generator = SafetyCertificateGenerator()
         self.audit_generator = AuditTrailGenerator()
         self.mode = mode
