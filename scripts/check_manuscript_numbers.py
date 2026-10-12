@@ -329,6 +329,109 @@ if "supplement" in TXT:
       f"{f1(mv['own_abstention_pct'])}\\% deferred at 30\\% MCAR", f"{CF['rules'][V2]['escalations_false_alarm']}/{CF['n_false_alarm']} false-alarm configs",
       f"({g6[M]['R1_only_via_G6']} of {g6[M]['predicted_R1']} R1 predictions", where="supplement")
 
+# ---------------- IJAR round 3: rows moved to Supplementary Table S12, reworded sentences, new results
+if IJAR:
+    r3p = json.loads((RES / "ijar_r3_paired.json").read_text(encoding="utf-8"))
+    r3rows = {(r["cohort"], r["method"]): r for r in csv.DictReader(open(RES / "ijar_r3_cohort_rules.csv", encoding="utf-8"))}
+    ex_i, ex_d = prim[(I, "DS Dempster (singleton, BetP)")], prim[(D, "DS Dempster (singleton, BetP)")]
+    pk = r3p[D]["critical_kept_diff_pct_newcombe"]
+    pa_ = r3p[D]["accuracy_diff_pct_newcombe"]
+
+    def oc(c_, m_, k_):
+        lo_, hi_ = json.loads(r3rows[(c_, m_)][k_])
+        return f"{f1(lo_)}--{f1(hi_)}"
+    REWORD = {
+        f"over-triage of {f1(a_i['over_triage_pct'])}\\% and {f1(a_d['over_triage_pct'])}\\%":
+            f"at {f1(a_i['over_triage_pct'])}\\% and {f1(a_d['over_triage_pct'])}\\% over-triage",
+        f"under-triage of {f1(a_i['r3_under_triage_pct'])}\\% and {f1(a_d['r3_under_triage_pct'])}\\%":
+            "with a third of moderate-risk cases under-triaged",
+        f"at least one gate returned $R^*$, R1 or R2 (the ceiling for any merge rule): {f1(gr[I]['some_gate_fires_pct'])}\\% and {f1(gr[D]['some_gate_fires_pct'])}\\%":
+            f"Gate recall, the ceiling for any merge rule: {f1(gr[I]['some_gate_fires_pct'])}\\% and {f1(gr[D]['some_gate_fires_pct'])}\\%",
+        f"ACWCM and {len(EN) - 2} comparison operators": None,  # count no longer quoted
+        f"with {d(a_i['accuracy_pct'], m_i['accuracy_pct'])} and {d(a_d['accuracy_pct'], m_d['accuracy_pct'])} points higher accuracy and "
+        f"{d(m_i['over_triage_pct'], a_i['over_triage_pct'])} and {d(m_d['over_triage_pct'], a_d['over_triage_pct'])} points less over-triage":
+            f"over-triage {f1(a_i['over_triage_pct'])}\\% (95\\% CI {oc(I, V2, 'over_ci95')}) and {f1(a_d['over_triage_pct'])}\\% ({oc(D, V2, 'over_ci95')}) "
+            f"against {f1(m_i['over_triage_pct'])}\\% ({oc(I, 'MIN', 'over_ci95')}) and {f1(m_d['over_triage_pct'])}\\% ({oc(D, 'MIN', 'over_ci95')}), "
+            f"paid for by under-triage of {f1(a_i['under_triage_pct'])}\\% ({oc(I, V2, 'under_ci95')}) and {f1(a_d['under_triage_pct'])}\\% ({oc(D, V2, 'under_ci95')}) "
+            f"against {f1(m_i['under_triage_pct'])}\\% ({oc(I, 'MIN', 'under_ci95')}) and {f1(m_d['under_triage_pct'])}\\% ({oc(D, 'MIN', 'under_ci95')})",
+        f"{u['acwcm_only']} cases under-triaged by ACWCM and not by the minimum": f"{u['acwcm_only']} cases were under-triaged by ACWCM and not by the minimum",
+        f"{u2['acwcm_only'] - u2['other_only']} of these were under-triaged by two tiers": f"{u2['acwcm_only'] - u2['other_only']} of them by two tiers",
+        f"{f1(ni['critical_sensitivity_diff_vs_DS_pct'])} points fewer than ACWCM":
+            f"kept {f1(ex_i['critical_sensitivity_pct'])}\\% and {f1(ex_d['critical_sensitivity_pct'])}\\% of critical cases, {f1(pk[0])} points fewer than ACWCM",
+        f"{ni['ci95'][0]:.1f}--{ni['ci95'][1]:.1f}": f"95\\% CI {f1(pk[1])}--{f1(pk[2])}, descriptive",
+        f"with {prim[(D, DS)]['false_discharges']} false discharges, while being {d(prim[(D, DS)]['accuracy_pct'], a_d['accuracy_pct'])} points more accurate":
+            f"with {ex_d['false_discharges']} R5 misplacements, while being {f1(-pa_[0])} points more accurate",
+        f"{d(fz_d['accuracy_pct'], a_d['accuracy_pct'])} points more accurate on the diagnosis-conditioned cohort": None,  # sentence removed; fuzzy row in Table 4
+        f"more R3 under-triage ({f1(fz_d['r3_under_triage_pct'])}\\% against {f1(a_d['r3_under_triage_pct'])}\\%)": None,
+        f"kept {f1(pr_i['critical_sensitivity_pct'])}\\% and {f1(pr_d['critical_sensitivity_pct'])}\\% with {pr_i['false_discharges']} and {pr_d['false_discharges']} false discharges": None,  # rows in Table S12
+        f"({f1(ex_i['critical_sensitivity_pct'])}\\% and {f1(ex_d['critical_sensitivity_pct'])}\\% critical sensitivity for the exact rule)":
+            f"against {f1(ex_i['critical_sensitivity_pct'])}\\% and {f1(ex_d['critical_sensitivity_pct'])}\\% for Dempster's rule",
+        f"chose v2 on all {ms['v2_selected_count']} seeds": f"chose v2 on all {ms['v2_selected_count']}.",
+        f"({f1(v2r[D]['critical_sensitivity_pct'])}\\% against {f1(rb[D]['critical_sensitivity_pct'])}\\%)": None,  # same numbers checked in "keeps ... against" sentence
+        f"misses about {round((float(rb[D]['critical_sensitivity_pct']) - float(v2r[D]['critical_sensitivity_pct'])) * nd / 100)} fewer of the {nd} critical cases":
+            f"keeps about {round((float(rb[D]['critical_sensitivity_pct']) - float(v2r[D]['critical_sensitivity_pct'])) * nd / 100)} fewer of the {nd} critical cases",
+        f"{f1(prim[(I, V2)]['R1_under_pct'])}\\% and {f1(prim[(D, V2)]['R1_under_pct'])}\\% of true R1 cases were returned as R2":
+            f"down-grading of true R1 cases to R2 ({f1(prim[(I, V2)]['R1_under_pct'])}\\% and {f1(prim[(D, V2)]['R1_under_pct'])}\\% on the two cohorts, identically for the minimum",
+    }
+    ms_s = (f"Over {ms['n_seeds']} further generator seeds ACWCM's accuracy was ${f1(ms['accuracy_pct']['mean'])}\\pm{f1(ms['accuracy_pct']['sd'])}\\%$ ")
+    new = []
+    for w, c in checks:
+        if c is None or w != "article":
+            new.append((w, c))
+            continue
+        if c.startswith(ms_s):
+            continue  # moved to Supplementary Table S9 (checked there by make_supplement tables)
+        if c.startswith("sensitivity among decided critical cases"):
+            c = c.replace("false discharges", "R5 misplacements")
+        if c.startswith("<not in abstract> "):
+            continue  # abstract rewritten in r3; its numbers are checked below
+        if c in REWORD:
+            if REWORD[c] is not None:
+                new.append((w, REWORD[c]))
+            continue
+        if c.endswith(" \\\\") and " & " in c and c not in TXT["article"]:
+            lab = c.split(" & ", 1)[0]
+            c2 = c.replace("DS Dempster &", "DS Dempster (sequential) &", 1) if lab == "DS Dempster" else c
+            new.append(("supplement", c2))  # row moved to Supplementary Table S12
+            continue
+        new.append((w, c))
+    checks[:] = new
+    # abstract (r3 wording)
+    ab = TXT["article"].split("\\begin{abstract}", 1)[1].split("\\end{abstract}", 1)[0]
+    for s_ in (f"({f1(a_i['critical_sensitivity_pct'])}\\% and {f1(a_d['critical_sensitivity_pct'])}\\% critical sensitivity, equal to the minimum)",
+               f"against {f1(ex_i['critical_sensitivity_pct'])}\\% and {f1(ex_d['critical_sensitivity_pct'])}\\% for Dempster's rule",
+               f"at {f1(a_i['over_triage_pct'])}\\% and {f1(a_d['over_triage_pct'])}\\% over-triage"):
+        checks.append(("article", s_ if s_ in ab else "<not in abstract> " + s_))
+    assert a_i["critical_sensitivity_pct"] == m_i["critical_sensitivity_pct"] and a_d["critical_sensitivity_pct"] == m_d["critical_sensitivity_pct"]
+    assert 30 <= float(a_i["r3_under_triage_pct"]) <= 37 and 30 <= float(a_d["r3_under_triage_pct"]) <= 37  # "a third"
+    # exact Dempster rows of Table 4
+    for c_ in (I, D):
+        r_ = prim[(c_, "DS Dempster (singleton, BetP)")]
+        A(f"DS Dempster (exact) & {cells(r_)} \\\\")
+    # cover letter (r3 wording)
+    checks[:] = [(w, c) for w, c in checks if w != "cover"]
+    if "cover" in TXT:
+        A(f"({f1(a_i['critical_sensitivity_pct'])}\\% and {f1(a_d['critical_sensitivity_pct'])}\\% critical sensitivity, equal to the minimum)",
+          f"against {f1(ex_i['critical_sensitivity_pct'])}\\% and {f1(ex_d['critical_sensitivity_pct'])}\\% for Dempster's rule", where="cover")
+    # supplement: r3 supplement is edited by hand (see IJAR revision log); compare its finite-chain table with results/
+    checks[:] = [(w, c) for w, c in checks if c != "<supplement.tex differs from scripts/make_supplement.py output>"]
+    th = json.loads((RES / "finite_chain_theorems.json").read_text(encoding="utf-8"))
+    g = th["T1_grid_6_gates_conf_step_1/5"]
+    sg3, sg6 = th["Sugeno"]["all_capacities_3_gates"], th["Sugeno"]["symmetric_capacities_6_gates"]
+    t2_ = th["T2_smooth_CND"]
+    assert all(g[k]["def_ne_quota"] == g[k]["band_viol"] == g[k]["mono_viol"] == g[k]["O_viol"] == 0 for k in ("theta=1/2,mu=1/2", "theta=1/2,mu=2/3"))
+    assert th["T1_implementation"]["mismatches"] == 0 and all(c_["monotone_equals_quota"] for c_ in th["T1_converse"][:2])
+    assert t2_["U_equals_max(2,rank_rmin)"] and t2_["two_gates"]["of_which_relax_a_floor_R2_to_R5"] == 0
+    for sg in (sg3, sg6):
+        assert sg["smooth_viol"] == sg["CND_iff_singletons_ge4_viol"] == sg["degeneracy_viol"] == sg["equal_to_minimum_iff_singletons_5_viol"] == 0
+    co = th["T1_converse"][2]
+    for w_ in ("article", "supplement"):
+        A(f"21{{,}}683{{,}}472 and 13{{,}}726{{,}}224" if (g["theta=1/1,mu=1/2"]["O_viol"], g["theta=1/1,mu=2/3"]["O_viol"]) == (21683472, 13726224) else "<O-violation counts changed>",
+          f"{num(co['monotone_maps'])} of the {num(co['candidate_maps'])} candidate maps are monotone and only {co['quota_maps']} of them are quotas" if w_ == "article" else f"{num(co['candidate_maps'])} candidates; {co['monotone_maps']} monotone, only {co['quota_maps']} quotas",
+          f"{num(th['T1_implementation']['inputs'])} inputs", f"{num(sg3['capacities'])} capacities", f"{sg6['capacities']} symmetric capacities" if w_ == "article" else f"{sg6['capacities']} capacities",
+          f"{num(t2_['two_gates']['smooth_and_CND'])} of the {num(t2_['two_gates']['CP_CND_operators'])} rules" if w_ == "article" else f"{num(t2_['two_gates']['CP_CND_operators'])} rules; {t2_['two_gates']['smooth_and_CND']} are 1-Lipschitz",
+          f"{sg3['CND_capacities']} and {sg6['CND_capacities']} of these capacities are non-diluting" if w_ == "article" else f"{sg3['CND_capacities']} non-diluting", where=w_)
+
 bad = [(w, c) for w, c in checks if c is not None and c not in TXT.get(w, c)]
 print(f"{len(checks)} checks over {', '.join(TXT)}; {len(bad)} mismatches")
 for w, c in bad:

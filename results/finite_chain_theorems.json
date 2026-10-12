@@ -1,0 +1,106 @@
+{
+  "Sugeno": {
+    "all_capacities_3_gates": {
+      "CND_capacities": 18,
+      "CND_iff_singletons_ge4_viol": 0,
+      "capacities": 5103,
+      "degeneracy_viol": 0,
+      "equal_to_minimum": 1,
+      "equal_to_minimum_iff_singletons_5_viol": 0,
+      "profiles": 125,
+      "smooth_viol": 0
+    },
+    "symmetric_capacities_6_gates": {
+      "CND_capacities": 6,
+      "CND_iff_singletons_ge4_viol": 0,
+      "capacities": 252,
+      "degeneracy_viol": 0,
+      "equal_to_minimum": 1,
+      "equal_to_minimum_iff_singletons_5_viol": 0,
+      "profiles": 15625,
+      "smooth_viol": 0
+    }
+  },
+  "T1_converse": [
+    {
+      "attainable_shares": 7,
+      "candidate_maps": 64,
+      "confidence_grid": "simplex, step 1/6",
+      "confidence_vectors": 28,
+      "gates": 3,
+      "monotone_equals_quota": true,
+      "monotone_maps": 7,
+      "quota_maps": 7
+    },
+    {
+      "attainable_shares": 7,
+      "candidate_maps": 64,
+      "confidence_grid": "simplex, step 1/6",
+      "confidence_vectors": 84,
+      "gates": 4,
+      "monotone_equals_quota": true,
+      "monotone_maps": 7,
+      "quota_maps": 7
+    },
+    {
+      "attainable_shares": 11,
+      "candidate_maps": 1024,
+      "confidence_grid": "{0,1/2,1}^n",
+      "confidence_vectors": 26,
+      "gates": 3,
+      "monotone_equals_quota": false,
+      "monotone_maps": 112,
+      "quota_maps": 11
+    }
+  ],
+  "T1_grid_6_gates_conf_step_1/5": {
+    "quota_mu=2/3_function_of_share_only": {
+      "clashes": 0,
+      "distinct_shares": 245
+    },
+    "theta=1/1,mu=1/2": {
+      "O_viol": 21683472,
+      "band_viol": 0,
+      "def_ne_quota": 9781872,
+      "inputs": 729000000,
+      "mono_viol": 0
+    },
+    "theta=1/1,mu=2/3": {
+      "O_viol": 13726224,
+      "band_viol": 0,
+      "def_ne_quota": 3637614,
+      "inputs": 729000000,
+      "mono_viol": 0
+    },
+    "theta=1/2,mu=1/2": {
+      "O_viol": 0,
+      "band_viol": 0,
+      "def_ne_quota": 0,
+      "inputs": 729000000,
+      "mono_viol": 0
+    },
+    "theta=1/2,mu=2/3": {
+      "O_viol": 0,
+      "band_viol": 0,
+      "def_ne_quota": 0,
+      "inputs": 729000000,
+      "mono_viol": 0
+    }
+  },
+  "T1_implementation": {
+    "confidence_vectors": 12,
+    "inputs": 187500,
+    "mismatches": 0
+  },
+  "T2_smooth_CND": {
+    "U_equals_max(2,rank_rmin)": true,
+    "bound_attained_by_smooth_CND_operator": true,
+    "iterations": 3,
+    "profiles": 15625,
+    "two_gates": {
+      "CP_CND_operators": 131072,
+      "of_which_relax_a_floor_R2_to_R5": 0,
+      "smooth_and_CND": 512
+    }
+  }
+}

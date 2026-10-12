@@ -434,7 +434,7 @@ def fig6_robustness():
 GA_METHODS = [
     ("SAFE-Gate ACWCM (v2)", "ACWCM", BLUE, (-30, 4)),
     ("SAFE-Gate MIN", "Minimum", GREEN, (-14, -10)),
-    ("Dempster-Shafer", "Dempster", ORANGE, (4, -8)),
+    ("DS Dempster (singleton, BetP)", "Dempster (exact)", ORANGE, (4, -8)),
     ("DS cautious rule (Denoeux)", "Cautious rule", PINK, (-20, 5)),
     ("Band-clamped Sugeno integral", "Band-clamped Sugeno", YELLOW, (-40, 5)),
     ("XGBoost", "XGBoost", GREY, (4, -3)),
@@ -456,7 +456,7 @@ def graphical_abstract():
     fig = plt.figure(figsize=(13 / 2.54, 5 / 2.54))
     axl = fig.add_axes([0.0, 0.0, 0.42, 1.0])
     axl.axis("off")
-    axl.text(0.04, 0.90, "ACWCM on a finite risk chain", fontsize=8, weight="bold", color=INK)
+    axl.text(0.04, 0.90, "Non-diluting aggregation (ACWCM)", fontsize=8, weight="bold", color=INK)
     lines = [
         "1. Abstention or a critical input is absorbing",
         "2. Floor = most cautious input",
@@ -465,8 +465,8 @@ def graphical_abstract():
         "4. Never relax the critical band",
     ]
     for i, t in enumerate(lines):
-        axl.text(0.04, 0.76 - 0.10 * i, t, fontsize=6.5, color=INK)
-    axl.text(0.04, 0.08, "Like the minimum, never dilutes a critical input;\nthe price is over-triage (right)",
+        axl.text(0.04, 0.77 - 0.095 * i, t, fontsize=6.5, color=INK)
+    axl.text(0.04, 0.06, "Proved: a floor-bounded non-diluting rule\nthat relaxes must jump two tiers.\nPrice: over-triage (right). Synthetic data",
              fontsize=6.5, color=BLUE, weight="bold")
     ax = fig.add_axes([0.53, 0.20, 0.44, 0.68])
     for key, lab, col, off in GA_METHODS:
