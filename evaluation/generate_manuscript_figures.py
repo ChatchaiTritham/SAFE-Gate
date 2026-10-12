@@ -431,6 +431,64 @@ def fig6_robustness():
     save(fig, "fig6_robustness")
 
 
+GA_METHODS = [
+    ("SAFE-Gate ACWCM (v2)", "ACWCM", BLUE, (-30, 4)),
+    ("SAFE-Gate MIN", "Minimum", GREEN, (-14, -10)),
+    ("Dempster-Shafer", "Dempster", ORANGE, (4, -8)),
+    ("DS cautious rule (Denoeux)", "Cautious rule", PINK, (-20, 5)),
+    ("Band-clamped Sugeno integral", "Band-clamped Sugeno", YELLOW, (-40, 5)),
+    ("XGBoost", "XGBoost", GREY, (4, -3)),
+]
+
+
+def graphical_abstract():
+    """Graphical abstract (Elsevier: >= 1328 x 531 px, readable at 13 x 5 cm).
+
+    Left: the merge rule. Right: critical sensitivity against over-triage on the
+    diagnosis-conditioned fresh cohort, read from results/round4_primary.csv, so
+    the guarantee and its price are shown together.
+    """
+    rows = {}
+    with open(RESULTS / "round4_primary.csv", newline="", encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            if r["cohort"] == "fresh_diagnosis_generator":
+                rows[r["method"]] = r
+    fig = plt.figure(figsize=(13 / 2.54, 5 / 2.54))
+    axl = fig.add_axes([0.0, 0.0, 0.42, 1.0])
+    axl.axis("off")
+    axl.text(0.04, 0.90, "ACWCM on a finite risk chain", fontsize=8, weight="bold", color=INK)
+    lines = [
+        "1. Abstention or a critical input is absorbing",
+        "2. Floor = most cautious input",
+        "3. Relax by one tier only if a weighted",
+        "    quota of confidence lies above it",
+        "4. Never relax the critical band",
+    ]
+    for i, t in enumerate(lines):
+        axl.text(0.04, 0.76 - 0.10 * i, t, fontsize=6.5, color=INK)
+    axl.text(0.04, 0.08, "Like the minimum, never dilutes a critical input;\nthe price is over-triage (right)",
+             fontsize=6.5, color=BLUE, weight="bold")
+    ax = fig.add_axes([0.53, 0.20, 0.44, 0.68])
+    for key, lab, col, off in GA_METHODS:
+        r = rows.get(key)
+        if r is None:
+            raise KeyError(key)
+        x, y = float(r["over_triage_pct"]), float(r["critical_sensitivity_pct"])
+        ax.scatter([x], [y], s=18, color=col, zorder=3)
+        ax.annotate(lab, (x, y), xytext=off, textcoords="offset points", fontsize=6, color=col)
+    ax.set_xlabel("Over-triage (%)", fontsize=6.5)
+    ax.set_ylabel("Critical sensitivity (%)", fontsize=6.5)
+    ax.tick_params(labelsize=6)
+    ax.set_xlim(0, 100)
+    ax.set_title("Synthetic diagnosis-conditioned cohort", fontsize=6.5)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+    OUTDIR.mkdir(parents=True, exist_ok=True)
+    fig.savefig(OUTDIR / "graphical_abstract.pdf")
+    fig.savefig(OUTDIR / "graphical_abstract.png", dpi=300)
+    plt.close(fig)
+
+
 LAYOUTS = {
     "ijfs": (455.24, 216.24, ROOT / "evaluation" / "manuscript_figures", 5, 0.90, 1.0),
     "ijar": (390.0, 390.0, ROOT / "evaluation" / "manuscript_figures_ijar", 3, 0.82, 1.2),
@@ -452,6 +510,8 @@ def main(argv=None):
     fig4_ablation()
     fig5_dilution()
     fig6_robustness()
+    if a.layout == "ijar":
+        graphical_abstract()
     print("six figures: two-column %.0f pt, column %.0f pt; 8 pt sans-serif lettering" % (TEXT_PT, COL_PT))
 
 

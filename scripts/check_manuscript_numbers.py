@@ -284,6 +284,15 @@ cert = S["certificate_delta_cf_dev"]
 A(f"single-feature escalation for {cert['1']} of 805 cases and none among the searched subsets for {cert['not found (censored)']}",
   f"$p={S['age_tier_interaction_dev']['p']:.2f}$")
 
+# ---------------- IJAR round 2: R1-to-R2 loss (gate-level, same for MIN) and XGBoost threshold
+if IJAR:
+    assert prim[(I, V2)]['R1_under_pct'] == prim[(I, MIN)]['R1_under_pct']
+    assert prim[(D, V2)]['R1_under_pct'] == prim[(D, MIN)]['R1_under_pct']
+    A(f"{f1(prim[(I, V2)]['R1_under_pct'])}\\% and {f1(prim[(D, V2)]['R1_under_pct'])}\\% of true R1 cases were returned as R2",
+      f"was {S['fitted']['xgb_critical_threshold']:.3f}, which made it less sensitive")
+    for c_ in (I, D):
+        assert float(prim[(c_, 'XGBoost (safety threshold, val >=99%)')]['critical_sensitivity_pct']) < float(prim[(c_, 'XGBoost')]['critical_sensitivity_pct'])
+
 # ---------------- plain-text abstract and cover letter
 if IJAR:
     ab = TXT["article"].split("\\begin{abstract}", 1)[1].split("\\end{abstract}", 1)[0]

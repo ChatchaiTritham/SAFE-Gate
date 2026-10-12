@@ -142,15 +142,19 @@ IJAR_EDITS = [
      "%% Fuzzy Systems). Tables are generated from the repository results/ %%",
      "%% Supplementary Material for \"SAFE-Gate\" (International Journal of  %%\n"
      "%% Approximate Reasoning). Tables are generated from results/        %%"),
-    ("(tag \\texttt{v2.0.1-ijfs}; the script", "(tag \\texttt{v2.0.2}; the script"),
-    ("code tag \\texttt{v2.0.1-ijfs}", "code tag \\texttt{v2.0.2}"),
+    ("(tag \\texttt{v2.0.1-ijfs}; the script", "(tag \\texttt{v2.0.3}; the script"),
+    ("code tag \\texttt{v2.0.1-ijfs}", "code tag \\texttt{v2.0.3}"),
+    ("for the fusion rules of the earlier version of this work;", "for the fusion rules of the v1 calibration;"),
+    (", called a ``safety certificate'' in earlier versions; it certifies nothing and has been renamed.",
+     "; it is an audit record, not a certificate."),
     ("both increase when a dissenting confidence rises or a floor confidence falls.",
-     "$m_>$ increases when a dissenting confidence rises or a floor confidence falls. The margin $\\tau_w-\\text{rank}(r)=S/(A+B)$, "
+     ". $m_>$ increases when a dissenting confidence rises or a floor confidence falls. The margin $\\tau_w-\\text{rank}(r)=S/(A+B)$, "
      "with $S=\\sum_{\\text{above}}c_id_i$ and $d_i=\\text{rank}(r_i)-\\text{rank}(r)\\ge1$, can decrease, but if $S\\ge\\theta(A+B)$ and "
      "$\\theta\\le1$ then $S+\\delta d_j\\ge\\theta(A+B+\\delta)$ for any added dissenting confidence $\\delta$, and lowering a floor confidence "
      "only lowers $A+B$; so for $\\theta\\le1$ the trigger cannot switch off. For $\\theta>1$ the confidence statement fails: with "
      "$\\theta=1.5$, $\\mu=1/2$, gates at (R3, 0.2), (R4, $c$), (R5, 1) and three at R5 with confidence 0, the output is R4 for $c=0$ "
      "($\\tau_w-3=1.67$) and R3 for $c=1$ ($\\tau_w-3=1.36$), as the implementation confirms. Every calibration profile has $\\theta\\le1$."),
+    ("(A+B)$ . $m_>$", "(A+B)$. $m_>$"),
 ]
 if JOURNAL == "ijar":
     for a, b in IJAR_EDITS:
