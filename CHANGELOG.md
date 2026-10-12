@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.0.4 (IJAR revision: secondary analyses)
+
+No change to `src/`, the generators, the frozen protocol or `results/round4_*`; the frozen cohorts were not re-scored by the primary pipeline.
+
+- `scripts/ijar_r3_analyses.py` (post-hoc, secondary): disjunctive rule (pignistic and credal upper-cost decisions), Dempster with credal decision, Dempster/cautious with confidences capped at 0.999, minimum and any-dissent extreme in the enumeration and conflict grids, (theta, mu) trigger sweep, Clopper-Pearson CIs for over-/under-triage, break-even over miss/false-alarm ratios, non-expert HINTS (sensitivity 0.80) and VB-TIA-as-R1 scenarios. Outputs `results/ijar_r3_*`.
+- `scripts/ijar_r3_paired.py`: descriptive paired comparison of ACWCM with the exact Dempster rule (`results/ijar_r3_paired.json`).
+- `scripts/ijar_r3_figure.py`: over-triage vs R3 under-triage trade-off figure.
+- Pre-round-4 development-split outputs moved to `results/legacy/` (see README there); `results/SHA256SUMS` lists digests of the canonical result files.
+- Post-freeze changes to `src/` since 03b0adb are comments, docstrings and the `n_rules` metadata field of G1's reasoning dict only (`git diff 03b0adb..v2.0.4 -- src`).
+
 ## v2.0.1-ijfs (round-5 pre-submission audit)
 
 No change to scoring code, generators or `results/`; the frozen round-4 cohorts were not re-scored.

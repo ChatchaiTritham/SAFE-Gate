@@ -1,0 +1,441 @@
+{
+  "note": "post-hoc secondary analyses; frozen protocol unchanged",
+  "protocol_sha256": "4944d15377839f263a754b2518ddfc8538f7716d73f886cdad5edaabb3f08009",
+  "vbtia_as_R1": {
+    "n_relabelled": 166,
+    "SAFE-Gate ACWCM (v2)": {
+      "critical_sensitivity_pct": 89.74,
+      "R1_under_pct": 57.87,
+      "relabelled_returned_R1": 12
+    },
+    "MIN": {
+      "critical_sensitivity_pct": 89.74,
+      "R1_under_pct": 57.87,
+      "relabelled_returned_R1": 12
+    },
+    "DS Dempster exact (BetP)": {
+      "critical_sensitivity_pct": 81.67,
+      "R1_under_pct": 50.46,
+      "relabelled_returned_R1": 37
+    }
+  },
+  "pareto_v2": {
+    "fresh_independent_generator": {
+      "v2": {
+        "cohort": "fresh_independent_generator",
+        "theta": 0.5,
+        "mu": 0.6667,
+        "critical_sensitivity_pct": 94.93,
+        "accuracy_pct": 54.3,
+        "over_triage_pct": 29.6,
+        "under_triage_pct": 16.1,
+        "r3_under_triage_pct": 32.33,
+        "under_2plus": 6
+      },
+      "n_points": 63,
+      "points_dominating_v2": []
+    },
+    "fresh_diagnosis_generator": {
+      "v2": {
+        "cohort": "fresh_diagnosis_generator",
+        "theta": 0.5,
+        "mu": 0.6667,
+        "critical_sensitivity_pct": 89.74,
+        "accuracy_pct": 30.02,
+        "over_triage_pct": 60.92,
+        "under_triage_pct": 9.06,
+        "r3_under_triage_pct": 36.68,
+        "under_2plus": 23
+      },
+      "n_points": 63,
+      "points_dominating_v2": []
+    }
+  },
+  "conflict": {
+    "n_hetero": 55980,
+    "n_false_alarm": 64,
+    "rules": {
+      "SAFE-Gate ACWCM (v2)": {
+        "dilutions_980": 0,
+        "r1_to_r5_980": 0,
+        "dilutions_hetero": 0,
+        "escalations_false_alarm": 64,
+        "dilution_rate_980": 0.0,
+        "escalation_rate_false_alarm": 1.0
+      },
+      "MIN": {
+        "dilutions_980": 0,
+        "r1_to_r5_980": 0,
+        "dilutions_hetero": 0,
+        "escalations_false_alarm": 64,
+        "dilution_rate_980": 0.0,
+        "escalation_rate_false_alarm": 1.0
+      },
+      "Any-dissent (band-bounded extreme)": {
+        "dilutions_980": 0,
+        "r1_to_r5_980": 0,
+        "dilutions_hetero": 0,
+        "escalations_false_alarm": 64,
+        "dilution_rate_980": 0.0,
+        "escalation_rate_false_alarm": 1.0
+      },
+      "DS Dempster exact (BetP)": {
+        "dilutions_980": 328,
+        "r1_to_r5_980": 82,
+        "dilutions_hetero": 50988,
+        "escalations_false_alarm": 12,
+        "dilution_rate_980": 0.3346938775510204,
+        "escalation_rate_false_alarm": 0.1875
+      },
+      "DS Dempster exact, conf<=0.999": {
+        "dilutions_980": 328,
+        "r1_to_r5_980": 82,
+        "dilutions_hetero": 50988,
+        "escalations_false_alarm": 12,
+        "dilution_rate_980": 0.3346938775510204,
+        "escalation_rate_false_alarm": 0.1875
+      },
+      "DS cautious, conf<=0.999": {
+        "dilutions_980": 200,
+        "r1_to_r5_980": 50,
+        "dilutions_hetero": 35868,
+        "escalations_false_alarm": 52,
+        "dilution_rate_980": 0.20408163265306123,
+        "escalation_rate_false_alarm": 0.8125
+      },
+      "DS Dempster exact (upper expected cost)": {
+        "dilutions_980": 212,
+        "r1_to_r5_980": 53,
+        "dilutions_hetero": 41346,
+        "escalations_false_alarm": 28,
+        "dilution_rate_980": 0.2163265306122449,
+        "escalation_rate_false_alarm": 0.4375
+      },
+      "DS disjunctive (BetP, critical ties)": {
+        "dilutions_980": 0,
+        "r1_to_r5_980": 0,
+        "dilutions_hetero": 0,
+        "escalations_false_alarm": 64,
+        "dilution_rate_980": 0.0,
+        "escalation_rate_false_alarm": 1.0
+      },
+      "DS disjunctive (BetP, benign ties)": {
+        "dilutions_980": 980,
+        "r1_to_r5_980": 245,
+        "dilutions_hetero": 55980,
+        "escalations_false_alarm": 0,
+        "dilution_rate_980": 1.0,
+        "escalation_rate_false_alarm": 0.0
+      },
+      "DS disjunctive (upper expected cost)": {
+        "dilutions_980": 0,
+        "r1_to_r5_980": 0,
+        "dilutions_hetero": 0,
+        "escalations_false_alarm": 64,
+        "dilution_rate_980": 0.0,
+        "escalation_rate_false_alarm": 1.0
+      }
+    },
+    "prevalence_critical_dev": 0.2174,
+    "breakeven_by_ratio_qf_over_qd": {
+      "0.25": {
+        "SAFE-Gate ACWCM (v2)": null,
+        "MIN": null,
+        "Any-dissent (band-bounded extreme)": null,
+        "DS Dempster exact (BetP)": 2.185,
+        "DS Dempster exact, conf<=0.999": 2.185,
+        "DS cautious, conf<=0.999": 0.827,
+        "DS Dempster exact (upper expected cost)": 2.34,
+        "DS disjunctive (BetP, critical ties)": null,
+        "DS disjunctive (BetP, benign ties)": 0.9,
+        "DS disjunctive (upper expected cost)": null
+      },
+      "0.5": {
+        "SAFE-Gate ACWCM (v2)": null,
+        "MIN": null,
+        "Any-dissent (band-bounded extreme)": null,
+        "DS Dempster exact (BetP)": 4.369,
+        "DS Dempster exact, conf<=0.999": 4.369,
+        "DS cautious, conf<=0.999": 1.654,
+        "DS Dempster exact (upper expected cost)": 4.68,
+        "DS disjunctive (BetP, critical ties)": null,
+        "DS disjunctive (BetP, benign ties)": 1.8,
+        "DS disjunctive (upper expected cost)": null
+      },
+      "1.0": {
+        "SAFE-Gate ACWCM (v2)": null,
+        "MIN": null,
+        "Any-dissent (band-bounded extreme)": null,
+        "DS Dempster exact (BetP)": 8.739,
+        "DS Dempster exact, conf<=0.999": 8.739,
+        "DS cautious, conf<=0.999": 3.307,
+        "DS Dempster exact (upper expected cost)": 9.36,
+        "DS disjunctive (BetP, critical ties)": null,
+        "DS disjunctive (BetP, benign ties)": 3.6,
+        "DS disjunctive (upper expected cost)": null
+      },
+      "2.0": {
+        "SAFE-Gate ACWCM (v2)": null,
+        "MIN": null,
+        "Any-dissent (band-bounded extreme)": null,
+        "DS Dempster exact (BetP)": 17.478,
+        "DS Dempster exact, conf<=0.999": 17.478,
+        "DS cautious, conf<=0.999": 6.615,
+        "DS Dempster exact (upper expected cost)": 18.721,
+        "DS disjunctive (BetP, critical ties)": null,
+        "DS disjunctive (BetP, benign ties)": 7.2,
+        "DS disjunctive (upper expected cost)": null
+      },
+      "4.0": {
+        "SAFE-Gate ACWCM (v2)": null,
+        "MIN": null,
+        "Any-dissent (band-bounded extreme)": null,
+        "DS Dempster exact (BetP)": 34.956,
+        "DS Dempster exact, conf<=0.999": 34.956,
+        "DS cautious, conf<=0.999": 13.229,
+        "DS Dempster exact (upper expected cost)": 37.441,
+        "DS disjunctive (BetP, critical ties)": null,
+        "DS disjunctive (BetP, benign ties)": 14.399,
+        "DS disjunctive (upper expected cost)": null
+      }
+    }
+  },
+  "enumeration": {
+    "SAFE-Gate ACWCM (v2)": {
+      "max_jump_one_step": 2,
+      "CP": 0,
+      "CND": 0,
+      "R1D": 0,
+      "conf_monotonicity": 0,
+      "n_inputs": 125000,
+      "n_conf_pairs": 708
+    },
+    "MIN": {
+      "max_jump_one_step": 1,
+      "CP": 0,
+      "CND": 0,
+      "R1D": 0,
+      "conf_monotonicity": 0,
+      "n_inputs": 125000,
+      "n_conf_pairs": 0
+    },
+    "Any-dissent (band-bounded extreme)": {
+      "max_jump_one_step": 2,
+      "CP": 0,
+      "CND": 0,
+      "R1D": 0,
+      "conf_monotonicity": 0,
+      "n_inputs": 125000,
+      "n_conf_pairs": 1638
+    },
+    "DS Dempster exact (BetP)": {
+      "max_jump_one_step": 4,
+      "CP": 60776,
+      "CND": 65472,
+      "R1D": 15082,
+      "conf_monotonicity": 0,
+      "n_inputs": 125000,
+      "n_conf_pairs": 17460
+    },
+    "DS Dempster exact, conf<=0.999": {
+      "max_jump_one_step": 4,
+      "CP": 60776,
+      "CND": 65472,
+      "R1D": 15082,
+      "conf_monotonicity": 0,
+      "n_inputs": 125000,
+      "n_conf_pairs": 17460
+    },
+    "DS cautious, conf<=0.999": {
+      "max_jump_one_step": 1,
+      "CP": 52542,
+      "CND": 56772,
+      "R1D": 12975,
+      "conf_monotonicity": 0,
+      "n_inputs": 125000,
+      "n_conf_pairs": 0
+    },
+    "DS Dempster exact (upper expected cost)": {
+      "max_jump_one_step": 4,
+      "CP": 51482,
+      "CND": 56838,
+      "R1D": 11813,
+      "conf_monotonicity": 0,
+      "n_inputs": 125000,
+      "n_conf_pairs": 13500
+    },
+    "DS disjunctive (BetP, critical ties)": {
+      "max_jump_one_step": 1,
+      "CP": 3090,
+      "CND": 4860,
+      "R1D": 29,
+      "conf_monotonicity": 0,
+      "n_inputs": 125000,
+      "n_conf_pairs": 0
+    },
+    "DS disjunctive (BetP, benign ties)": {
+      "max_jump_one_step": 1,
+      "CP": 120858,
+      "CND": 117456,
+      "R1D": 58523,
+      "conf_monotonicity": 0,
+      "n_inputs": 125000,
+      "n_conf_pairs": 67200
+    },
+    "DS disjunctive (upper expected cost)": {
+      "max_jump_one_step": 0,
+      "CP": 0,
+      "CND": 0,
+      "R1D": 0,
+      "conf_monotonicity": 0,
+      "n_inputs": 125000,
+      "n_conf_pairs": 0
+    }
+  },
+  "nonexpert_hints_sens080": {
+    "SAFE-Gate ACWCM (v2)": {
+      "n": 5000,
+      "n_critical": 731,
+      "critical_sensitivity_pct": 92.89,
+      "critical_ci95": [
+        90.78,
+        94.64
+      ],
+      "missed_critical": 52,
+      "false_discharges": 0,
+      "abstention_pct": 0.0,
+      "accuracy_pct": 30.66,
+      "over_triage_pct": 60.48,
+      "under_triage_pct": 8.86,
+      "under_2plus": 16,
+      "r3_under_triage_pct": 36.94,
+      "r3_under_ci95": [
+        33.53,
+        40.44
+      ],
+      "R1_under_pct": 38.72,
+      "R1_over_pct": 0.0,
+      "R2_under_pct": 10.11,
+      "R2_over_pct": 5.16,
+      "R3_under_pct": 36.94,
+      "R3_over_pct": 30.5,
+      "R4_under_pct": 0.43,
+      "R4_over_pct": 60.85,
+      "R5_under_pct": 0.0,
+      "R5_over_pct": 91.16
+    },
+    "MIN": {
+      "n": 5000,
+      "n_critical": 731,
+      "critical_sensitivity_pct": 92.89,
+      "critical_ci95": [
+        90.78,
+        94.64
+      ],
+      "missed_critical": 52,
+      "false_discharges": 0,
+      "abstention_pct": 0.0,
+      "accuracy_pct": 23.52,
+      "over_triage_pct": 72.24,
+      "under_triage_pct": 4.24,
+      "under_2plus": 6,
+      "r3_under_triage_pct": 7.98,
+      "r3_under_ci95": [
+        6.17,
+        10.11
+      ],
+      "R1_under_pct": 38.72,
+      "R1_over_pct": 0.0,
+      "R2_under_pct": 10.11,
+      "R2_over_pct": 5.16,
+      "R3_under_pct": 7.98,
+      "R3_over_pct": 30.5,
+      "R4_under_pct": 0.0,
+      "R4_over_pct": 89.83,
+      "R5_under_pct": 0.0,
+      "R5_over_pct": 100.0
+    },
+    "DS Dempster exact (BetP)": {
+      "n": 5000,
+      "n_critical": 731,
+      "critical_sensitivity_pct": 83.86,
+      "critical_ci95": [
+        80.99,
+        86.45
+      ],
+      "missed_critical": 118,
+      "false_discharges": 5,
+      "abstention_pct": 0.0,
+      "accuracy_pct": 47.64,
+      "over_triage_pct": 39.1,
+      "under_triage_pct": 13.26,
+      "under_2plus": 129,
+      "r3_under_triage_pct": 49.55,
+      "r3_under_ci95": [
+        45.98,
+        53.13
+      ],
+      "R1_under_pct": 32.33,
+      "R1_over_pct": 0.0,
+      "R2_under_pct": 22.37,
+      "R2_over_pct": 18.28,
+      "R3_under_pct": 49.55,
+      "R3_over_pct": 23.04,
+      "R4_under_pct": 6.34,
+      "R4_over_pct": 45.35,
+      "R5_under_pct": 0.0,
+      "R5_over_pct": 50.45
+    },
+    "DS disjunctive (BetP, critical ties)": {
+      "n": 5000,
+      "n_critical": 731,
+      "critical_sensitivity_pct": 92.89,
+      "critical_ci95": [
+        90.78,
+        94.64
+      ],
+      "missed_critical": 52,
+      "false_discharges": 0,
+      "abstention_pct": 0.0,
+      "accuracy_pct": 23.52,
+      "over_triage_pct": 72.24,
+      "under_triage_pct": 4.24,
+      "under_2plus": 6,
+      "r3_under_triage_pct": 7.98,
+      "r3_under_ci95": [
+        6.17,
+        10.11
+      ],
+      "R1_under_pct": 38.72,
+      "R1_over_pct": 0.0,
+      "R2_under_pct": 10.11,
+      "R2_over_pct": 5.16,
+      "R3_under_pct": 7.98,
+      "R3_over_pct": 30.5,
+      "R4_under_pct": 0.0,
+      "R4_over_pct": 89.83,
+      "R5_under_pct": 0.0,
+      "R5_over_pct": 100.0
+    },
+    "gate_recall_union": {
+      "n_critical": 731,
+      "some_gate_fires_pct": 92.89,
+      "per_gate_fire_pct": {
+        "G1": 72.23,
+        "G2": 38.71,
+        "G3": 0.0,
+        "G4": 62.52,
+        "G5": 9.58,
+        "G6": 52.8
+      },
+      "number_of_gates_firing_histogram": {
+        "0": 52,
+        "1": 118,
+        "2": 196,
+        "3": 253,
+        "4": 105,
+        "5": 7
+      }
+    }
+  }
+}

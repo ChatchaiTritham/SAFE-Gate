@@ -1,0 +1,32 @@
+{
+  "fresh_independent_generator": {
+    "critical_kept_diff_pct_newcombe": [
+      10.13,
+      8.05,
+      12.45
+    ],
+    "critical_acwcm_only": 76,
+    "critical_ds_only": 0,
+    "critical_p_exact_mcnemar": 2.647e-23,
+    "accuracy_diff_pct_newcombe": [
+      5.67,
+      4.05,
+      7.28
+    ]
+  },
+  "fresh_diagnosis_generator": {
+    "critical_kept_diff_pct_newcombe": [
+      8.07,
+      5.91,
+      10.36
+    ],
+    "critical_acwcm_only": 65,
+    "critical_ds_only": 6,
+    "critical_p_exact_mcnemar": 1.332e-13,
+    "accuracy_diff_pct_newcombe": [
+      -15.64,
+      -17.06,
+      -14.21
+    ]
+  }
+}
