@@ -1,0 +1,291 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Supplementary Material for "SAFE-Gate" (International Journal of  %%
+%% Fuzzy Systems). Tables are generated from the repository results/ %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[11pt,a4paper]{article}% standalone supplement
+\usepackage[margin=1in]{geometry}%
+\usepackage[T1]{fontenc}%
+\usepackage{lmodern}%
+\usepackage{graphicx}%
+\usepackage{amsmath,amssymb,amsfonts}%
+\usepackage{amsthm}%
+\usepackage{xcolor}%
+\usepackage{enumitem}%
+\usepackage{booktabs}%
+\usepackage{algorithm}%
+\usepackage{algpseudocode}%
+\usepackage{xurl}%
+
+\newcommand{\safegate}{\textsc{SAFE-Gate}}
+
+\theoremstyle{plain}%
+\newtheorem{proposition}{Proposition}%
+\theoremstyle{remark}%
+\newtheorem{remark}{Remark}%
+
+\renewcommand{\thesection}{S\arabic{section}}%
+\renewcommand{\thealgorithm}{S\arabic{algorithm}}%
+\renewcommand{\thetable}{S\arabic{table}}%
+\renewcommand{\thefigure}{S\arabic{figure}}%
+\raggedbottom
+
+\begin{document}
+
+\title{Supplementary Material\\[2pt] \large for ``\safegate{}: Safety-Bounded Conservative Aggregation of Expert Modules on a Finite Risk Chain for Emergency Triage''}
+\author{}
+\date{}
+\maketitle
+
+Every number in the tables of this supplement is read by a script from the files that \texttt{python run\_all.py --round4} writes to \texttt{results/} in the repository (tag \texttt{v2.0.1-ijfs}; the script is \texttt{scripts/make\_supplement.py}); none is typed by hand. Proposition numbers refer to the main text.
+
+\section{Proofs}\label{sup:proofs}
+
+Notation is as in Section~3 of the main text: $\text{rank}(Rk)=k$, $r_{\min}$ is the most urgent tier of an abstention-free profile, $m_>$ the share of confidence strictly above it and $\tau_w$ the confidence-weighted mean rank.
+
+\textbf{CP, AC and CND for ACWCM.} AC: a profile with an abstention is returned as $R^*$ before anything else is computed. CND: if some input is R1 the output is R1; otherwise, if $r_{\min}=R2$, the trigger excludes relaxation and the output is R2. CP: every branch returns $r_{\min}$ or $\text{relax}(r_{\min},1)$. None of these arguments uses the confidences or $(\theta,\mu)$. The implementation evaluates the three properties for each decision and writes the computed truth values to the audit trail (in earlier versions AC and CND were written as constants; this has been corrected and is covered by a unit test).
+
+\textbf{Proposition~1 (monotonicity and idempotency).} Let $r_i\sqsubseteq r'_i$ for all $i$ with the same confidences, so that $r$ is the more urgent profile (the roles of $r$ and $r'$ are swapped with respect to the statement in the main text); we show $f(r)\sqsubseteq f(r')$. (a) If some $r'_i=R^*$ then $r_i=R^*$ and both outputs are $R^*$; if some $r_i=R^*$ the first output is the bottom element. If neither profile abstains and some $r'_i=R1$, then $r_i=R1$ and both outputs are R1; if some $r_i=R1$ and no $r'_i$ is $R^*$ or R1, the first output is R1, below every other tier. (b) If neither profile contains $R^*$ or R1 and $r_{\min}\sqsubset r'_{\min}$, then $\text{rank}(f(r))\le\text{rank}(r_{\min})+1\le\text{rank}(r'_{\min})\le\text{rank}(f(r'))$. (c) If $r_{\min}=r'_{\min}=r$, every gate above $r$ in $r$ is above it in $r'$, so $m'_>\ge m_>$ and $\tau'_w\ge\tau_w$, and the exclusion $r\notin\{R2,R5\}$ is common; the trigger for $r$ implies the trigger for $r'$. For the confidence statement fix the tiers and write $A$ and $B$ for the confidence above and at the floor: $m_>=A/(A+B)$ and $\tau_w-\text{rank}(r)=\sum_{\text{above}}c_i(\text{rank}(r_i)-\text{rank}(r))/(A+B)$ both increase when a dissenting confidence rises or a floor confidence falls. Unanimous profiles in $\mathcal{L}$ have $m_>=0<\mu$, and the all-$R^*$ profile is returned as $R^*$. $\square$
+
+\textbf{Proposition~2 (non-smoothness).} Proved in the main text. The enumeration of Table~2 of the main text confirms a maximal one-step jump of 2 for ACWCM (quota and fuzzy-quantifier trigger) and of 1 for every Sugeno-type rule; Dempster's rule, its Yager and Dubois--Prade variants and BMA reach 4.
+
+\textbf{Proposition~3 (extremes of the band-bounded class).} Proved in the main text. The any-dissent rule of the first version of this work, which relaxes when $\tau_w>\text{rank}(r_{\min})$, coincides with the upper extreme whenever some gate above the floor has positive confidence and $r_{\min}\in\{R3,R4\}$; on the development test split it under-triaged 57.3\% of cases.
+
+\textbf{Counterexamples for the Sugeno rules.} For $\nu_+$ with $c_i=0.8$, one R1 gate and five R5 gates give $\nu_+(\{1\})=q(1/6)=1$, so $S=1$ and the output is R5. For the forced-top weighted maximum, one R1 gate with $c=0.5$ and five R5 gates give $\max\{\min(5,3),1\}=3$, i.e.\ R3; with the normalised distribution the same profile gives $\pi_1=q(0.5/0.5)=5$ when the R1 gate has the largest confidence, so the output is R1, but if the five R5 gates have confidence 1 then $\pi_1=q(0.5)=3$ and the output is again R3. The ordinal weighted median claim of the earlier version is refuted by $(R1,R1,R1,R5,R5,R5)$ with $c\equiv1$, which $\nu_+$ maps to R3.
+
+\section{Gate Definitions}\label{sup:gates}
+
+The gates are the authors' hand-written rules. Their labels in earlier versions overstated their pedigree; the corrections are noted below. No clinician has reviewed them.
+
+\textbf{G1 (red flags).} 20 Boolean conditions in five categories (Table~\ref{tab:g1}). Under calibration v2, SBP $<$90\,mmHg, HR $<$50 or $>$150\,bpm, GCS $<$14 and SpO$_2<$92\% return R1 and every other flag R2, both with confidence 1; no flag returns R5 with confidence 0 (a vacuous negative screen). This grading is the authors' design and is not a reproduction of the Emergency Severity Index; the SBP $>$180 threshold is used without end-organ signs and has no specific source; the heart-rate thresholds act in isolation, without context such as known arrhythmia or medication; ataxia is binary and ungraded. These are limitations of the authors' design. Under v1 every flag returned R1.
+
+\begin{table}[h]
+\caption{G1 red-flag categories and conditions (20 in all).}\label{tab:g1}
+\small
+\begin{tabular}{@{}p{0.27\textwidth}p{0.62\textwidth}@{}}
+\toprule
+Category & Conditions \\
+\midrule
+Haemodynamic (5) & SBP $<$90 or $>$180\,mmHg; HR $<$50 or $>$150\,bpm; DBP $>$120\,mmHg \\
+Mental status (1) & GCS $<$14 \\
+Focal deficit (10) & diplopia, new-onset diplopia, dysarthria, ataxia, crossed sensory loss, vertical skew deviation, facial weakness, limb weakness; central nystagmus pattern; positive test of skew \\
+Headache (3) & thunderclap, severe, worst-ever headache \\
+Respiratory (1) & SpO$_2<$92\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{G2 (risk-factor score).} $1.0$ for age $>60$ and $0.5$ for male sex, $1.5$ for sudden onset, $1.0$ for a symptom-onset time above 1\,h (the implementation's field \texttt{continuous\_duration\_1h} measures time since onset, not the duration of a continuous symptom), $1.8$ for atrial fibrillation, $2.0$ for prior stroke, $1.2$ for hypertension, $0.9$ for diabetes and $1.0$ for coronary disease; R2 if the score is $\ge5.5$, R3 from 3.5, R4 from 2.0, R5 otherwise. This is an author-chosen score, not ABCD\textsuperscript{2} (whose items are age $\ge$60, BP $\ge$140/90, unilateral weakness or speech disturbance, duration and diabetes); the male point and the weights have no specific source, and no sensitivity analysis of the weights was performed.
+
+\textbf{G3 (data quality).} The share $\rho$ of 22 essential fields that are present: $\rho<0.70\to R^*$, $0.70\le\rho<0.85$ escalates by one tier, otherwise R5 with confidence 0 under v2.
+
+\textbf{G4 (syndrome similarity).} Weighted Hamming similarity to profiles of BPPV, vestibular neuritis and Meni\`ere disease. Under v2 a central HINTS sign or a focal deficit returns R2; peripheral presentations return R5 at similarity $\ge0.85$, R4 from 0.60 and R3 below. This is not the TiTrATE method, and HINTS is applied whether or not the presentation is an acute vestibular syndrome, although HINTS is validated only there; a normal head impulse in BPPV is therefore read by G4 as a central sign. Dix--Hallpike and HINTS-plus (new hearing loss) are not implemented.
+
+\textbf{G5 (uncertainty surrogate).} A seeded sampler draws 20 tiers around a predicate-based base tier; an index $\mu=0.5H/\log5+0.5\sigma/\sigma_{\max}$ maps to $R^*$ ($\ge0.80$), escalation by two or one tier, or the base tier. No trained network is shipped. Under v2 its age cut-offs are removed and escalation driven by uncertainty alone is capped at R3.
+
+\textbf{G6 (timing).} Hyperacute onset ($<$1\,h) with a worsening course returns R1; 1--24\,h returns R2 or R3; 1--7 days R3 or R4; over 7 days R4 or R5. The bins are the authors' choice and are not TiTrATE categories. G6 alone can return R1 (77 of 377 R1 predictions on the fresh development-generator cohort were R1 only through G6), which is incoherent with G1, where instability is required for R1.
+
+\textbf{Out of scope.} Dangerous causes of dizziness not represented by any gate include cardiac syncope beyond rate disturbances, intoxication, hypoglycaemia, carbon-monoxide poisoning and sepsis.
+
+\section{Enumeration Details and Quantiser Sensitivity}\label{sup:enum}
+
+Table~\ref{tab:enum66} repeats the earlier enumeration over all $6^6$ assignments including abstention, under two confidence profiles, with the tie tolerance of this revision (Dempster's rule and BMA changed; earlier values were CP 15{,}220 and 15{,}739). Table~\ref{tab:quant} shows that the dilution counts of the Sugeno-type rules depend on the quantiser $q$; the qualitative conclusion (every such rule dilutes, ACWCM never) does not.
+
+\begin{table}[h]
+\caption{Violations over $6^6$ tier assignments $\times$ 2 confidence profiles (93{,}312 inputs) and 150{,}000 one-step monotonicity pairs. AC is structural: rules without $R^*$ fail it on every input containing an abstention.}\label{tab:enum66}
+\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Rule & CP & AC & CND & R1D & Mon. & Idem. \\
+\midrule
+@@ENUM@@
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\caption{Dilutions in the 980-configuration grid as a function of the confidence quantiser.}\label{tab:quant}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Quantiser & @@QCOLS@@ \\
+\midrule
+@@Q@@
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Fitted parameters.} Trained on the development training split: the order statistic chose $k=2$; the symmetric-capacity Sugeno integral chose $\varphi=(0,5,5,5,5)$, which is the same operator; the reliabilities used for discounting were @@RELIAB@@; the XGBoost critical-class threshold for $\ge$99\% validation sensitivity was @@XGBT@@.
+
+\section{Stress Tests on the Development Split}\label{sup:stress}
+
+\begin{table}[h]
+\caption{Stress tests on the 805-case development test split: critical sensitivity (\%) / false discharges for each method, and abstention, over- and under-triage (\%, among decided cases) for ACWCM v2. ``Ref.\ label noise'' flips the reference label and leaves the features unchanged.}\label{tab:stress}
+\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+Scenario & v2 & v1 & DS & Sugeno & XGB & Abst. & OT & UT \\
+\midrule
+@@STRESS@@
+\bottomrule
+\end{tabular}
+\end{table}
+
+With the same G3 deferral imposed on every method (\texttt{results/round4\_mcar\_matched.csv}, a separate missingness draw, so its deferral rate differs slightly from Table~\ref{tab:stress}) all methods have the same coverage, and the comparison reduces to sensitivity among decided critical cases. Measurement-noise results are in \texttt{results/round4\_feature\_noise.csv}. Figure~\ref{fig:s1} shows the development-split comparison, Figure~\ref{fig:s2} the ablation and Figure~\ref{fig:s3} the stress tests.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{fig3_safety_tradeoff.pdf}
+\caption{Development test split (805 cases): (a) critical sensitivity, (b) over-triage and (c) under-triage, in \%, with exact Clopper--Pearson 95\% intervals, for the fusion rules of the earlier version of this work; the hatched part of (c) is under-triage by two or more tiers, and the dotted line in (a) marks 100\%.}\label{fig:s1}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{fig4_ablation.pdf}
+\caption{Gate ablation on the development test split (805 cases): (a) over-triage, (b) recall of R5, (c) under-triage and (d) macro F1, in \%, for ACWCM (v2) with all six gates (shaded row, dotted line) and with one or two gates removed.}\label{fig:s2}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{fig6_robustness.pdf}
+\caption{Stress tests on the development test split: (a) critical sensitivity against the true tiers with exact 95\% intervals and (b) false discharges (critical cases placed in R5), for five methods (values of Table~\ref{tab:stress}).}\label{fig:s3}
+\end{figure}
+
+\section{Development Split: Confusion Matrix and Subgroups}\label{sup:dev}
+
+\begin{table}[h]
+\caption{ACWCM (v2) confusion matrix on the development test split (rows true, columns predicted), and under-/over-triage by subgroup (\%, exact 95\% CI). The subgroup analysis is exploratory; an age-by-tier interaction test gave @@AGEINT@@.}\label{tab:cm}
+\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+True$\backslash$Pred. & R1 & R2 & R3 & R4 & R5 & Support \\
+\midrule
+@@CM@@
+\bottomrule
+\end{tabular}
+
+\vspace{6pt}
+\begin{tabular}{@{}lrll@{}}
+\toprule
+Subgroup & $n$ & Under-triage & Over-triage \\
+\midrule
+@@SUB@@
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Diagnosis-Conditioned Generator}\label{sup:diag}
+
+The generator is \texttt{data/generation/generate\_diagnosis.py}. HINTS is produced only for acute vestibular presentations, with sensitivity 0.98 and specificity 0.85 for a central pattern (pooled estimates of Tarnutzer et al.) and a 10\% probability that the reading is inverted; strokes have a 15\% chance of presenting after 24\,h; vertebral-artery dissection is generated with mean age 44 and neck pain or headache in 60\%; AICA stroke carries new hearing loss in 80\%. All other parameters, the case mix and the tier assigned to each diagnosis are the authors' assumptions. At least one gate fired for @@GRU_I@@\% of critical cases of the independent cohort and @@GRU_D@@\% of the diagnosis-conditioned cohort (per gate: @@PERGATE_D@@).
+
+\begin{table}[h]
+\caption{Case mix of the fresh diagnosis-conditioned cohort ($n=5{,}000$), with the critical cases ACWCM did not keep in $\{R^*,R1,R2\}$ and the R3 cases it under-triaged, by diagnosis.}\label{tab:mix}
+\small
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Tier & Diagnosis & $n$ & Missed & Under-triaged \\
+\midrule
+@@MIX@@
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Counterfactual Explanation Record}\label{sup:cf}
+
+Each decision carries a record $(\delta_{\min},\delta_{\text{cf}},g_{\text{enforce}},\text{rationale})$, called a ``safety certificate'' in earlier versions; it certifies nothing and has been renamed. $\delta_{\min}=\text{rank}(r_{\text{final}})-\text{rank}(r_{\min})\in\{0,1\}$ for abstention-free inputs. $\delta_{\text{cf}}$ is found by search: every single feature is perturbed toward a more dangerous value (fixed perturbation operator: Boolean findings set to present, vital signs moved past the corresponding G1 threshold, onset set to hyperacute, HINTS set to a central pattern), then a seeded sample of at most 100 pairs and 100 triples; the first subset size whose perturbation makes the tier more urgent is reported. A value of 1 is exact; 2 or 3 are upper bounds; if no searched subset escalates, nothing is reported. Earlier versions returned an invented value when no classifier was supplied and silently skipped perturbations that raised errors; both have been removed. On the development test split the search found a single-feature escalation for @@CERT1@@ cases and none for @@CERTNONE@@. The record does not bound measurement error; an exact de-escalation margin over clinically plausible measurement intervals was not computed.
+
+\section{Hazard Analysis}\label{sup:hazard}
+
+\begin{table}[h]
+\caption{Hazards of a triage aid built on \safegate{} (ISO 14971 / STPA style). Evidence refers to this paper; ``residual'' is the authors' qualitative judgement.}\label{tab:hazard}
+\footnotesize
+\begin{tabular}{@{}p{0.14\textwidth}p{0.19\textwidth}p{0.21\textwidth}p{0.11\textwidth}p{0.19\textwidth}@{}}
+\toprule
+Hazard & Cause & Control & Residual & Evidence \\
+\midrule
+Critical case not escalated & no gate fires (quiet stroke, dissection, TIA) & none at merge level; gate redesign, clinician review & high & 10.3\% of critical cases, diagnosis cohort \\
+Critical signal diluted & merge rule trades inputs & CND, R1 absorbing, R2 hold & none at merge level & enumeration, 0 dilutions \\
+Sub-critical under-triage & one-step relaxation & band $k=1$, quota trigger & medium & 32--37\% of R3 cases \\
+Abstention flooding & G3 thresholds vs.\ real completeness & recalibration on real data & high & 50.9\% deferred at 30\% MCAR \\
+Spurious escalation & single false red flag & none (by design) & medium (load) & 64/64 false-alarm configs \\
+Common-mode failure & gates share inputs (timing, HINTS) & diverse gates & medium & gates rarely co-fire \\
+Automation bias & clinician defers to output & advisory use only; never lower than nurse & unknown & not studied \\
+Non-smooth output & R2 hold boundary & disclosure & low & Proposition~2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{TRIPOD+AI Checklist and Intended Use}\label{sup:tripod}
+
+\textbf{Intended use (proposed, not validated).} Advisory decision support for a triage nurse assessing adults with acute dizziness; the output may raise but never lower the priority the nurse assigns; abstentions are handed to the nurse without delay; not for use without clinical validation.
+
+\begin{table}[h]
+\caption{TRIPOD+AI items and where this study addresses them.}\label{tab:tripod}
+\footnotesize
+\begin{tabular}{@{}p{0.32\textwidth}p{0.6\textwidth}@{}}
+\toprule
+Item & Location / status \\
+\midrule
+Title, abstract & Main text; synthetic-data status stated in abstract \\
+Background, objectives & Section 1 \\
+Data source, participants & Synthetic only: Section 4.3, Supplement S6; no participants \\
+Outcome definition & Tiers R1--R5 as authors' reference labels, Section 3.1 \\
+Predictors & 52 features; gates in Supplement S2 \\
+Sample size & Cohort sizes fixed in frozen protocol; no power calculation \\
+Missing data & MCAR scenarios, G3 abstention (Section 5.5) \\
+Analytical methods & Sections 3--4; code tag \texttt{v2.0.1-ijfs} \\
+Class imbalance, fairness & Subgroups exploratory (Table~\ref{tab:cm}) \\
+Model evaluation & Fresh cohorts frozen before scoring (Section 4.3) \\
+Model performance & Table~4 of the main text, with CIs \\
+Model updating & Not applicable \\
+Patient and public involvement & None \\
+Open science & Code, seeds, SHA-256 digests, pinned environment \\
+Limitations, interpretation & Sections 6--7 \\
+Usability, clinical pathway & Intended use above; not studied \\
+Ethics & Not applicable (synthetic data) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Variability, Calibration Frontier and Next Stage}\label{sup:next}
+
+\begin{table}[h]
+\caption{ACWCM (v2) over @@MSN@@ generator seeds, each with a fresh split (within-generator sampling variability). v2 was selected by the calibration procedure on @@V2SEL@@ of @@MSN@@ seeds.}\label{tab:ms}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Metric & Mean & SD & Range \\
+\midrule
+@@MS@@
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\caption{Two operating points on the accuracy--robustness frontier: v2 (selected for training accuracy) and the robustness-aware choice (v2 without the cap on G5 escalation). Critical sensitivity / accuracy in \%. All 128 profiles are in \texttt{results/round4\_profiles.csv}.}\label{tab:front}
+\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Cohort & v2 Sens. & v2 Acc. & Robust Sens. & Robust Acc. \\
+\midrule
+@@FRONT@@
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\caption{Gate ablation on the fresh independent and diagnosis-conditioned cohorts: critical sensitivity (\%), false discharges and accuracy (\%).}\label{tab:abl}
+\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+ & \multicolumn{3}{c}{Independent} & \multicolumn{3}{c}{Diagnosis-conditioned} \\
+Configuration & Sens. & FD & Acc. & Sens. & FD & Acc. \\
+\midrule
+@@ABL@@
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Next stage.} Before any prospective use, the gates would need review by emergency physicians and evaluation on de-identified records; the first clinical study would be an early-stage live evaluation reported to DECIDE-AI, measuring agreement with triage nurses, override rates, abstention load and time to physician for critical presentations, with the system running in silent mode.
+
+\end{document}

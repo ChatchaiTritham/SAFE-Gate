@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.0.1-ijfs (round-5 pre-submission audit)
+
+No change to scoring code, generators or `results/`; the frozen round-4 cohorts were not re-scored.
+
+- `scripts/make_supplement.py` and `scripts/supplement_template.tex`: the supplement generator is now in the repository.
+- `scripts/check_manuscript_numbers.py`: 133 checks (was 69), covering every row of the main Tables 2-4, captions, the plain-text abstract, the cover letter and a byte-for-byte regeneration of the supplement.
+- `evaluation/generate_manuscript_figures.py`: sans-serif 8 pt lettering (IJFS artwork rules), panel letters instead of in-figure titles, labels aligned with the manuscript (G2 point score, G5 surrogate, counterfactual explanation record, R1 routed to R5), arithmetic averaging dropped from the dilution figure.
+- `src/merging/conservative_merging.py`: corrected a stale comment that called the class-default trigger parameters the untuned choice; the reported calibration v2 uses min_mass = 2/3.
+
 ## v2.0.0-ijfs (round-4 revision)
 
 - Audit trail: CP/AC/CND are now computed per decision (`ConservativeMerging.check_properties`); they were previously written as constants.

@@ -56,9 +56,15 @@ INK = "#1A1A1A"
 
 def style():
     plt.rcParams.update({
-        "font.family": "serif",
-        "font.serif": ["Times New Roman", "DejaVu Serif"],
-        "mathtext.fontset": "stix",
+        # IJFS artwork guidelines: sans-serif lettering (Helvetica/Arial), 8-12 pt
+        "font.family": "sans-serif",
+        "font.sans-serif": ["Arial", "Helvetica", "DejaVu Sans"],
+        "mathtext.fontset": "custom",
+        "mathtext.rm": "Arial",
+        "mathtext.it": "Arial:italic",
+        "mathtext.bf": "Arial:bold",
+        "mathtext.cal": "cmsy10",
+        "mathtext.fallback": "stixsans",
         "font.size": BODY_PT,
         "axes.labelsize": BODY_PT,
         "axes.titlesize": BODY_PT,
@@ -97,8 +103,8 @@ def cp_interval(x, n, alpha=0.05):
     return 100 * lo, 100 * hi
 
 
-def panel_label(ax, tag, x=-0.02, y=1.0):
-    ax.text(x, y, f"({tag})", transform=ax.transAxes, ha="right", va="bottom",
+def panel_label(ax, tag, x=0.0, y=1.03):
+    ax.text(x, y, f"({tag})", transform=ax.transAxes, ha="left", va="bottom",
             fontsize=BODY_PT + 1, fontweight="bold", color=INK)
 
 
@@ -136,9 +142,10 @@ def fig1_architecture():
     ax.text(50, 72.6, "52 clinical features", ha="center", va="center", fontsize=BODY_PT, zorder=4)
 
     # stage 2: six knowledge modules (order and names follow src/gates/gate{1..6}_*.py)
-    gates = [("G1", "Red flags", "rules"), ("G2", "Cardio risk", "statistical"),
-             ("G3", "Data quality", "abstention"), ("G4", "Syndrome", "rules"),
-             ("G5", "Uncertainty", "Bayesian"), ("G6", "Temporal", "state machine")]
+    # kinds follow the manuscript's Table 1: hand-written rules and heuristics only
+    gates = [("G1", "Red flags", "rules"), ("G2", "Risk factors", "point score"),
+             ("G3", "Data quality", "completeness"), ("G4", "Syndrome", "similarity"),
+             ("G5", "Uncertainty", "surrogate"), ("G6", "Timing", "timing rules")]
     gw, ggap = 13.4, 1.9
     x0 = (100 - (6 * gw + 5 * ggap)) / 2
     bus_top, bus_bot = 64.5, 41.5
@@ -153,7 +160,7 @@ def fig1_architecture():
         ax.text(cx, 55.6, tag, ha="center", va="center", fontsize=BODY_PT,
                 fontweight="bold", color=GREEN, zorder=4)
         ax.text(cx, 51.9, name, ha="center", va="center", fontsize=BODY_PT, zorder=4)
-        ax.text(cx, 48.6, kind, ha="center", va="center", fontsize=BODY_PT - 1,
+        ax.text(cx, 48.6, kind, ha="center", va="center", fontsize=BODY_PT,
                 style="italic", color=GREY, zorder=4)
         ax.plot([cx, cx], [46, bus_bot], color=GREEN, lw=0.9, zorder=2)
     note(51.5, 67.2, "evaluated in parallel")
@@ -166,7 +173,7 @@ def fig1_architecture():
             ha="center", va="center", fontsize=BODY_PT, fontweight="bold", color=ORANGE, zorder=4)
     phases = [("Phase 1", r"any $r_i \in \{R^*, R1\}$", r"return it ($R^*$ first)"),
               ("Phase 2", r"$r_{\min}$ = most cautious $r_i$", "safety floor (MIN)"),
-              ("Phase 3", "qualified-majority consensus", r"relax $\leq$1 tier; R2 held")]
+              ("Phase 3", r"weighted quota $m_{>} \geq \mu$", r"relax by 1 tier; R2 held")]
     pw, pgap = 24.5, 2.5
     px0 = (100 - (3 * pw + 2 * pgap)) / 2
     for j, (head, l1, l2) in enumerate(phases):
@@ -185,7 +192,7 @@ def fig1_architecture():
     box(14, 1.0, 72, 9, PINK, "#F6E3EE")
     ax.text(50, 7.3, "Outputs", ha="center", va="center", fontsize=BODY_PT,
             fontweight="bold", color=PINK, zorder=4)
-    ax.text(50, 3.6, r"final tier $\hat r$  ·  counterfactual safety certificate  ·  audit trail",
+    ax.text(50, 3.6, r"final tier $\hat r$  ·  counterfactual explanation record  ·  audit trail",
             ha="center", va="center", fontsize=BODY_PT, zorder=4)
     save(fig, "fig1_architecture")
 
@@ -223,7 +230,7 @@ def fig2_risk_lattice():
     ax.add_patch(FancyArrowPatch((7.5, 62 - h), (7.5, 1.0), arrowstyle="-|>", mutation_scale=8,
                                  linewidth=0.8, color=INK, zorder=2))
     ax.text(3.2, 31, "more conservative  →  less cautious", rotation=-90, ha="center", va="center",
-            fontsize=BODY_PT - 1, color=GREY)
+            fontsize=BODY_PT, color=GREY)
     yc0, yc1 = ys[2], ys[1] + h
     ax.plot([89, 91, 91, 89], [yc1, yc1, yc0, yc0], color=ORANGE, lw=0.9)
     ax.text(95.5, (yc0 + yc1) / 2, r"$\mathcal{C}$", ha="center", va="center",
@@ -249,7 +256,7 @@ def fig3_safety_tradeoff():
             ("SAFE-Gate (ACWCM)", "SAFE-Gate (ACWCM)", BLUE)]
     y = np.arange(len(spec))[::-1]
     fig, axes = plt.subplots(1, 3, figsize=(W_IN, W_IN * 0.50), sharey=True)
-    titles = ("Critical-tier sensitivity (%)", "Over-triage (%)", "Under-triage (%)")
+    titles = ("Critical sensitivity (%)", "Over-triage (%)", "Under-triage (%)")
     for p, (ax, title) in enumerate(zip(axes, titles)):
         for (key, _, colour), yy in zip(spec, y):
             r = data[key]
@@ -271,20 +278,21 @@ def fig3_safety_tradeoff():
                         elinewidth=0.6, capsize=1.6, zorder=3)
             ax.scatter(v, yy, color=colour, edgecolor=INK, linewidth=0.4, s=20, zorder=4)
             right = v < 72
-            ax.text(hi + 3 if right else lo - 3, yy, f"{round(shown, 1):.1f}", fontsize=BODY_PT - 1, color=GREY,
+            ax.text(hi + 3 if right else lo - 3, yy, f"{round(shown, 1):.1f}", fontsize=BODY_PT, color=GREY,
                     ha="left" if right else "right", va="center", zorder=5,
                     bbox=dict(boxstyle="square,pad=0.08", facecolor="white", edgecolor="none"))
         ax.set_ylim(-0.6, len(spec) - 0.4)
         ax.set_xlim(0, 104)
         ax.set_xticks([0, 50, 100])
-        ax.set_title(f"({'abc'[p]}) {title}", pad=3)
+        panel_label(ax, "abc"[p])
+        ax.set_xlabel(title)
         _clean_axes(ax, "x")
     axes[0].axvline(100, color=GREEN, linestyle=":", linewidth=0.8)
     axes[0].set_yticks(y)
     axes[0].set_yticklabels([lab for _, lab, _ in spec])
     for t, (_, _, c) in zip(axes[0].get_yticklabels(), spec):
         t.set_color(INK if c == GREY else c)
-    fig.tight_layout(pad=0.3, w_pad=1.4)
+    fig.tight_layout(pad=0.9, w_pad=1.4)
     save(fig, "fig3_safety_tradeoff")
 
 
@@ -292,12 +300,12 @@ def fig3_safety_tradeoff():
 def fig4_ablation():
     """Cleveland dot plot: what each gate contributes beyond the constant safety floor."""
     data = rows("ablation.csv")
-    labels = {"Full ACWCM (6 gates)": "Full (6 gates)", "-G1": "− G1 red flags", "-G2": "− G2 cardio risk",
+    labels = {"Full ACWCM (6 gates)": "Full (6 gates)", "-G1": "− G1 red flags", "-G2": "− G2 risk factors",
               "-G3": "− G3 data quality", "-G4": "− G4 syndrome", "-G5": "− G5 uncertainty",
-              "-G6": "− G6 temporal", "-G1-G4": "− G1, − G4"}
+              "-G6": "− G6 timing", "-G1-G4": "− G1, − G4"}
     cfg = [labels[r["configuration"]] for r in data]
     panels = [("over_triage_pct", "Over-triage (%)", ORANGE),
-              ("discharge_specificity_R5_pct", "Discharge recall, R5 (%)", GREEN),
+              ("discharge_specificity_R5_pct", "R5 recall (%)", GREEN),
               ("under_triage_pct", "Under-triage (%)", PINK),
               ("macro_f1_pct", "Macro F1 (%)", BLUE)]
     y = np.arange(len(cfg))[::-1]
@@ -311,16 +319,17 @@ def fig4_ablation():
         for yy, v, base in zip(y[1:], vals[1:], [vals[0]] * (len(vals) - 1)):
             if abs(v - base) >= 5:
                 left = (v < base and v >= 20) or v >= 80
-                ax.text(v - 5 if left else v + 5, yy, f"{v:.1f}", fontsize=BODY_PT - 1,
+                ax.text(v - 5 if left else v + 5, yy, f"{v:.1f}", fontsize=BODY_PT,
                         color=GREY, ha="right" if left else "left", va="center", zorder=5,
                         bbox=dict(boxstyle="square,pad=0.08", facecolor="white", edgecolor="none"))
         ax.set_xlim(0, 104)
         ax.set_xticks([0, 50, 100])
-        ax.set_title(f"({'abcd'[p]}) {title}", pad=3)
+        panel_label(ax, "abcd"[p])
+        ax.set_xlabel(title)
         _clean_axes(ax, "x")
     axes[0].set_yticks(y)
     axes[0].set_yticklabels(cfg)
-    fig.tight_layout(pad=0.3, w_pad=1.2)
+    fig.tight_layout(pad=0.9, w_pad=1.2)
     save(fig, "fig4_ablation")
 
 
@@ -328,12 +337,11 @@ def fig4_ablation():
 def fig5_dilution():
     """(a) dilution rate and (b) R1-to-discharge configurations, by dissenting gates."""
     data = rows("conflicting_evidence.csv")
-    rules = [("arithmetic_average", "Arithmetic averaging", GREY, "o"),
-             ("bayesian_model_avg", "Bayesian model avg.", YELLOW, "^"),
+    rules = [("bayesian_model_avg", "Bayesian model averaging", YELLOW, "^"),
              ("dempster_shafer", "Dempster–Shafer", ORANGE, "s"),
-             ("sugeno_additive", "Sugeno (additive)", PINK, "D"),
-             ("weighted_max", "Weighted max (forced top)", GREEN, "v"),
-             ("safegate_acwcm", "SAFE-Gate (ACWCM)", BLUE, "*")]
+             ("sugeno_additive", r"Sugeno, $\nu_+$", PINK, "D"),
+             ("weighted_max", "Weighted max, forced top", GREEN, "v"),
+             ("safegate_acwcm", "ACWCM", BLUE, "*")]
     ns = sorted({int(r["n_dissenting"]) for r in data})
     n_r1 = sum(1 for r in data if r["critical_tier"] == "R1" and int(r["n_dissenting"]) == ns[0])
     fig, axes = plt.subplots(1, 2, figsize=(W_IN, W_IN * 0.40))
@@ -348,17 +356,17 @@ def fig5_dilution():
         axes[1].plot(ns, r1_dis, **kw)
     axes[0].set_ylabel("Configurations diluted (%)")
     axes[0].set_ylim(-4, 104)
-    axes[1].set_ylabel(f"R1 signal sent to R5 (of {n_r1})")
+    axes[1].set_ylabel(f"R1 signals routed to R5 (of {n_r1})")
     axes[1].set_ylim(-2, max(n_r1 * 0.5, 10))
     for p, ax in enumerate(axes):
         ax.set_xticks(ns)
         ax.set_xlabel("Gates dissenting toward a benign tier")
         _clean_axes(ax)
-        ax.set_title(("(a) Share of configurations diluted", "(b) Life-threatening signal discharged")[p], pad=3)
+        panel_label(ax, "ab"[p])
     handles, labs = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labs, loc="upper center", ncol=3, frameon=False,
+    fig.legend(handles, labs, loc="upper center", ncol=5, frameon=False,
                bbox_to_anchor=(0.5, 1.0), handletextpad=0.4, columnspacing=1.0)
-    fig.tight_layout(pad=0.3, w_pad=1.6, rect=(0, 0, 1, 0.84))
+    fig.tight_layout(pad=0.9, w_pad=2.4, rect=(0, 0, 1, 0.90))
     save(fig, "fig5_dilution")
 
 
@@ -367,17 +375,17 @@ def fig6_robustness():
     """True-tier critical sensitivity (95% CI) and false discharges under stress."""
     data = rows("stress_tests.csv")
     scen = [("clean test split", "Clean"),
-            ("label noise 10%", "Label noise 10%"),
-            ("label noise 20%", "Label noise 20%"),
-            ("atypical critical (red flags removed)", "Atypical: no red flags"),
-            ("atypical critical (red flags and timing cues removed)", "Atypical: no flags, no timing"),
-            ("MCAR 20%", "Missing 20% (MCAR)"),
-            ("MCAR 30%", "Missing 30% (MCAR)"),
-            ("independent generator variant", "Independent generator")]
-    meths = [("SAFE-Gate (ACWCM, v2)", "SAFE-Gate (ACWCM)", BLUE, "*"),
-             ("SAFE-Gate (ACWCM, v1)", "ACWCM, v1 calibration", SKY, "o"),
+            ("label noise 10%", "Ref. label noise 10%"),
+            ("label noise 20%", "Ref. label noise 20%"),
+            ("atypical critical (red flags removed)", "No red flags"),
+            ("atypical critical (red flags and timing cues removed)", "No flags, no timing"),
+            ("MCAR 20%", "MCAR 20%"),
+            ("MCAR 30%", "MCAR 30%"),
+            ("independent generator variant", "Indep. generator")]
+    meths = [("SAFE-Gate (ACWCM, v2)", "ACWCM (v2)", BLUE, "*"),
+             ("SAFE-Gate (ACWCM, v1)", "ACWCM (v1)", SKY, "o"),
              ("Dempster-Shafer", "Dempster–Shafer", ORANGE, "s"),
-             ("Sugeno integral (additive capacity)", "Sugeno (additive)", PINK, "D"),
+             ("Sugeno integral (additive capacity)", r"Sugeno, $\nu_+$", PINK, "D"),
              ("XGBoost (trained on clean train)", "XGBoost", GREY, "^")]
     idx = {(r["scenario"], r["method"]): r for r in data}
     y = np.arange(len(scen))[::-1]
@@ -400,8 +408,10 @@ def fig6_robustness():
         axes[1].plot(fd, y + dy, **kw)
     axes[0].set_xlim(-3, 103)
     axes[0].set_xticks([0, 25, 50, 75, 100])
-    axes[0].set_title("(a) True-tier critical sensitivity (%)", pad=3)
-    axes[1].set_title("(b) False discharges (count)", pad=3)
+    panel_label(axes[0], "a")
+    panel_label(axes[1], "b")
+    axes[0].set_xlabel("Critical sensitivity, true tiers (%)")
+    axes[1].set_xlabel("False discharges (count)")
     axes[0].set_yticks(y)
     axes[0].set_yticklabels([lab for _, lab in scen])
     for ax in axes:
@@ -409,7 +419,7 @@ def fig6_robustness():
     handles, labs = axes[0].get_legend_handles_labels()
     fig.legend(handles, labs, loc="upper center", ncol=5, frameon=False,
                bbox_to_anchor=(0.5, 1.0), handletextpad=0.3, columnspacing=0.8)
-    fig.tight_layout(pad=0.3, w_pad=1.2, rect=(0, 0, 1, 0.90))
+    fig.tight_layout(pad=0.9, w_pad=1.2, rect=(0, 0, 1, 0.90))
     save(fig, "fig6_robustness")
 
 
@@ -421,7 +431,7 @@ def main():
     fig4_ablation()
     fig5_dilution()
     fig6_robustness()
-    print("six manuscript figures at %.0f pt, 8 pt floor" % TEXT_PT)
+    print("six figures: two-column %.0f pt, column %.0f pt; 8 pt sans-serif lettering" % (TEXT_PT, COL_PT))
 
 
 if __name__ == "__main__":

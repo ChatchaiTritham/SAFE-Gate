@@ -20,10 +20,12 @@ class ConservativeMerging:
       2. ACWCM: Adaptive Confidence-Weighted Conservative Merging
     """
 
-    # Consensus thresholds for the relaxation trigger, fixed a priori (not tuned
-    # on any split): the confidence-weighted mean rank must sit at least half a
-    # tier above the floor, and gates strictly less conservative than the floor
-    # must carry at least half of the total confidence (a weighted majority).
+    # Class defaults of the relaxation trigger (calibration v1): the confidence-
+    # weighted mean rank must sit at least half a tier above the floor, and gates
+    # strictly less conservative than the floor must carry at least half of the
+    # total confidence. The reported calibration v2 passes min_mass=2/3, chosen
+    # from {1/2, 2/3} on the development training split (src/calibration.py,
+    # scripts/select_calibration.py); these defaults are not that choice.
     THETA = 0.5
     MIN_MASS = 0.5
     ALPHA = 0.5
