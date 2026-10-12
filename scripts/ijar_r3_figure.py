@@ -36,7 +36,7 @@ for ax, (coh, ttl) in zip(axes, titles.items()):
     ax.set_xlabel("Over-triage (%)")
     ax.grid(alpha=0.3, lw=0.4)
 axes[0].set_ylabel("R3 under-triage (%)")
-axes[1].legend(fontsize=6, loc="upper right", frameon=False)
+axes[0].legend(fontsize=6, loc="upper right", frameon=False)
 fig.tight_layout()
 fig.savefig(out)
 print("written", out)
