@@ -11,7 +11,14 @@ and the data figures read results/* rather than literals. Proportions estimated
 on the 805-case split carry exact 95% Clopper-Pearson intervals; the conflicting-
 evidence figure is an exhaustive enumeration and therefore carries none.
 
-    python evaluation/generate_manuscript_figures.py
+    python evaluation/generate_manuscript_figures.py               # IJFS (sn-jnl iicol)
+    python evaluation/generate_manuscript_figures.py --layout ijar # IJAR (elsarticle preprint)
+
+--layout ijar draws the same figures for the elsarticle [preprint,12pt] layout of
+the International Journal of Approximate Reasoning submission (measured
+\textwidth = \columnwidth = 390 pt = 137.6 mm, Elsevier 1.5-column size) and
+writes them to evaluation/manuscript_figures_ijar/, so the IJFS figures are left
+untouched.
 """
 
 from __future__ import annotations
@@ -40,6 +47,7 @@ COL_PT = 216.24    # \the\columnwidth
 W_IN = TEXT_PT / 72.0
 C_IN = COL_PT / 72.0
 BODY_PT = 8.0
+LEG_NCOL, LEG_TOP, H_EXTRA = 5, 0.90, 1.0  # legend columns / top of axes area / height factor
 N_TEST = 805
 
 # Okabe-Ito
@@ -344,7 +352,7 @@ def fig5_dilution():
              ("safegate_acwcm", "ACWCM", BLUE, "*")]
     ns = sorted({int(r["n_dissenting"]) for r in data})
     n_r1 = sum(1 for r in data if r["critical_tier"] == "R1" and int(r["n_dissenting"]) == ns[0])
-    fig, axes = plt.subplots(1, 2, figsize=(W_IN, W_IN * 0.40))
+    fig, axes = plt.subplots(1, 2, figsize=(W_IN, W_IN * 0.40 * H_EXTRA))
     for key, label, col, mk in rules:
         rate = [100 * np.mean([r[key + "_dilutes"] == "True" for r in data
                                if int(r["n_dissenting"]) == n]) for n in ns]
@@ -364,9 +372,9 @@ def fig5_dilution():
         _clean_axes(ax)
         panel_label(ax, "ab"[p])
     handles, labs = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labs, loc="upper center", ncol=5, frameon=False,
+    fig.legend(handles, labs, loc="upper center", ncol=LEG_NCOL, frameon=False,
                bbox_to_anchor=(0.5, 1.0), handletextpad=0.4, columnspacing=1.0)
-    fig.tight_layout(pad=0.9, w_pad=2.4, rect=(0, 0, 1, 0.90))
+    fig.tight_layout(pad=0.9, w_pad=2.4, rect=(0, 0, 1, LEG_TOP))
     save(fig, "fig5_dilution")
 
 
@@ -417,13 +425,26 @@ def fig6_robustness():
     for ax in axes:
         _clean_axes(ax, "x")
     handles, labs = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labs, loc="upper center", ncol=5, frameon=False,
+    fig.legend(handles, labs, loc="upper center", ncol=LEG_NCOL, frameon=False,
                bbox_to_anchor=(0.5, 1.0), handletextpad=0.3, columnspacing=0.8)
-    fig.tight_layout(pad=0.9, w_pad=1.2, rect=(0, 0, 1, 0.90))
+    fig.tight_layout(pad=0.9, w_pad=1.2, rect=(0, 0, 1, LEG_TOP))
     save(fig, "fig6_robustness")
 
 
-def main():
+LAYOUTS = {
+    "ijfs": (455.24, 216.24, ROOT / "evaluation" / "manuscript_figures", 5, 0.90, 1.0),
+    "ijar": (390.0, 390.0, ROOT / "evaluation" / "manuscript_figures_ijar", 3, 0.82, 1.2),
+}
+
+
+def main(argv=None):
+    import argparse
+    global TEXT_PT, COL_PT, W_IN, C_IN, OUTDIR, LEG_NCOL, LEG_TOP, H_EXTRA
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--layout", choices=sorted(LAYOUTS), default="ijfs")
+    a = ap.parse_args(argv)
+    TEXT_PT, COL_PT, OUTDIR, LEG_NCOL, LEG_TOP, H_EXTRA = LAYOUTS[a.layout]
+    W_IN, C_IN = TEXT_PT / 72.0, COL_PT / 72.0
     style()
     fig1_architecture()
     fig2_risk_lattice()

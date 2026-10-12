@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check that the numbers quoted in the IJFS manuscript match results/.
+"""Check that the numbers quoted in the IJFS or IJAR manuscript match results/.
 
 Each check recomputes a value from the committed result files, formats it as
 the manuscript does and asserts that the formatted string occurs in the target
@@ -14,6 +14,14 @@ Usage:
         [--abstract abstract_plaintext.txt]
 Files not given explicitly are looked up next to the article and skipped
 (with a note) if absent.
+
+    python scripts/check_manuscript_numbers.py path/to/main.tex --journal ijar
+
+checks the elsarticle version for the International Journal of Approximate
+Reasoning: its primary table is split into two stacked panels (one row per
+method and cohort), its abstract is a \begin{abstract} environment, and its
+supplement is regenerated with make_supplement.py --journal ijar. The default
+(--journal ijfs) is unchanged.
 """
 import argparse
 import csv
@@ -32,7 +40,9 @@ ap.add_argument("article")
 ap.add_argument("--supplement")
 ap.add_argument("--cover")
 ap.add_argument("--abstract")
+ap.add_argument("--journal", choices=("ijfs", "ijar"), default="ijfs")
 args = ap.parse_args()
+IJAR = args.journal == "ijar"
 art = Path(args.article)
 sib = art.parent
 
@@ -121,7 +131,10 @@ def cells(r):
 
 
 for m, lab in LABEL.items():
-    A(f"{lab} & {cells(prim[(I, m)])} & {cells(prim[(D, m)])} \\\\")
+    if IJAR:
+        A(f"{lab} & {cells(prim[(I, m)])} \\\\", f"{lab} & {cells(prim[(D, m)])} \\\\")
+    else:
+        A(f"{lab} & {cells(prim[(I, m)])} & {cells(prim[(D, m)])} \\\\")
 gr = S["gate_recall_union"]
 A(f"at least one gate returned $R^*$, R1 or R2 (the ceiling for any merge rule): {f1(gr[I]['some_gate_fires_pct'])}\\% and {f1(gr[D]['some_gate_fires_pct'])}\\%")
 A(f"($n={num(prim[(I, V2)]['n'])}$; {prim[(I, V2)]['n_critical']} critical)", f"($n={num(prim[(D, V2)]['n'])}$; {prim[(D, V2)]['n_critical']} critical)")
@@ -272,6 +285,13 @@ A(f"single-feature escalation for {cert['1']} of 805 cases and none among the se
   f"$p={S['age_tier_interaction_dev']['p']:.2f}$")
 
 # ---------------- plain-text abstract and cover letter
+if IJAR:
+    ab = TXT["article"].split("\\begin{abstract}", 1)[1].split("\\end{abstract}", 1)[0]
+    for s_ in (f"kept {f1(a_i['critical_sensitivity_pct'])}\\% (95\\% confidence interval {ci(a_i)}\\%)",
+               f"and {f1(a_d['critical_sensitivity_pct'])}\\% ({ci(a_d)}\\%)",
+               f"kept {f1(prim[(I, DS)]['critical_sensitivity_pct'])}\\% and {f1(prim[(D, DS)]['critical_sensitivity_pct'])}\\%",
+               f"({f1(v2r[D]['critical_sensitivity_pct'])}\\% against {f1(rb[D]['critical_sensitivity_pct'])}\\%)"):
+        checks.append(("article", s_ if s_ in ab else "<not in abstract> " + s_))
 if "abstract" in TXT:
     for s_ in (f"{f1(a_i['critical_sensitivity_pct'])}% (95% confidence interval {f1(json.loads(a_i['critical_ci95'])[0])}–{f1(json.loads(a_i['critical_ci95'])[1])}%)",
                f"{f1(a_d['critical_sensitivity_pct'])}% ({f1(json.loads(a_d['critical_ci95'])[0])}–{f1(json.loads(a_d['critical_ci95'])[1])}%)",
@@ -291,7 +311,8 @@ if "cover" in TXT:
 if "supplement" in TXT:
     with tempfile.TemporaryDirectory() as td:
         out = Path(td) / "s.tex"
-        subprocess.run([sys.executable, str(ROOT / "scripts" / "make_supplement.py"), str(out)], check=True, capture_output=True)
+        subprocess.run([sys.executable, str(ROOT / "scripts" / "make_supplement.py"), str(out)] + (["--journal", "ijar"] if IJAR else []),
+                       check=True, capture_output=True)
         same = out.read_text(encoding="utf-8") == TXT["supplement"]
     checks.append(("supplement", None if same else "<supplement.tex differs from scripts/make_supplement.py output>"))
     A(f"{d(100, a_d['critical_sensitivity_pct'])}\\% of critical cases, diagnosis cohort",

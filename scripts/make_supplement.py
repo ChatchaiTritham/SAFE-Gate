@@ -1,8 +1,13 @@
-"""Build the IJFS supplement; every table number is read from results/.
+"""Build the manuscript supplement; every table number is read from results/.
 
-    python scripts/make_supplement.py OUT.tex
+    python scripts/make_supplement.py OUT.tex                  # IJFS submission
+    python scripts/make_supplement.py OUT.tex --journal ijar   # IJAR submission
 
 Fills scripts/supplement_template.tex (placeholders @@NAME@@) and writes OUT.tex.
+--journal ijar applies the IJAR_EDITS below (journal name, journal-neutral
+release tag, and the theta <= 1 condition of the confidence statement in
+Proposition 1, with a counterexample for theta > 1); the IJFS output is
+unchanged.
 """
 import csv
 import json
@@ -11,7 +16,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "results"
-OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "supplement.tex"
+_args = [a for a in sys.argv[1:] if not a.startswith("--")]
+JOURNAL = sys.argv[sys.argv.index("--journal") + 1] if "--journal" in sys.argv else "ijfs"
+if JOURNAL != "ijfs":
+    _args = [a for a in _args if a != JOURNAL]
+OUT = Path(_args[0]) if _args else ROOT / "supplement.tex"
 S = json.loads((RES / "round4_summary.json").read_text(encoding="utf-8"))
 stress = json.loads((RES / "stress_tests.json").read_text(encoding="utf-8"))
 BS = "\\"
@@ -128,5 +137,26 @@ for k, v in repl.items():
     assert tex.count(k) >= 1, k
     tex = tex.replace(k, v)
 assert "@@" not in tex
+IJAR_EDITS = [
+    ("%% Supplementary Material for \"SAFE-Gate\" (International Journal of  %%\n"
+     "%% Fuzzy Systems). Tables are generated from the repository results/ %%",
+     "%% Supplementary Material for \"SAFE-Gate\" (International Journal of  %%\n"
+     "%% Approximate Reasoning). Tables are generated from results/        %%"),
+    ("(tag \\texttt{v2.0.1-ijfs}; the script", "(tag \\texttt{v2.0.2}; the script"),
+    ("code tag \\texttt{v2.0.1-ijfs}", "code tag \\texttt{v2.0.2}"),
+    ("both increase when a dissenting confidence rises or a floor confidence falls.",
+     "$m_>$ increases when a dissenting confidence rises or a floor confidence falls. The margin $\\tau_w-\\text{rank}(r)=S/(A+B)$, "
+     "with $S=\\sum_{\\text{above}}c_id_i$ and $d_i=\\text{rank}(r_i)-\\text{rank}(r)\\ge1$, can decrease, but if $S\\ge\\theta(A+B)$ and "
+     "$\\theta\\le1$ then $S+\\delta d_j\\ge\\theta(A+B+\\delta)$ for any added dissenting confidence $\\delta$, and lowering a floor confidence "
+     "only lowers $A+B$; so for $\\theta\\le1$ the trigger cannot switch off. For $\\theta>1$ the confidence statement fails: with "
+     "$\\theta=1.5$, $\\mu=1/2$, gates at (R3, 0.2), (R4, $c$), (R5, 1) and three at R5 with confidence 0, the output is R4 for $c=0$ "
+     "($\\tau_w-3=1.67$) and R3 for $c=1$ ($\\tau_w-3=1.36$), as the implementation confirms. Every calibration profile has $\\theta\\le1$."),
+]
+if JOURNAL == "ijar":
+    for a, b in IJAR_EDITS:
+        assert tex.count(a) >= 1, a[:60]
+        tex = tex.replace(a, b)
+elif JOURNAL != "ijfs":
+    sys.exit(f"unknown --journal {JOURNAL}")
 OUT.write_text(tex, encoding="utf-8", newline="\n")
 print("written", len(tex))
