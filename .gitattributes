@@ -1,0 +1,8 @@
+# Keep text files LF on every checkout so byte-for-byte checks (supplement, results) hold on Windows too
+*.py text eol=lf
+*.tex text eol=lf
+*.md text eol=lf
+*.csv text eol=lf
+*.json text eol=lf
+*.txt text eol=lf
+*.bib text eol=lf
