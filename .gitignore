@@ -63,3 +63,11 @@ data/synthetic/*.json
 
 # Round-4 fresh cohorts: regenerated from seeds; digests in results/round4_protocol.json
 data/fresh/
+
+# Legacy outputs re-written by the default mode of run_all.py; the kept copies are in results/legacy/
+results/ablation.csv
+results/age_diagnostics.json
+results/baseline_comparison.csv
+results/paired_tests.csv
+results/summary.json
+results/tier_metrics.csv

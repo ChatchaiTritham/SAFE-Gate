@@ -432,6 +432,33 @@ if IJAR:
           f"{num(t2_['two_gates']['smooth_and_CND'])} of the {num(t2_['two_gates']['CP_CND_operators'])} rules" if w_ == "article" else f"{num(t2_['two_gates']['CP_CND_operators'])} rules; {t2_['two_gates']['smooth_and_CND']} are 1-Lipschitz",
           f"{sg3['CND_capacities']} and {sg6['CND_capacities']} of these capacities are non-diluting" if w_ == "article" else f"{sg3['CND_capacities']} non-diluting", where=w_)
 
+# ---------------- IJAR length trim (2026-10-14): supplement regenerated from results/ again; text moved to it
+if IJAR:
+    checks[:] = [(w, c.replace("the draw of Supplementary Table~S4 deferred", "the draw of Table~\\ref{tab:stress} deferred")) if c else (w, c)
+                 for w, c in checks]
+    if "supplement" in TXT:
+        with tempfile.TemporaryDirectory() as td:
+            out = Path(td) / "s.tex"
+            subprocess.run([sys.executable, str(ROOT / "scripts" / "make_supplement.py"), str(out), "--journal", "ijar"],
+                           check=True, capture_output=True)
+            same = out.read_text(encoding="utf-8") == TXT["supplement"]
+        checks.append(("supplement", None if same else "<supplement.tex differs from scripts/make_supplement.py --journal ijar output>"))
+        moved = 0
+        for i, (w, c) in enumerate(checks):
+            if w == "article" and c and c not in TXT["article"] and c in TXT["supplement"]:
+                checks[i] = ("supplement", c)  # sentence or table row moved to the supplement by the trim
+                moved += 1
+        print(f"{moved} article checks now located in the supplement (moved by the IJAR trim)")
+    # numbers quoted in the trimmed main text
+    A("buys 11.8 and 11.6 points less over-triage", "21.4 and 27.7 points more R3 under-triage",
+      "keeps about 26 fewer of the 731 critical cases", "deferred half of all cases at 30\\% missingness")
+    sw = json.loads((RES / "ijar_r3_analyses.json").read_text(encoding="utf-8"))
+    for c_ in (I, D):
+        assert not sw["pareto_v2"][c_]["points_dominating_v2"]
+    assert d(m_i["over_triage_pct"], a_i["over_triage_pct"]) == "11.8" and d(m_d["over_triage_pct"], a_d["over_triage_pct"]) == "11.6"
+    assert d(a_i["r3_under_triage_pct"], m_i["r3_under_triage_pct"]) == "21.4" and d(a_d["r3_under_triage_pct"], m_d["r3_under_triage_pct"]) == "27.7"
+    assert 45 <= float(mcar[("30", V2)]["own_abstention_pct"]) <= 55
+
 bad = [(w, c) for w, c in checks if c is not None and c not in TXT.get(w, c)]
 print(f"{len(checks)} checks over {', '.join(TXT)}; {len(bad)} mismatches")
 for w, c in bad:
