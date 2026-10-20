@@ -1,0 +1,12 @@
+operator,monotone,idempotent,internal,conjunctive_rank,R1_absorbing,ND_c1,ND_c2,ND_all,ordinally_stable,lipschitz,relaxes_floor_rank_ge2
+Minimum (rank),True,True,True,True,True,True,True,True,True,1,False
+Maximum (rank),True,True,True,False,False,False,False,False,True,1,True
+Median,True,True,True,False,False,False,False,False,True,1,True
+Any-dissent,True,True,True,False,True,True,True,False,False,2,True
+ACWCM v2, homogeneous,True,True,True,False,True,True,True,False,False,2,True
+ACWCM v2, heterogeneous,True,True,True,False,True,True,True,False,False,2,True
+Sugeno nu_plus,True,True,True,False,False,False,False,False,False,1,True
+Sugeno nu({i})=4,True,True,True,False,False,False,True,False,False,1,False
+Escalate-all,True,False,False,True,True,True,True,True,False,4,False
+R2-clamp,True,True,True,False,False,False,True,False,False,1,False
+R1-hold median,True,True,True,False,True,True,False,False,False,4,True

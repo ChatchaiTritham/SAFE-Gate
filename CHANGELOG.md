@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.1.0 (IJAR: theory extensions)
+
+No change to `src/`, the generators, the frozen protocol or any existing file in `results/`.
+
+- `scripts/theory_extensions.py` (exhaustive, exact rational arithmetic, no randomness): lambda-Lipschitz relaxation bound (shortest-path envelope over all k^n profiles and brute force over all small maps), 2-Lipschitz property of CP maps, nesting of quota relaxation sets and a Pareto-dominance counterexample for the band-bounded class, and the relation table of non-dilution against classical aggregation properties. Outputs `results/theory_extensions.json` and `results/theory_relations.csv` (added to `results/SHA256SUMS`).
+
 ## v2.0.4 (IJAR revision: secondary analyses)
 
 No change to `src/`, the generators, the frozen protocol or `results/round4_*`; the frozen cohorts were not re-scored by the primary pipeline.
